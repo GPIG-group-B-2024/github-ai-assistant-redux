@@ -1,6 +1,6 @@
 plugins {
-  kotlin("jvm") version "1.9.25"
-  kotlin("plugin.spring") version "1.9.25"
+  kotlin("jvm") version  "2.0.21"
+  kotlin("plugin.spring") version "2.0.21"
   id("com.diffplug.spotless") version "6.21.0"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"
@@ -10,7 +10,7 @@ group = "uk.ac.york.gpig.teamb"
 
 version = "0.0.1-SNAPSHOT"
 
-java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
 repositories { mavenCentral() }
 
@@ -22,7 +22,6 @@ dependencies {
   implementation("org.kohsuke:github-api:1.326") // GitHub API
   implementation("com.google.code.gson:gson:2.11.0") // JSON handling
   implementation("com.auth0:java-jwt:4.4.0") // JWT generation
-  implementation("org.bouncycastle:bcprov-jdk18on:1.79") // parsing private keys
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

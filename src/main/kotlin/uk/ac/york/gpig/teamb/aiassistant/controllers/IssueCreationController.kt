@@ -31,6 +31,6 @@ class IssueCreationController(
         gitService.createBranch(gitFile, "my-branch")
         gitService.commitTextFile(gitFile, "my-branch", "test.txt", "some code solving ${issueContents.issue.body} ")
         gitService.pushBranch(gitFile, "my-branch", token)
-        githubService.createPullRequest("main", "my-branch", "My pull request", "My pull request body")
+        githubService.createPullRequest("main", "my-branch", "My pull request", "My pull request body.\ncloses #${issueContents.issue.number}")
     }
 }
