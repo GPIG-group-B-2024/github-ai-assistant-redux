@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.git
+package uk.ac.york.gpig.teamb.aiassistant.services.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
@@ -7,17 +7,18 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
-import kotlin.io.path.name
+
+/**
+ * Perform git (**Not GitHub**) activities, such as committing files, making branches and pushing to remotes.
+ * */
 @Service
 class GitService {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @Value("\${target-repo.url}")
     lateinit var repoUrl: String
-    @Value("\${target-repo.token}")
-    lateinit var token: String
 
-    val personIdent = PersonIdent("GPIG Bot", "gpigBot@york.ac.uk")
+    val personIdent = PersonIdent("gpig-ai-assistant[bot]", "187530873+gpip-ai-assistant@users.noreply.github.com")
     fun cloneRepo(clonePath: File): File {
         logger.info("Cloning repo at $repoUrl into $clonePath")
         Git.cloneRepository().setURI(repoUrl).setDirectory(clonePath).call()
@@ -46,10 +47,10 @@ class GitService {
         repo.commit().setCommitter(personIdent).setAuthor(personIdent).setMessage("Added $name").call()
     }
 
-    fun pushBranch(gitPath: File, branchName: String) {
+    fun pushBranch(gitPath: File, branchName: String, token: String) {
         val repo = Git.open(gitPath)
         repo.checkout().setName(branchName).call()
         logger.info("Pushing branch $branchName to remote")
-        repo.push().setCredentialsProvider(UsernamePasswordCredentialsProvider(token, "")).call()
+        repo.push().setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token)).call()
     }
 }

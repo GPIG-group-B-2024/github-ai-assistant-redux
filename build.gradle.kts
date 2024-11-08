@@ -21,6 +21,8 @@ dependencies {
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r") // git API
   implementation("org.kohsuke:github-api:1.326") // GitHub API
   implementation("com.google.code.gson:gson:2.11.0") // JSON handling
+  implementation("com.auth0:java-jwt:4.4.0") // JWT generation
+  implementation("org.bouncycastle:bcprov-jdk18on:1.79") // parsing private keys
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

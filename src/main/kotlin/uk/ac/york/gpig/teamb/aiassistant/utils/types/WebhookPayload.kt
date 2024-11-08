@@ -2,7 +2,6 @@ package uk.ac.york.gpig.teamb.aiassistant.utils.types
 
 import com.google.gson.annotations.SerializedName
 
-
 /**
  * Describes (partially) a Github webhook payload.
  *

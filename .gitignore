@@ -38,5 +38,5 @@ out/
 ### Kotlin ###
 .kotlin
 
-### Local spring profile ###
-/src/main/resources/application-local.yml
+### key files ###
+**/**.pem
