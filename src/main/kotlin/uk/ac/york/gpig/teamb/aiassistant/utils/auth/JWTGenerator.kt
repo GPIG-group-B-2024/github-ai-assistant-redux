@@ -25,12 +25,8 @@ class JWTGenerator {
          * `openssl pkcs8 -topk8 -inform PEM -outform PEM -in <path-to-pkcs#1> -out <path-to-pkcs#8> -nocrypt`
          * */
         internal fun loadPrivateKey(pemFile: File): PrivateKey {
-            // Read all bytes from the PEM file
-            val keyBytes = pemFile.readBytes()
-            var keyString = String(keyBytes)
-
             // Remove PEM headers and footers, and any whitespace
-            keyString = keyString
+            val keyString = pemFile.readText()
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replace("\\s".toRegex(), "")
