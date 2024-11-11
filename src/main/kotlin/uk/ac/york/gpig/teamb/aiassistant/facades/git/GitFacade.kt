@@ -21,7 +21,8 @@ class GitFacade {
     private val personIdent =
         PersonIdent(
             "gpig-ai-assistant[bot]",
-            "187530873+gpig-ai-assistant@users.noreply.github.com", // this is public and OK to hardcode *for now*
+            "187530873+gpig-ai-assistant@users.noreply.github.com",
+            // ^ this is public and OK to hardcode *for now*
         )
 
     /**

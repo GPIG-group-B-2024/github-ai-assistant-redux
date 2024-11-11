@@ -2,7 +2,7 @@ package uk.ac.york.gpig.teamb.aiassistant.managers
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitService
+import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
@@ -12,7 +12,7 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
  * */
 @Service
 class IssueManager(
-    val gitService: GitService,
+    val gitFacade: GitFacade,
     val gitHubFacade: GitHubFacade,
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
@@ -22,12 +22,12 @@ class IssueManager(
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
             logger.info("Cloning git repo...")
-            val gitFile = gitService.cloneRepo(tempDir.toFile())
+            val gitFile = gitFacade.cloneRepo(tempDir.toFile())
             logger.info("Creating a new branch linked to the issue...")
             val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
-            gitService.createBranch(gitFile, branchName)
+            gitFacade.createBranch(gitFile, branchName)
             logger.info("Created branch $branchName, committing text file with issue body...")
-            gitService.commitTextFile(
+            gitFacade.commitTextFile(
                 gitFile,
                 branchName,
                 "file-from-issue-${issue.number}.txt",
@@ -36,7 +36,7 @@ class IssueManager(
             ${issue.body}
         """,
             )
-            gitService.pushBranch(gitFile, branchName, installationToken)
+            gitFacade.pushBranch(gitFile, branchName, installationToken)
             logger.info("Successfully pushed branch $branchName to upstream. Creating pull request...")
             gitHubFacade.createPullRequest(
                 "main",
