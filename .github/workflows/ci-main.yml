@@ -28,5 +28,5 @@ jobs:
         if: success() || failure()
         with:
           name: Gradle tests
-          path: ./microservices/*/build/test-results/*/*.xml
+          path: .build/test-results/*/*.xml
           reporter: java-junit
