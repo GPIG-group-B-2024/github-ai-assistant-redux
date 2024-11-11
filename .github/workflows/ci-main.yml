@@ -20,9 +20,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Check formatting
-        run: ./gradlew spotlessCheck
+        run: ./gradlew --no-daemon spotlessCheck
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew --no-daemon test
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: success() || failure()
