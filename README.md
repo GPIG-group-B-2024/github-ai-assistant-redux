@@ -24,3 +24,12 @@ Getting the project running locally requires a few preparation steps:
 5. You are now ready to use the app! You can do one of the following:
     * Navigate to the smee session in your browser and re-issue an event you like
     * Go to the `dummy-repo` and create a new issue there
+
+## Contributing
+
+1. The CI workflow will reject incorrectly formatted code. To format the code locally, run the gradle task:
+```./gradlew spotlessApply```
+2. You will need a private key for the github app - see point 3 in the getting started section
+3. Avoid pushing code directly to main - use pull requests and link pull requests to issues (if they exist), see [github docs](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
+4. Aim to get at least one approval on your PR from the team
+5. Update statuses of any related tickets once your PR is merged
