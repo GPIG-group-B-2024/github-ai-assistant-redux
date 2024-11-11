@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import uk.ac.york.gpig.teamb.aiassistant.services.git.GitService
-import uk.ac.york.gpig.teamb.aiassistant.services.github.GitHubService
-import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
+import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 
 /**
@@ -17,20 +15,21 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
  * */
 @RestController
 class IssueCreationController(
-    val gitService: GitService,
-    val githubService: GitHubService,
+    val issueManager: IssueManager,
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/new-issue")
-    fun receiveNewIssue(@RequestBody body: String) = withTempDir { tempDir ->
+    fun receiveNewIssue(
+        @RequestBody body: String,
+    ) {
         val issueContents = Gson().fromJson(body, WebhookPayload::class.java)
-        logger.info("Received a new issue!")
-        val gitFile = gitService.cloneRepo(tempDir.toFile())
-        val token = githubService.generateInstallationToken()
-        gitService.createBranch(gitFile, "my-branch")
-        gitService.commitTextFile(gitFile, "my-branch", "test.txt", "some code solving ${issueContents.issue.body} ")
-        gitService.pushBranch(gitFile, "my-branch", token)
-        githubService.createPullRequest("main", "my-branch", "My pull request", "My pull request body.\ncloses #${issueContents.issue.number}")
+        when (issueContents.action) {
+            WebhookPayload.Action.OPENED -> {
+                logger.info("Received new open issue with id ${issueContents.issue.id}")
+                issueManager.processNewIssue(issueContents.issue)
+            }
+            else -> {} // Add action types as needed
+        }
     }
 }

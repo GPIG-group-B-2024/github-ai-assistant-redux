@@ -26,10 +26,11 @@ class JWTGenerator {
          * */
         internal fun loadPrivateKey(pemFile: File): PrivateKey {
             // Remove PEM headers and footers, and any whitespace
-            val keyString = pemFile.readText()
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replace("\\s".toRegex(), "")
+            val keyString =
+                pemFile.readText()
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replace("\\s".toRegex(), "")
 
             // Decode the Base64 encoded string
             val decodedKey = Base64.getDecoder().decode(keyString)
@@ -43,11 +44,18 @@ class JWTGenerator {
         /**
          * Generate a JWT to the spec outlined in GitHub [docs](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app)
          * */
-        fun generateJWT(): String = JWT
-            .create()
-            .withIssuer("Iv23liv9vlXMoLnWCfG0") // Client ID. Note: this is public and can be hardcoded *for now*
-            .withIssuedAt(Date.from(Instant.now().minus(60, ChronoUnit.SECONDS))) // set issue date at 1 minute into the past (see docstring)
-            .withExpiresAt(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES))) // set expiration date at 10 mins into the future (max allowed amount)
-            .sign(Algorithm.RSA256(loadPrivateKey(ResourceUtils.getFile("classpath:private-key-pkcs8.pem")) as RSAKey)) // encrypt using the required algorithm
+        fun generateJWT(): String =
+            JWT
+                .create()
+                .withIssuer("Iv23liv9vlXMoLnWCfG0") // Client ID. Note: this is public and can be hardcoded *for now*
+                .withIssuedAt(
+                    Date.from(Instant.now().minus(60, ChronoUnit.SECONDS)),
+                ) // set issue date at 1 minute into the past (see docstring)
+                .withExpiresAt(
+                    Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)),
+                ) // set expiration date at 10 mins into the future (max allowed amount)
+                .sign(
+                    Algorithm.RSA256(loadPrivateKey(ResourceUtils.getFile("classpath:private-key-pkcs8.pem")) as RSAKey),
+                ) // encrypt using the required algorithm
     }
 }

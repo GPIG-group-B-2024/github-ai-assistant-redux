@@ -1,0 +1,54 @@
+package uk.ac.york.gpig.teamb.aiassistant.managers
+
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitService
+import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
+import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+
+/**
+ * Manages the response to issues: interacts with the git repository and creates pull requests
+ * */
+@Service
+class IssueManager(
+    val gitService: GitService,
+    val gitHubFacade: GitHubFacade,
+) {
+    val logger = LoggerFactory.getLogger(this::class.java)
+
+    fun processNewIssue(issue: WebhookPayload.Issue) =
+        withTempDir { tempDir ->
+            logger.info("Processing issue ${issue.id}")
+            val installationToken = gitHubFacade.generateInstallationToken()
+            logger.info("Cloning git repo...")
+            val gitFile = gitService.cloneRepo(tempDir.toFile())
+            logger.info("Creating a new branch linked to the issue...")
+            val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
+            gitService.createBranch(gitFile, branchName)
+            logger.info("Created branch $branchName, committing text file with issue body...")
+            gitService.commitTextFile(
+                gitFile,
+                branchName,
+                "file-from-issue-${issue.number}.txt",
+                """
+            Some code addressing the following problem:
+            ${issue.body}
+        """,
+            )
+            gitService.pushBranch(gitFile, branchName, installationToken)
+            logger.info("Successfully pushed branch $branchName to upstream. Creating pull request...")
+            gitHubFacade.createPullRequest(
+                "main",
+                branchName,
+                issue.title,
+                """
+            closes #${issue.number}
+            The body for pull request solving the following issue:
+            ${issue.body}
+        """,
+            ) // include the "closes" note - it is a "magic" word that links PR's to issues
+            // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
+            logger.info("Success!")
+        }
+}
