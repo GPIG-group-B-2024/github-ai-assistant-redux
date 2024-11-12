@@ -34,7 +34,6 @@ class GitFacade {
     fun cloneRepo(clonePath: File): File {
         logger.info("Cloning repo at $repoUrl into $clonePath")
         Git.cloneRepository().setURI(repoUrl).setDirectory(clonePath).call()
-        Git.shutdown()
         val gitPath = File(clonePath, ".git")
         return gitPath
     }

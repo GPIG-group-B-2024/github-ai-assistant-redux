@@ -42,11 +42,7 @@ class IssueManager(
                 "main",
                 branchName,
                 issue.title,
-                """
-            closes #${issue.number}
-            The body for pull request solving the following issue:
-            ${issue.body}
-        """,
+                "closes #${issue.number}\nThe body for pull request solving the following issue: ${issue.body}",
             ) // include the "closes" note - it is a "magic" word that links PR's to issues
             // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
             logger.info("Success!")
