@@ -1,7 +1,3 @@
 spring:
   application:
     name: ai-assistant
-
-target-repo:
-  name: GPIG-group-B-2024/dummy-repo
-  url: https://github.com/GPIG-group-B-2024/dummy-repo.git

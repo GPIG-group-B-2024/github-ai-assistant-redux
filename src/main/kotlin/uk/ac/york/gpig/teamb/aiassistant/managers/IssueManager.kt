@@ -17,12 +17,13 @@ class IssueManager(
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun processNewIssue(issue: WebhookPayload.Issue) =
+    fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->
+            val (issue, _, repository) = payload
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
             logger.info("Cloning git repo...")
-            val gitFile = gitFacade.cloneRepo(tempDir.toFile())
+            val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile())
             logger.info("Creating a new branch linked to the issue...")
             val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
             gitFacade.createBranch(gitFile, branchName)
@@ -39,6 +40,7 @@ class IssueManager(
             gitFacade.pushBranch(gitFile, branchName, installationToken)
             logger.info("Successfully pushed branch $branchName to upstream. Creating pull request...")
             gitHubFacade.createPullRequest(
+                repository.fullName,
                 "main",
                 branchName,
                 issue.title,

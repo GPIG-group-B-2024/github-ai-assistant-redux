@@ -11,6 +11,7 @@ import com.google.gson.annotations.SerializedName
 data class WebhookPayload(
     val issue: Issue,
     val action: Action,
+    val repository: Repository,
 ) {
     data class Issue(
         val title: String,
@@ -30,4 +31,20 @@ data class WebhookPayload(
         @SerializedName("closed")
         CLOSED,
     }
+
+    /**
+     * The repository associated with the webhook
+     * */
+    data class Repository(
+        /**
+         * The name of the url in the `Owner/repo` format
+         * */
+        @SerializedName("full_name")
+        val fullName: String,
+        /**
+         * The url with which the repo can be accessed. Must be appended with `.git`
+         * */
+        @SerializedName("html_url")
+        val url: String,
+    )
 }

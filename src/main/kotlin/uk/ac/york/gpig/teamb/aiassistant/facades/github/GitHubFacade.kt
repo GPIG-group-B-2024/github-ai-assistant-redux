@@ -2,7 +2,6 @@ package uk.ac.york.gpig.teamb.aiassistant.facades.github
 
 import org.kohsuke.github.GitHubBuilder
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 
@@ -13,10 +12,8 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 class GitHubFacade {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @Value("\${target-repo.name}")
-    private lateinit var repoName: String
-
     fun createPullRequest(
+        repoName: String,
         baseBranch: String = "main",
         featureBranch: String,
         title: String,
