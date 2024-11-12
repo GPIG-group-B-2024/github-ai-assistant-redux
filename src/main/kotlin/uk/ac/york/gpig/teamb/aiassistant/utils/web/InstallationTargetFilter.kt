@@ -19,9 +19,9 @@ class InstallationTargetFilter : OncePerRequestFilter() {
         filterChain: FilterChain,
     ) {
         val targetHeader = request.getHeader("x-github-hook-installation-target-type")
-        if (targetHeader == "repository")
-            {
-                filterChain.doFilter(request, response)
-            }
+        when (targetHeader) {
+            "repository" -> filterChain.doFilter(request, response)
+            else -> {}
+        }
     }
 }
