@@ -4,7 +4,6 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
 
@@ -14,9 +13,6 @@ import java.io.File
 @Service
 class GitFacade {
     private val logger = LoggerFactory.getLogger(this::class.java)
-
-    @Value("\${target-repo.url}")
-    private lateinit var repoUrl: String
 
     private val personIdent =
         PersonIdent(
@@ -31,7 +27,10 @@ class GitFacade {
      * Most of the git API uses the `.git` folder to identify the repository, therefore this function provides a convienient
      * way to obtain the path for future use.
      * */
-    fun cloneRepo(clonePath: File): File {
+    fun cloneRepo(
+        repoUrl: String,
+        clonePath: File,
+    ): File {
         logger.info("Cloning repo at $repoUrl into $clonePath")
         Git.cloneRepository().setURI(repoUrl).setDirectory(clonePath).call()
         val gitPath = File(clonePath, ".git")

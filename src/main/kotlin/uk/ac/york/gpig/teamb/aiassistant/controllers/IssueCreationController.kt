@@ -27,7 +27,7 @@ class IssueCreationController(
         when (issueContents.action) {
             WebhookPayload.Action.OPENED -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
-                issueManager.processNewIssue(issueContents.issue)
+                issueManager.processNewIssue(issueContents)
             }
             else -> {} // Add action types as needed
         }
