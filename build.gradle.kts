@@ -24,6 +24,8 @@ dependencies {
   implementation("com.auth0:java-jwt:4.4.0") // JWT generation
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+  testImplementation("io.strikt:strikt-core:0.35.1") // assertions
+  testImplementation("com.ninja-squad:springmockk:4.0.2") // mocking
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
