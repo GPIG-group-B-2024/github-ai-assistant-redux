@@ -49,4 +49,8 @@ class IssueManager(
             // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
             logger.info("Success!")
         }
+    
+    fun processNewIssueComment(payload: WebhookPayload){
+        // TODO: reply on the issue with a comment
+    }
 }
