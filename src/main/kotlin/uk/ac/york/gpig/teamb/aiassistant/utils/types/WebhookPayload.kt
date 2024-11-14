@@ -24,13 +24,13 @@ data class WebhookPayload(
      * The event type of an incoming webhook
 
      * */
-     enum class EventType {
+    enum class EventType {
         @SerializedName("issues")
         ISSUES,
 
         @SerializedName("issue_comment")
         ISSUECOMMENT,
-     }
+    }
 
     /**
      * The action being done to an issue (has many more options, must be added here as needed)
