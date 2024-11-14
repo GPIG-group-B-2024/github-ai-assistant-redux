@@ -10,19 +10,22 @@ import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
+import com.ninjasquad.springmockk.SpykBean
+import io.mockk.every
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.io.File
 
 @SpringBootTest
 @WireMockTest(httpPort = 3000)
 class GitHubFacadeTest {
-    @Autowired
+    @SpykBean // spy instead of mock because we want some real methods to run
     private lateinit var sut: GitHubFacade
 
     @Test
-    fun `smoke test`() {
+    fun `creates a pull request with the right parameters`() {
+        every { sut.generateInstallationToken() } returns "my-fancy-token" // we don't actually need the token here, mock it.
+
         // mock github API output: this is basically an exact copy of an example response from the docs page, but with the owner and repo name changed
         val getRepoOutput = File("src/test/resources/wiremock/get-repo-output.json").readText()
         val createPROutput = File("src/test/resources/wiremock/create-pull-request-output.json").readText()
