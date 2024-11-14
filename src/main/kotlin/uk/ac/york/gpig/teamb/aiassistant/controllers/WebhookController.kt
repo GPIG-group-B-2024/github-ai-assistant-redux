@@ -27,11 +27,11 @@ class WebhookController(
     ) {
         val issueContents = Gson().fromJson(body, WebhookPayload::class.java)
         when (eventType to issueContents.action) {
-            ("issues" to WebhookPayload.Action.OPENED) -> {
+            (WebhookPayload.EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssue(issueContents)
             }
-            ("issue_comment" to WebhookPayload.Action.CREATED) -> {
+            (WebhookPayload.EventType.ISSUECOMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssueComment(issueContents)
             }
