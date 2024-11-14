@@ -32,6 +32,7 @@ dependencies {
   testImplementation("com.ninja-squad:springmockk:4.0.2") // mocking
   testImplementation(
       "io.github.sparsick.testcontainers.gitserver:testcontainers-gitserver") // mock git server
+  testImplementation("com.maciejwalkowiak.spring:wiremock-spring-boot:2.1.3")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
