@@ -27,6 +27,21 @@ class GitHubFacade {
         logger.info("Successfully created pull request ${pullRequest.number} in repository ${repo.name}")
     }
 
+    fun createComment(
+        repoName: String,
+        issueId: String,
+        body: String,
+    ) {
+        // TODO: write a comment on an issue
+        val token = generateInstallationToken()
+        val github = GitHubBuilder().withAppInstallationToken(token).build()
+        val repo = github.getRepository(repoName)
+        val issue = repo.getIssue(issueId)
+        logger.info("Successfully authenticated")
+        val issueComment = issue.comment(body)
+        logger.info("Successfully commented on issue ${issue.id} in repository ${repo.name}")
+    }
+
     /**
      * Generate an installation token for use with the wider GitHub API.
      *

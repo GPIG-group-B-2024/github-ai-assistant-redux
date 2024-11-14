@@ -33,9 +33,9 @@ class IssueManager(
                 branchName,
                 "file-from-issue-${issue.number}.txt",
                 """
-            Some code addressing the following problem:
-            ${issue.body}
-        """,
+                Some code addressing the following problem:
+                ${issue.body}
+                """,
             )
             gitFacade.pushBranch(gitFile, branchName, installationToken)
             logger.info("Successfully pushed branch $branchName to upstream. Creating pull request...")
@@ -50,7 +50,15 @@ class IssueManager(
             logger.info("Success!")
         }
 
-    fun processNewIssueComment(payload: WebhookPayload)  {
+    fun processNewIssueComment(payload: WebhookPayload) {
         // TODO: reply on the issue with a comment
+        val (issue, _, repository) = payload
+        logger.info("Processing issue ${issue.id}")
+        gitHubFacade.createComment(
+            repository.fullName,
+            issue.id,
+            "This is a helpful comment",
+        )
+        logger.info("Success!")
     }
 }

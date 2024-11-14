@@ -30,7 +30,7 @@ class WebhookController(
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssue(issueContents)
             }
-            ("issue_comment" to "created") -> {
+            ("issue_comment" to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssueComment(issueContents)
             }

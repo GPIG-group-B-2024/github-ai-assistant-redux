@@ -30,6 +30,9 @@ data class WebhookPayload(
 
         @SerializedName("closed")
         CLOSED,
+
+        @SerializedName("created")
+        CREATED,
     }
 
     /**
