@@ -16,9 +16,9 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
  * */
 @RestController
 class WebhookController(
-    val issueManager: IssueManager,
+   private val issueManager: IssueManager,
 ) {
-    val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/new-issue")
     fun receiveNewWebhook(
