@@ -41,7 +41,7 @@ class WebhookControllerTest {
                     ),
             )
         // act
-        sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
+        sut.receiveNewWebhook(WebhookPayload.EventType.ISSUES, Gson().toJson(issueBody))
         // verify
         verify {
             issueManager.processNewIssue(issueBody)
@@ -69,7 +69,7 @@ class WebhookControllerTest {
                     ),
             )
         // act
-        sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
+        sut.receiveNewWebhook(WebhookPayload.EventType.ISSUES, Gson().toJson(issueBody))
         // verify
         verify(exactly = 0) {
             issueManager.processNewIssue(any())

@@ -22,7 +22,7 @@ class WebhookController(
 
     @PostMapping("/new-issue")
     fun receiveNewWebhook(
-        @RequestHeader("x-github-event") eventType: String,
+        @RequestHeader("x-github-event") eventType: WebhookPayload.EventType,
         @RequestBody body: String,
     ) {
         val issueContents = Gson().fromJson(body, WebhookPayload::class.java)
