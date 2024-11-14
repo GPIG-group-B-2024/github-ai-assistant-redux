@@ -14,6 +14,10 @@ java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
 repositories { mavenCentral() }
 
+dependencyManagement {
+  imports { mavenBom("io.github.sparsick.testcontainers.gitserver:testcontainers-git-bom:0.10.0") }
+}
+
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -26,6 +30,8 @@ dependencies {
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
   testImplementation("com.ninja-squad:springmockk:4.0.2") // mocking
+  testImplementation(
+      "io.github.sparsick.testcontainers.gitserver:testcontainers-gitserver") // mock git server
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
