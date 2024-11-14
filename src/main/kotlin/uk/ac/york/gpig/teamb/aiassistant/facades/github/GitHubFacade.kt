@@ -18,9 +18,11 @@ class GitHubFacade {
         featureBranch: String,
         title: String,
         body: String,
+        /**The endpoint to use to connect to github. Should only be modified for tests*/
+        endpoint: String = "https://api.github.com",
     ) {
         val token = generateInstallationToken()
-        val github = GitHubBuilder().withAppInstallationToken(token).build()
+        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
         logger.info("Successfully authenticated")
         val pullRequest = repo.createPullRequest(title, featureBranch, baseBranch, body)
