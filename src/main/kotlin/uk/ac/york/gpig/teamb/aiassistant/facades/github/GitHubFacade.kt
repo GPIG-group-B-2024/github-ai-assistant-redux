@@ -38,7 +38,7 @@ class GitHubFacade {
         val token = generateInstallationToken()
         val github = GitHubBuilder().withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
-        val issue = repo.getIssue(issueId.toint())
+        val issue = repo.getIssue(issueId.toInt())
         logger.info("Successfully authenticated")
         val issueComment = issue.comment(body)
         logger.info("Successfully commented on issue ${issue.id} in repository ${repo.name}")
