@@ -2,7 +2,6 @@ package uk.ac.york.gpig.teamb.aiassistant.facades.git
 
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
-import com.ninjasquad.springmockk.SpykBean
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
