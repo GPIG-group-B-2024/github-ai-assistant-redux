@@ -13,12 +13,12 @@ import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 
 @SpringBootTest
-class IssueCreationControllerTest {
+class WebhookControllerTest {
     @MockkBean
     private lateinit var issueManager: IssueManager
 
     @Autowired
-    private lateinit var sut: IssueCreationController
+    private lateinit var sut: webhookController
 
     @Test
     fun `passes issue event payload to issue manager`() {
@@ -41,7 +41,7 @@ class IssueCreationControllerTest {
                     ),
             )
         // act
-        sut.receiveNewIssue(Gson().toJson(issueBody))
+        sut.receiveNewWebhook(Gson().toJson(issueBody))
         // verify
         verify {
             issueManager.processNewIssue(issueBody)
@@ -69,7 +69,7 @@ class IssueCreationControllerTest {
                     ),
             )
         // act
-        sut.receiveNewIssue(Gson().toJson(issueBody))
+        sut.receiveNewWebhook(Gson().toJson(issueBody))
         // verify
         verify(exactly = 0) {
             issueManager.processNewIssue(any())
