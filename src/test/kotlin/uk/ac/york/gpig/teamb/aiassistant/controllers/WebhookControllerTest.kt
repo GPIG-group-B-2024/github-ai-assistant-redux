@@ -18,7 +18,7 @@ class WebhookControllerTest {
     private lateinit var issueManager: IssueManager
 
     @Autowired
-    private lateinit var sut: webhookController
+    private lateinit var sut: WebhookController
 
     @Test
     fun `passes issue event payload to issue manager`() {
