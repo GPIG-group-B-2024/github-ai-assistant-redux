@@ -16,7 +16,7 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
  * */
 @RestController
 class WebhookController(
-   private val issueManager: IssueManager,
+    private val issueManager: IssueManager,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
