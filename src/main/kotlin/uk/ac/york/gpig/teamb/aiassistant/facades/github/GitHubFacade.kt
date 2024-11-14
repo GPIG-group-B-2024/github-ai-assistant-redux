@@ -29,7 +29,7 @@ class GitHubFacade {
 
     fun createComment(
         repoName: String,
-        issueId: String,
+        issueId: Int,
         body: String,
     ) {
         // TODO: write a comment on an issue
