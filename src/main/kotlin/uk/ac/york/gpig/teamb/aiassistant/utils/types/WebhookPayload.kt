@@ -12,6 +12,7 @@ data class WebhookPayload(
     val issue: Issue,
     val action: Action,
     val repository: Repository,
+    val comment: Comment,
 ) {
     data class Issue(
         val title: String,
@@ -20,16 +21,12 @@ data class WebhookPayload(
         val id: Long,
     )
 
-    /**
-     * The event type of an incoming webhook
-
-     * */
-    enum class EventType {
-        @SerializedName("issues")
-        ISSUES,
-
-        @SerializedName("issue_comment")
-        ISSUECOMMENT,
+    data class Comment(
+        val id: Long,
+        val user: User,
+        val body: String,
+    ) {
+        data class User(val login: String)
     }
 
     /**

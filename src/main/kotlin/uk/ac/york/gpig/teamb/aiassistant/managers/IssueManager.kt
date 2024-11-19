@@ -19,7 +19,7 @@ class IssueManager(
 
     fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->
-            val (issue, _, repository) = payload
+            val (issue, _, repository, _) = payload
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
             logger.info("Cloning git repo...")
@@ -52,13 +52,17 @@ class IssueManager(
 
     fun processNewIssueComment(payload: WebhookPayload) {
         // TODO: reply on the issue with a comment
-        val (issue, _, repository) = payload
-        logger.info("Processing issue ${issue.id}")
-        gitHubFacade.createComment(
-            repository.fullName,
-            issue.id,
-            "This is a helpful comment",
-        )
-        logger.info("Success!")
+        val (issue, _, repository, comment) = payload
+        if (comment.user.login != "gpig-ai-assistant[bot]") { // TODO add login to config instead of hardcoding
+            logger.info("Processing comment ${comment.id} on issue ${issue.number}")
+            gitHubFacade.createComment(
+                repository.fullName,
+                issue.number,
+                "This is a helpful comment",
+            )
+            logger.info("Success!")
+        } else {
+            logger.info("Latest comment is from myself, aborting...")
+        }
     }
 }
