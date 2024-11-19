@@ -31,14 +31,14 @@ class GitHubFacade {
 
     fun createComment(
         repoName: String,
-        issueId: Long,
+        issueNumber: Int,
         body: String,
     ) {
         // TODO: write a comment on an issue
         val token = generateInstallationToken()
         val github = GitHubBuilder().withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
-        val issue = repo.getIssue(issueId.toInt())
+        val issue = repo.getIssue(issueNumber)
         logger.info("Successfully authenticated")
         val issueComment = issue.comment(body)
         logger.info("Successfully commented on issue ${issue.id} in repository ${repo.name}")

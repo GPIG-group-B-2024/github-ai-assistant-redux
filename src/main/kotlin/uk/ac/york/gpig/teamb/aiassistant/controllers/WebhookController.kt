@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.EventType
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 
 /**
@@ -22,16 +23,16 @@ class WebhookController(
 
     @PostMapping("/new-issue")
     fun receiveNewWebhook(
-        @RequestHeader("x-github-event") eventType: WebhookPayload.EventType,
+        @RequestHeader("x-github-event") eventType: String,
         @RequestBody body: String,
     ) {
         val issueContents = Gson().fromJson(body, WebhookPayload::class.java)
-        when (eventType to issueContents.action) {
-            (WebhookPayload.EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
+        when (EventType.fromString(eventType) to issueContents.action) {
+            (EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssue(issueContents)
             }
-            (WebhookPayload.EventType.ISSUECOMMENT to WebhookPayload.Action.CREATED) -> {
+            (EventType.ISSUE_COMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
                 issueManager.processNewIssueComment(issueContents)
             }
