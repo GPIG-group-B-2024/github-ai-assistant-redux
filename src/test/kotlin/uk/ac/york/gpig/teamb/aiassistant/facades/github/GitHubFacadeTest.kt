@@ -13,7 +13,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import java.io.File
 

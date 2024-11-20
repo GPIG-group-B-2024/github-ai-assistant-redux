@@ -6,7 +6,6 @@ import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
