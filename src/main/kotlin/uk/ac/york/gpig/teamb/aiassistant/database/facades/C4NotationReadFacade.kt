@@ -50,6 +50,7 @@ class C4NotationReadFacade(
             .from(WORKSPACE)
             .join(GITHUB_REPOSITORY)
             .on(GITHUB_REPOSITORY.WORKSPACE_ID.eq(WORKSPACE.ID))
+            .where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName))
             .fetchOne(C4WorkspaceEntity::fromJooq)
 
     /**
