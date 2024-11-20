@@ -9,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import kotlin.test.Test
 
-@SpringBootTest
+@AiAssistantTest
 class IssueManagerTest {
     @Autowired
     private lateinit var sut: IssueManager

@@ -49,8 +49,10 @@ dependencies {
   implementation("org.jooq:jooq:3.19.15")
   implementation("org.postgresql:postgresql:42.7.2")
   jooqGenerator("org.postgresql:postgresql:42.7.2")
+  implementation("org.springframework.boot:spring-boot-starter-jdbc")
   // =========================
   testImplementation("com.maciejwalkowiak.spring:wiremock-spring-boot:2.1.3")
+  testImplementation("org.testcontainers:postgresql:1.17.6")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
