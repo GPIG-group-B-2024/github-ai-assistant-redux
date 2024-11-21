@@ -45,7 +45,7 @@ class C4NotationReadFacade(
      * Get the structurizr workspace associated with the given github repository
      * @param repoName repository name in the `owner/repo` format
      * */
-    fun getRepositoryWorkspaceId(repoName: String): C4WorkspaceEntity? =
+    fun getRepositoryWorkspace(repoName: String): C4WorkspaceEntity? =
         ctx.select()
             .from(WORKSPACE)
             .join(GITHUB_REPOSITORY)

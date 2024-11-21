@@ -39,18 +39,19 @@ dependencies {
   implementation("org.kohsuke:github-api:1.326") // GitHub API
   implementation("com.google.code.gson:gson:2.11.0") // JSON handling
   implementation("com.auth0:java-jwt:4.4.0") // JWT generation
+  // jooq (database) =========
+  implementation("org.jooq:jooq:3.19.15")
+  implementation("org.flywaydb:flyway-core:9.10.2")
+  implementation("org.postgresql:postgresql:42.7.2")
+  jooqGenerator("org.postgresql:postgresql:42.7.2")
+  implementation("org.springframework.boot:spring-boot-starter-jdbc")
+  // =========================
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
   testImplementation("com.ninja-squad:springmockk:4.0.2") // mocking
   testImplementation(
       "io.github.sparsick.testcontainers.gitserver:testcontainers-gitserver") // mock git server
-  // jooq (database) =========
-  implementation("org.jooq:jooq:3.19.15")
-  implementation("org.postgresql:postgresql:42.7.2")
-  jooqGenerator("org.postgresql:postgresql:42.7.2")
-  implementation("org.springframework.boot:spring-boot-starter-jdbc")
-  // =========================
   testImplementation("com.maciejwalkowiak.spring:wiremock-spring-boot:2.1.3")
   testImplementation("org.testcontainers:postgresql:1.17.6")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

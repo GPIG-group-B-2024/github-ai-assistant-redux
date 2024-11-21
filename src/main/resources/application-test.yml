@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:tc:postgresql:13:///test
+    url: jdbc:tc:postgresql:15:///test
     hikari:
       maximum-pool-size: 2 #https://stackoverflow.com/a/54350770
