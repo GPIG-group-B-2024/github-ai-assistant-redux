@@ -6,7 +6,7 @@ import java.util.UUID
 
 @TestDSL
 class GitRepoBuilder : TestDataWithIdBuilder<GitRepoBuilder, UUID?>() {
-    override val id: UUID = UUID.randomUUID()
+    override var id: UUID = UUID.randomUUID()
     var url: String = "https://github.com/some-coder/my-fancy-repo"
     var fullName: String = "some-coder/my-fancy-repo"
 
