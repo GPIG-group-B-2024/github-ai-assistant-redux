@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.git
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
@@ -13,7 +13,6 @@ import strikt.assertions.contains
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
-import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.listDirectoryEntries

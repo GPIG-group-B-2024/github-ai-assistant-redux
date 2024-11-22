@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.github
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
@@ -14,7 +14,6 @@ import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
-import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 import java.io.File
 
 @AiAssistantTest
