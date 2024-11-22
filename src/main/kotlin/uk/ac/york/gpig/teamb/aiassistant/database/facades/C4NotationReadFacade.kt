@@ -4,6 +4,8 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4ElementEntity
 import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity.Companion.fromMember
+import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity.Companion.toMember
 import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4WorkspaceEntity
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
@@ -37,6 +39,8 @@ class C4NotationReadFacade(
     fun getRelationships(workspaceId: UUID): List<C4RelationshipEntity> =
         ctx.select()
             .from(RELATIONSHIP)
+            .join(fromMember).on(RELATIONSHIP.START_MEMBER.eq(fromMember.ID))
+            .join(toMember).on(RELATIONSHIP.END_MEMBER.eq(toMember.ID))
             .where(
                 RELATIONSHIP.WORKSPACE_ID.eq(workspaceId),
             ).fetch(C4RelationshipEntity::fromJooq)

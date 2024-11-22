@@ -68,6 +68,7 @@ spotless {
     ktfmt()
     ktlint()
     target("src/**/*.kt")
+    toggleOffOn()
   }
   kotlinGradle {
     target("*.gradle.kts") // default target for kotlinGradle

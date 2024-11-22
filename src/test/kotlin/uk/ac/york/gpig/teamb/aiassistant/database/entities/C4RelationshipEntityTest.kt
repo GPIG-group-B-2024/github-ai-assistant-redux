@@ -16,9 +16,11 @@ class C4RelationshipEntityTest {
                 from = fromId,
                 to = toId,
                 description = "my fancy description",
+                fromName = "component-1",
+                toName = "component-2",
             )
 
-        expectThat(relationship.toStructurizrString()).isEqualTo("$fromId -> $toId \"my fancy description\"")
+        expectThat(relationship.toStructurizrString()).isEqualTo("component-1 -> component-2 \"my fancy description\"")
     }
 
     @Test
@@ -31,7 +33,9 @@ class C4RelationshipEntityTest {
                 from = fromId,
                 to = toId,
                 description = null,
+                fromName = "component-1",
+                toName = "component-2",
             )
-        expectThat(relationship.toStructurizrString()).isEqualTo("$fromId -> $toId")
+        expectThat(relationship.toStructurizrString()).isEqualTo("component-1 -> component-2")
     }
 }
