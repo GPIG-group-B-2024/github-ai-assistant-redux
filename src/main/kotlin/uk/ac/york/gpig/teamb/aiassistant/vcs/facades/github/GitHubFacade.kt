@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.github
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
 import org.kohsuke.github.GitHubBuilder
 import org.slf4j.LoggerFactory

@@ -6,10 +6,11 @@ import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
 import org.springframework.beans.factory.annotation.Autowired
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 import kotlin.test.Test
 
 @AiAssistantTest
