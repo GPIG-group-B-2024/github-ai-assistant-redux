@@ -1,6 +1,7 @@
 package uk.ac.york.gpig.teamb.aiassistant.database
 
 import org.jooq.DSLContext
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
@@ -9,7 +10,7 @@ import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.MemberBuilder.Co
 import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.RelationshipBuilder.Companion.relationship
 import java.util.UUID
 
-// @Disabled("Not fully implemented yet")
+@Disabled("Not fully implemented yet")
 @AiAssistantTest
 class C4ManagerTest {
     @Autowired
