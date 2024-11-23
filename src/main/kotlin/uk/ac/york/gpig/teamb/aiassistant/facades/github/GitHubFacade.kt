@@ -34,7 +34,6 @@ class GitHubFacade {
         issueNumber: Int,
         body: String,
     ) {
-        // TODO: write a comment on an issue
         val token = generateInstallationToken()
         val github = GitHubBuilder().withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)

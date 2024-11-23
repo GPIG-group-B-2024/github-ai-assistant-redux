@@ -51,7 +51,6 @@ class IssueManager(
         }
 
     fun processNewIssueComment(payload: WebhookPayload) {
-        // TODO: reply on the issue with a comment
         val (issue, _, repository, comment) = payload
         if (comment.user.login != "gpig-ai-assistant[bot]") { // TODO add login to config instead of hardcoding
             logger.info("Processing comment ${comment.id} on issue ${issue.number}")

@@ -2,6 +2,8 @@ package uk.ac.york.gpig.teamb.aiassistant.managers
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.just
+import io.mockk.runs
 import io.mockk.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,7 +24,7 @@ class IssueManagerTest {
     private lateinit var gitHubFacade: GitHubFacade
 
     @Test
-    fun `creates pull request from newly created feature branch`() {
+    fun `creates pull request from newly created feature branch when a new issue is opened`() {
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -65,7 +67,7 @@ class IssueManagerTest {
     }
 
     @Test
-    fun `creates and uses a fresh installation token to access github`() {
+    fun `creates and uses a fresh installation token to access github when proccessing a new issue`() {
         every { gitHubFacade.generateInstallationToken() } returns "my-fancy-token"
         val issueBody =
             WebhookPayload(
@@ -93,5 +95,75 @@ class IssueManagerTest {
         sut.processNewIssue(issueBody)
         verify(exactly = 1) { gitHubFacade.generateInstallationToken() }
         verify { gitFacade.pushBranch(any(), any(), "my-fancy-token") }
+    }
+
+    @Test
+    fun `writes comment to an issue when a new issue comment is created`() {
+        val issueBody =
+            WebhookPayload(
+                action = WebhookPayload.Action.CREATED,
+                issue =
+                    WebhookPayload.Issue(
+                        id = 12345L,
+                        title = "Important issue title",
+                        body = "Important issue body",
+                        number = 5,
+                    ),
+                repository =
+                    WebhookPayload.Repository(
+                        "my-test-repository",
+                        "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User("pangreor"),
+                        body = "what a comment!",
+                    ),
+            )
+
+        sut.processNewIssueComment(issueBody)
+
+        verify {
+            gitHubFacade.createComment(
+                repoName = "my-test-repository",
+                issueNumber = 5,
+                body = "This is a helpful comment",
+            )
+        }
+    }
+
+    @Test
+    fun `does not write a comment when newest comment is written by itself`() {
+        every {gitHubFacade.createComment(any(), any(), any())} just runs
+        val issueBody =
+            WebhookPayload(
+                action = WebhookPayload.Action.CREATED,
+                issue =
+                    WebhookPayload.Issue(
+                        id = 12345L,
+                        title = "Important issue title",
+                        body = "Important issue body",
+                        number = 5,
+                    ),
+                repository =
+                    WebhookPayload.Repository(
+                        "my-test-repository",
+                        "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User("gpig-ai-assistant[bot]"),
+                        body = "what a comment!",
+                    ),
+            )
+        // Act
+        sut.processNewIssueComment(issueBody)
+
+        // Verify
+        verify(exactly = 0) {
+            gitHubFacade.createComment(any(), any(), any())
+        }
     }
 }
