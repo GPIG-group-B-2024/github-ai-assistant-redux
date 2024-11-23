@@ -135,7 +135,7 @@ class IssueManagerTest {
 
     @Test
     fun `does not write a comment when newest comment is written by itself`() {
-        every {gitHubFacade.createComment(any(), any(), any())} just runs
+        every { gitHubFacade.createComment(any(), any(), any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CREATED,
