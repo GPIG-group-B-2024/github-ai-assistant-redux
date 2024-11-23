@@ -38,6 +38,12 @@ class IssueManagerTest {
                         "my-test-repository",
                         "my-test-url",
                     ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User(""),
+                        body = "",
+                    ),
             )
 
         sut.processNewIssue(issueBody)
@@ -75,6 +81,12 @@ class IssueManagerTest {
                     WebhookPayload.Repository(
                         "my-test-repository",
                         "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User(""),
+                        body = "",
                     ),
             )
 

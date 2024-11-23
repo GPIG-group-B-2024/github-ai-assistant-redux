@@ -39,9 +39,15 @@ class WebhookControllerTest {
                         "my-test-repository",
                         "my-test-url",
                     ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User(""),
+                        body = "",
+                    ),
             )
         // act
-        sut.receiveNewWebhook(WebhookPayload.EventType.ISSUES, Gson().toJson(issueBody))
+        sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
         // verify
         verify {
             issueManager.processNewIssue(issueBody)
@@ -67,9 +73,15 @@ class WebhookControllerTest {
                         "my-test-repository",
                         "my-test-url",
                     ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 1L,
+                        user = WebhookPayload.Comment.User(""),
+                        body = "",
+                    ),
             )
         // act
-        sut.receiveNewWebhook(WebhookPayload.EventType.ISSUES, Gson().toJson(issueBody))
+        sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
         // verify
         verify(exactly = 0) {
             issueManager.processNewIssue(any())
