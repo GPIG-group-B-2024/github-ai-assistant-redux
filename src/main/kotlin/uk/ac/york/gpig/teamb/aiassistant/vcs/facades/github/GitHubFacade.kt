@@ -2,6 +2,7 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
 import org.kohsuke.github.GitHubBuilder
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 
@@ -12,17 +13,22 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 class GitHubFacade {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    /**
+     * We use a different endpoint address for mocking github requests in testing.
+     * In production, use the normal github endpoint
+     * */
+    @Value("\${app_settings.github_api_endpoint:https://api.github.com}")
+    private lateinit var githubEndpoint: String
+
     fun createPullRequest(
         repoName: String,
         baseBranch: String = "main",
         featureBranch: String,
         title: String,
         body: String,
-        /**The endpoint to use to connect to github. Should only be modified for tests*/
-        endpoint: String = "https://api.github.com",
     ) {
         val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
+        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
         logger.info("Successfully authenticated")
         val pullRequest = repo.createPullRequest(title, featureBranch, baseBranch, body)
@@ -33,11 +39,9 @@ class GitHubFacade {
         repoName: String,
         issueNumber: Int,
         body: String,
-        /**The endpoint to use to connect to github. Should only be modified for tests*/
-        endpoint: String = "https://api.github.com",
     ) {
         val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
+        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
         logger.info("Successfully authenticated")
         val issue = repo.getIssue(issueNumber)

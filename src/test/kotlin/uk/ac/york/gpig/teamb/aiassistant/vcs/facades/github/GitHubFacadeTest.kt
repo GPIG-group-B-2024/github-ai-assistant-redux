@@ -42,8 +42,6 @@ class GitHubFacadeTest {
             "my-branch",
             "My title",
             "My description",
-            endpoint = "http://localhost:3000",
-            // ^ replace the github API url with this, this is also where wiremock expects incoming requests
         )
         // verify the github library attempted to make a PR with the correct data
         verify(
@@ -85,7 +83,6 @@ class GitHubFacadeTest {
             "my-owner/my-test-repo",
             5,
             "this is a comment",
-            endpoint = "http://localhost:3000",
         )
 
         // Verify
