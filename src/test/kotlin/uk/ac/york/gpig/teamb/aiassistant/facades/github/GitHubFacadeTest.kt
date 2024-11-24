@@ -69,7 +69,7 @@ class GitHubFacadeTest {
         every { sut.generateInstallationToken() } returns "my-fancy-token"
         // mock github API output: this is basically an exact copy of an example response from the docs page, but with the owner and repo name changed
         val getRepoOutput = File("src/test/resources/wiremock/get-repo-output.json").readText()
-        val getIssueOutput  = File("src/test/resources/wiremock/get-issue-output.json").readText()
+        val getIssueOutput = File("src/test/resources/wiremock/get-issue-output.json").readText()
         val createCommentOutput = File("src/test/resources/wiremock/create-comment-output.json").readText()
         // ^ same as above, except we do not care *at all* what the output is, we only need it for the underlying github library to run without exceptions
         stubFor(get("/repos/my-owner/my-test-repo").willReturn(ok().withBody(getRepoOutput)))
@@ -85,7 +85,7 @@ class GitHubFacadeTest {
             "my-owner/my-test-repo",
             5,
             "this is a comment",
-            endpoint = "http://localhost:3000"
+            endpoint = "http://localhost:3000",
         )
 
         // Verify

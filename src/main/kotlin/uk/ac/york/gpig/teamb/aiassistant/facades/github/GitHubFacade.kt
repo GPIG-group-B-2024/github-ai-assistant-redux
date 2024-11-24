@@ -41,7 +41,7 @@ class GitHubFacade {
         val repo = github.getRepository(repoName)
         logger.info("Successfully authenticated")
         val issue = repo.getIssue(issueNumber)
-        val issueComment = issue.comment(body)
+        issue.comment(body)
         logger.info("Successfully commented on issue ${issue.number} in repository ${repo.name}")
     }
 
