@@ -1,11 +1,11 @@
-package uk.ac.york.gpig.teamb.aiassistant.managers
+package uk.ac.york.gpig.teamb.aiassistant.vcs
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 
 /**
  * Manages the response to issues: interacts with the git repository and creates pull requests

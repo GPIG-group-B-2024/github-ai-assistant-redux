@@ -1,9 +1,9 @@
 package uk.ac.york.gpig.teamb.aiassistant
 
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 
-@SpringBootTest
+@AiAssistantTest
 class AiAssistantApplicationTests {
     @Test
     fun contextLoads() {

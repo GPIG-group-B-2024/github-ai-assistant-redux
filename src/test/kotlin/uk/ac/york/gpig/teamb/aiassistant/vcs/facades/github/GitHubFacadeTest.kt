@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.github
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
@@ -13,10 +13,10 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import java.io.File
 
-@SpringBootTest
+@AiAssistantTest
 @WireMockTest(httpPort = 3000)
 class GitHubFacadeTest {
     @SpykBean // spy instead of mock because we want some real methods to run

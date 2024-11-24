@@ -1,3 +1,8 @@
 spring:
   application:
     name: ai-assistant
+  flyway:
+    default-schema: github_ai_assistant
+    enabled: true
+    schemas: github_ai_assistant
+    connect-retries: 4

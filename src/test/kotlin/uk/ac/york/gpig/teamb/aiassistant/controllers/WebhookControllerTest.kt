@@ -8,12 +8,12 @@ import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import strikt.api.expectThrows
-import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
 
-@SpringBootTest
+@AiAssistantTest
 class WebhookControllerTest {
     @MockkBean
     private lateinit var issueManager: IssueManager

@@ -1,18 +1,18 @@
-package uk.ac.york.gpig.teamb.aiassistant.managers
+package uk.ac.york.gpig.teamb.aiassistant.vcs
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import kotlin.test.Test
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 
-@SpringBootTest
+@AiAssistantTest
 class IssueManagerTest {
     @Autowired
     private lateinit var sut: IssueManager

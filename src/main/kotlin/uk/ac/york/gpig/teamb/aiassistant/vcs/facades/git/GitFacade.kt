@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.git
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
