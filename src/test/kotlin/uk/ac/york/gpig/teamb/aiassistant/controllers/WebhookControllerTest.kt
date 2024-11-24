@@ -1,30 +1,30 @@
-package uk.ac.york.gpig.teamb.aiassistant.managers
+package uk.ac.york.gpig.teamb.aiassistant.controllers
 
+import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
+import strikt.api.expectThrows
+import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import kotlin.test.Test
 
 @SpringBootTest
-class IssueManagerTest {
+class WebhookControllerTest {
+    @MockkBean
+    private lateinit var issueManager: IssueManager
+
     @Autowired
-    private lateinit var sut: IssueManager
-
-    @MockkBean(relaxed = true)
-    private lateinit var gitFacade: GitFacade
-
-    @MockkBean(relaxed = true)
-    private lateinit var gitHubFacade: GitHubFacade
+    private lateinit var sut: WebhookController
 
     @Test
-    fun `creates pull request from newly created feature branch when a new issue is opened`() {
+    fun `passes issues event payload to issue manager`() {
+        // setup
+        every { issueManager.processNewIssue(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -47,31 +47,21 @@ class IssueManagerTest {
                         body = "",
                     ),
             )
-
-        sut.processNewIssue(issueBody)
-        val expectedBranchName = "5-important-issue-title"
-
+        // act
+        sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
+        // verify
         verify {
-            gitFacade.createBranch(any(), expectedBranchName)
-        }
-
-        verify {
-            gitHubFacade.createPullRequest(
-                repoName = "my-test-repository",
-                baseBranch = "main",
-                featureBranch = expectedBranchName,
-                title = "Important issue title",
-                body = match { it.contains("closes") && it.contains("Important issue body") },
-            )
+            issueManager.processNewIssue(issueBody)
         }
     }
 
     @Test
-    fun `creates and uses a fresh installation token to access github when proccessing a new issue`() {
-        every { gitHubFacade.generateInstallationToken() } returns "my-fancy-token"
+    fun `ignores issues events with action other than OPENED`() {
+        // setup
+        every { issueManager.processNewIssue(any()) } just runs
         val issueBody =
             WebhookPayload(
-                action = WebhookPayload.Action.OPENED,
+                action = WebhookPayload.Action.CLOSED,
                 issue =
                     WebhookPayload.Issue(
                         id = 12345L,
@@ -91,79 +81,116 @@ class IssueManagerTest {
                         body = "",
                     ),
             )
-
-        sut.processNewIssue(issueBody)
-        verify(exactly = 1) { gitHubFacade.generateInstallationToken() }
-        verify { gitFacade.pushBranch(any(), any(), "my-fancy-token") }
-    }
-
-    @Test
-    fun `writes comment to an issue when a new issue comment is created`() {
-        val issueBody =
-            WebhookPayload(
-                action = WebhookPayload.Action.CREATED,
-                issue =
-                    WebhookPayload.Issue(
-                        id = 12345L,
-                        title = "Important issue title",
-                        body = "Important issue body",
-                        number = 5,
-                    ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User("pangreor"),
-                        body = "what a comment!",
-                    ),
-            )
-
-        sut.processNewIssueComment(issueBody)
-
-        verify {
-            gitHubFacade.createComment(
-                repoName = "my-test-repository",
-                issueNumber = 5,
-                body = "This is a helpful comment",
-            )
-        }
-    }
-
-    @Test
-    fun `does not write a comment when newest comment is written by itself`() {
-        every { gitHubFacade.createComment(any(), any(), any()) } just runs
-        val issueBody =
-            WebhookPayload(
-                action = WebhookPayload.Action.CREATED,
-                issue =
-                    WebhookPayload.Issue(
-                        id = 12345L,
-                        title = "Important issue title",
-                        body = "Important issue body",
-                        number = 5,
-                    ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User("gpig-ai-assistant[bot]"),
-                        body = "what a comment!",
-                    ),
-            )
-        // Act
-        sut.processNewIssueComment(issueBody)
-
-        // Verify
+        // act
+        sut.receiveNewWebhook("issues", Gson().toJson(issueBody)) // to string function to be able to put enum here rather than string?
+        // verify
         verify(exactly = 0) {
-            gitHubFacade.createComment(any(), any(), any())
+            issueManager.processNewIssue(any())
+        }
+    }
+
+    @Test
+    fun `passes issue_comment event payload to issue manager`() {
+        // setup
+        every { issueManager.processNewIssueComment(any()) } just runs
+        val issueBody =
+            WebhookPayload(
+                action = WebhookPayload.Action.CREATED,
+                issue =
+                    WebhookPayload.Issue(
+                        id = 12345L,
+                        title = "Important issue title",
+                        body = "Important issue body",
+                        number = 5,
+                    ),
+                repository =
+                    WebhookPayload.Repository(
+                        "my-test-repository",
+                        "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 274L,
+                        user = WebhookPayload.Comment.User("pangreor"),
+                        body = "this is a comment",
+                    ),
+            )
+        // act
+        sut.receiveNewWebhook("issue_comment", Gson().toJson(issueBody))
+        // verify
+        verify {
+            issueManager.processNewIssueComment(issueBody)
+        }
+    }
+
+    @Test
+    fun `ignores issue_comment events with action other than CREATED`() {
+        // setup
+        every { issueManager.processNewIssueComment(any()) } just runs
+        val issueBody =
+            WebhookPayload(
+                action = WebhookPayload.Action.CLOSED,
+                issue =
+                    WebhookPayload.Issue(
+                        id = 12345L,
+                        title = "Important issue title",
+                        body = "Important issue body",
+                        number = 5,
+                    ),
+                repository =
+                    WebhookPayload.Repository(
+                        "my-test-repository",
+                        "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 274L,
+                        user = WebhookPayload.Comment.User("pangreor"),
+                        body = "this is a comment",
+                    ),
+            )
+        // act
+        sut.receiveNewWebhook(
+            "issue_comment",
+            Gson().toJson(issueBody),
+        ) // to string function to be able to put enum here rather than string?
+        // verify
+        verify(exactly = 0) {
+            issueManager.processNewIssueComment(any())
+        }
+    }
+
+    @Test
+    fun `ignores unhandled event types`() {
+        // setup
+        every { issueManager.processNewIssue(any()) } just runs
+        every { issueManager.processNewIssueComment(any()) } just runs
+        val issueBody =
+            WebhookPayload(
+                action = WebhookPayload.Action.CLOSED,
+                issue =
+                    WebhookPayload.Issue(
+                        id = 12345L,
+                        title = "Important issue title",
+                        body = "Important issue body",
+                        number = 5,
+                    ),
+                repository =
+                    WebhookPayload.Repository(
+                        "my-test-repository",
+                        "my-test-url",
+                    ),
+                comment =
+                    WebhookPayload.Comment(
+                        id = 274L,
+                        user = WebhookPayload.Comment.User("pangreor"),
+                        body = "this is a comment",
+                    ),
+            )
+        // act
+        // verify
+        expectThrows<IllegalArgumentException> {
+            sut.receiveNewWebhook("foo", Gson().toJson(issueBody))
         }
     }
 }

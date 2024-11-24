@@ -63,4 +63,44 @@ class GitHubFacadeTest {
             ),
         )
     }
+
+    @Test
+    fun `writes a comment on the correct issue`() {
+        every { sut.generateInstallationToken() } returns "my-fancy-token"
+        // mock github API output: this is basically an exact copy of an example response from the docs page, but with the owner and repo name changed
+        val getRepoOutput = File("src/test/resources/wiremock/get-repo-output.json").readText()
+        val getIssueOutput = File("src/test/resources/wiremock/get-issue-output.json").readText()
+        val createCommentOutput = File("src/test/resources/wiremock/create-comment-output.json").readText()
+        // ^ same as above, except we do not care *at all* what the output is, we only need it for the underlying github library to run without exceptions
+        stubFor(get("/repos/my-owner/my-test-repo").willReturn(ok().withBody(getRepoOutput)))
+        stubFor(get("/repos/my-owner/my-test-repo/issues/5").willReturn(ok().withBody(getIssueOutput)))
+        stubFor(
+            post(
+                "/repos/my-owner/my-test-repo/issues/5/comments",
+            ).willReturn(ResponseDefinitionBuilder.responseDefinition().withStatus(201).withBody(createCommentOutput)),
+        )
+
+        // Act
+        sut.createComment(
+            "my-owner/my-test-repo",
+            5,
+            "this is a comment",
+            endpoint = "http://localhost:3000",
+        )
+
+        // Verify
+        verify(
+            postRequestedFor(urlEqualTo("/repos/my-owner/my-test-repo/issues/5/comments")).withRequestBody(
+                equalToJson(
+                    """
+                    {
+                      "body" : "this is a comment"
+                    }
+                    """,
+                ),
+            ),
+        )
+    }
+
+    // TODO: write a test for the generate token func
 }
