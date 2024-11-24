@@ -1,5 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:tc:postgresql:15:///test # instruct spring to start a postgres testcontainer to use as database during testing
-    hikari:
-      maximum-pool-size: 2 #https://stackoverflow.com/a/54350770
