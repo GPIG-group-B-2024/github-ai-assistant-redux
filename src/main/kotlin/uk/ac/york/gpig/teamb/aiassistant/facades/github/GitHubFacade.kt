@@ -33,14 +33,16 @@ class GitHubFacade {
         repoName: String,
         issueNumber: Int,
         body: String,
+        /**The endpoint to use to connect to github. Should only be modified for tests*/
+        endpoint: String = "https://api.github.com",
     ) {
         val token = generateInstallationToken()
-        val github = GitHubBuilder().withAppInstallationToken(token).build()
+        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
         val repo = github.getRepository(repoName)
-        val issue = repo.getIssue(issueNumber)
         logger.info("Successfully authenticated")
+        val issue = repo.getIssue(issueNumber)
         val issueComment = issue.comment(body)
-        logger.info("Successfully commented on issue ${issue.id} in repository ${repo.name}")
+        logger.info("Successfully commented on issue ${issue.number} in repository ${repo.name}")
     }
 
     /**

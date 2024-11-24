@@ -7,10 +7,8 @@ import com.google.gson.annotations.SerializedName
 
  * */
 enum class EventType {
-    @SerializedName("issues")
     ISSUES,
 
-    @SerializedName("issue_comment")
     ISSUE_COMMENT,
 
     ;
