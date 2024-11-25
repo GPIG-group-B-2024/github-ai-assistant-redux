@@ -1,11 +1,11 @@
-package uk.ac.york.gpig.teamb.aiassistant.managers
+package uk.ac.york.gpig.teamb.aiassistant.vcs
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.ac.york.gpig.teamb.aiassistant.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 
 /**
  * Manages the response to issues: interacts with the git repository and creates pull requests
@@ -19,7 +19,7 @@ class IssueManager(
 
     fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->
-            val (issue, _, repository) = payload
+            val (issue, _, repository, _) = payload
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
             logger.info("Cloning git repo...")
@@ -33,9 +33,9 @@ class IssueManager(
                 branchName,
                 "file-from-issue-${issue.number}.txt",
                 """
-            Some code addressing the following problem:
-            ${issue.body}
-        """,
+                Some code addressing the following problem:
+                ${issue.body}
+                """,
             )
             gitFacade.pushBranch(gitFile, branchName, installationToken)
             logger.info("Successfully pushed branch $branchName to upstream. Creating pull request...")
@@ -49,4 +49,19 @@ class IssueManager(
             // https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
             logger.info("Success!")
         }
+
+    fun processNewIssueComment(payload: WebhookPayload) {
+        val (issue, _, repository, comment) = payload
+        if (comment.user.login != "gpig-ai-assistant[bot]") { // TODO add login to config instead of hardcoding
+            logger.info("Processing comment ${comment.id} on issue ${issue.number}")
+            gitHubFacade.createComment(
+                repository.fullName,
+                issue.number,
+                "This is a helpful comment",
+            )
+            logger.info("Success!")
+        } else {
+            logger.info("Latest comment is from myself, aborting...")
+        }
+    }
 }

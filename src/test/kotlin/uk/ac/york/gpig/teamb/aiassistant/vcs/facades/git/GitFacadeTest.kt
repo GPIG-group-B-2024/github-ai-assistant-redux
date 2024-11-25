@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.facades.git
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
@@ -7,17 +7,17 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import strikt.api.expectDoesNotThrow
 import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.isNotNull
 import strikt.assertions.one
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.listDirectoryEntries
 
-@SpringBootTest
+@AiAssistantTest
 class GitFacadeTest {
     @Autowired
     private lateinit var sut: GitFacade

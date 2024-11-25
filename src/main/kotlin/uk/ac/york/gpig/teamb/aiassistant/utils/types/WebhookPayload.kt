@@ -12,6 +12,7 @@ data class WebhookPayload(
     val issue: Issue,
     val action: Action,
     val repository: Repository,
+    val comment: Comment,
 ) {
     data class Issue(
         val title: String,
@@ -19,6 +20,14 @@ data class WebhookPayload(
         val number: Int,
         val id: Long,
     )
+
+    data class Comment(
+        val id: Long,
+        val user: User,
+        val body: String,
+    ) {
+        data class User(val login: String)
+    }
 
     /**
      * The action being done to an issue (has many more options, must be added here as needed)
@@ -30,6 +39,9 @@ data class WebhookPayload(
 
         @SerializedName("closed")
         CLOSED,
+
+        @SerializedName("created")
+        CREATED,
     }
 
     /**
