@@ -7,18 +7,29 @@ import io.mockk.just
 import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.managers.IssueManager
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
+import java.sql.DriverManager.println
 
-@SpringBootTest
+
+@WebMvcTest(IssueCreationController::class)
 class IssueCreationControllerTest {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
     @MockkBean
     private lateinit var issueManager: IssueManager
 
-    @Autowired
-    private lateinit var sut: IssueCreationController
 
     @Test
     fun `passes issue event payload to issue manager`() {
@@ -32,19 +43,33 @@ class IssueCreationControllerTest {
                         id = 12345L,
                         title = "Important issue title",
                         body = "Important issue body",
-                        number = 5,
+                        number = 5
                     ),
                 repository =
                     WebhookPayload.Repository(
                         "my-test-repository",
-                        "my-test-url",
+                        "my-test-url"
                     ),
             )
+
+        val requestBody = Gson().toJson(issueBody)
         // act
-        sut.receiveNewIssue(Gson().toJson(issueBody))
+        val result = mockMvc.perform(
+            post("/new-issue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+            .andExpect(status().isOk)
+
+        //println("Response: ${result.andReturn().response.contentAsString}") // Debugging
+
         // verify
-        verify {
-            issueManager.processNewIssue(issueBody)
+        verify(exactly = 1) {
+            issueManager.processNewIssue(withArg { actual ->
+                assertEquals(issueBody.action, actual.action)
+                assertEquals(issueBody.issue.id, actual.issue.id)
+                assertEquals(issueBody.repository.fullName, actual.repository.fullName)
+            })
         }
     }
 
@@ -68,8 +93,17 @@ class IssueCreationControllerTest {
                         "my-test-url",
                     ),
             )
+
+        val requestBody = Gson().toJson(issueBody)
+
         // act
-        sut.receiveNewIssue(Gson().toJson(issueBody))
+        mockMvc.perform(
+            post("/new-issue")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
+        )
+            .andExpect(status().isOk)
+
         // verify
         verify(exactly = 0) {
             issueManager.processNewIssue(any())
