@@ -1,5 +1,6 @@
 package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
+import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHubBuilder
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -27,10 +28,7 @@ class GitHubFacade {
         title: String,
         body: String,
     ) {
-        val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
-        val repo = github.getRepository(repoName)
-        logger.info("Successfully authenticated")
+        val repo = authenticateAndCheckoutRepo(repoName)
         val pullRequest = repo.createPullRequest(title, featureBranch, baseBranch, body)
         logger.info("Successfully created pull request ${pullRequest.number} in repository ${repo.name}")
     }
@@ -40,10 +38,7 @@ class GitHubFacade {
         issueNumber: Int,
         body: String,
     ) {
-        val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
-        val repo = github.getRepository(repoName)
-        logger.info("Successfully authenticated")
+        val repo = authenticateAndCheckoutRepo(repoName)
         val issue = repo.getIssue(issueNumber)
         issue.comment(body)
         logger.info("Successfully commented on issue ${issue.number} in repository ${repo.name}")
@@ -63,4 +58,13 @@ class GitHubFacade {
             .createToken() // authenticate with the JWT and generate an *Installation token*.
             .create() // These tokens are short-lived, so for now, create a new one for each action. TODO: look into caching
             .token
+
+    /**
+     * Helper function that generates a fresh installation token and uses it to get a github repository by the given name.
+     * */
+    internal fun authenticateAndCheckoutRepo(repoName: String): GHRepository {
+        val token = generateInstallationToken()
+        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
+        return github.getRepository(repoName).also { logger.info("Successfully authenticated") }
+    }
 }
