@@ -24,7 +24,7 @@ class GitFacadeTest {
 
     companion object {
         val gitServer =
-            GitHttpServerContainer(GitServerVersions.V2_43.getDockerImageName())
+            GitHttpServerContainer(GitServerVersions.V2_43.dockerImageName)
 
         @BeforeAll
         @JvmStatic
