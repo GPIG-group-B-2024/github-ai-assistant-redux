@@ -14,7 +14,7 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
 
 @WebMvcTest(controllers = [WebhookController::class])
-class MockMvcWebhookPayload {
+class WebhookControllerMockMvcTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -22,7 +22,7 @@ class MockMvcWebhookPayload {
     private lateinit var issueManager: IssueManager
 
     @Test
-    fun `test_invalid_header`()  {
+    fun `smoke test`() {
         val mockWebhook =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
