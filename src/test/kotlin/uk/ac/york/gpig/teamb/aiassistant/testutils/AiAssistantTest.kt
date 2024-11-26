@@ -38,6 +38,7 @@ private class DbCleanUpExtension : BeforeAllCallback, AfterEachCallback {
     override fun beforeAll(context: ExtensionContext) {
         if (appTables == null) {
             val ctx = SpringExtension.getApplicationContext(context).getBean(DSLContext::class.java)
+            @Suppress("UNCHECKED_CAST")
             appTables =
                 (ctx.meta().tables as List<Table<Record>>).filter {
                     !it.name.contains("flyway_schema_history") &&

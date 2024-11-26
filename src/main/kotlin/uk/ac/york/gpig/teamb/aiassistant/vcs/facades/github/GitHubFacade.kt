@@ -1,7 +1,9 @@
 package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
 
+import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHubBuilder
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 
@@ -12,19 +14,21 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
 class GitHubFacade {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    /**
+     * We use a different endpoint address for mocking github requests in testing.
+     * In production, use the normal github endpoint
+     * */
+    @Value("\${app_settings.github_api_endpoint:https://api.github.com}")
+    private lateinit var githubEndpoint: String
+
     fun createPullRequest(
         repoName: String,
         baseBranch: String = "main",
         featureBranch: String,
         title: String,
         body: String,
-        /**The endpoint to use to connect to github. Should only be modified for tests*/
-        endpoint: String = "https://api.github.com",
     ) {
-        val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
-        val repo = github.getRepository(repoName)
-        logger.info("Successfully authenticated")
+        val repo = authenticateAndCheckoutRepo(repoName)
         val pullRequest = repo.createPullRequest(title, featureBranch, baseBranch, body)
         logger.info("Successfully created pull request ${pullRequest.number} in repository ${repo.name}")
     }
@@ -33,13 +37,8 @@ class GitHubFacade {
         repoName: String,
         issueNumber: Int,
         body: String,
-        /**The endpoint to use to connect to github. Should only be modified for tests*/
-        endpoint: String = "https://api.github.com",
     ) {
-        val token = generateInstallationToken()
-        val github = GitHubBuilder().withEndpoint(endpoint).withAppInstallationToken(token).build()
-        val repo = github.getRepository(repoName)
-        logger.info("Successfully authenticated")
+        val repo = authenticateAndCheckoutRepo(repoName)
         val issue = repo.getIssue(issueNumber)
         issue.comment(body)
         logger.info("Successfully commented on issue ${issue.number} in repository ${repo.name}")
@@ -59,4 +58,13 @@ class GitHubFacade {
             .createToken() // authenticate with the JWT and generate an *Installation token*.
             .create() // These tokens are short-lived, so for now, create a new one for each action. TODO: look into caching
             .token
+
+    /**
+     * Helper function that generates a fresh installation token and uses it to get a github repository by the given name.
+     * */
+    internal fun authenticateAndCheckoutRepo(repoName: String): GHRepository {
+        val token = generateInstallationToken()
+        val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
+        return github.getRepository(repoName).also { logger.info("Successfully authenticated") }
+    }
 }
