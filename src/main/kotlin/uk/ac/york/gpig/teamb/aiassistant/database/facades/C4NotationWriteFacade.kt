@@ -1,9 +1,14 @@
 package uk.ac.york.gpig.teamb.aiassistant.database.facades
 
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4ElementEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4WorkspaceEntity
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
+import uk.ac.york.gpig.teamb.aiassistant.tables.references.RELATIONSHIP
+import uk.ac.york.gpig.teamb.aiassistant.tables.references.WORKSPACE
 
 /**
  * Handles writing to the database storing the C4 representations of repositories.
@@ -12,25 +17,41 @@ import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
 class C4NotationWriteFacade(
     val ctx: DSLContext,
 ) {
-    fun writeMember(member: C4ElementEntity) {
+    fun writeMemberList(entities: List<C4ElementEntity>) {
         val success =
             ctx.insertInto(MEMBER)
-                .columns(
-                    MEMBER.ID,
-                    MEMBER.WORKSPACE_ID,
-                    MEMBER.NAME,
-                    MEMBER.DESCRIPTION,
-                    MEMBER.PARENT,
-                    MEMBER.TYPE,
+                .columns(MEMBER.ID, MEMBER.NAME, MEMBER.DESCRIPTION, MEMBER.PARENT, MEMBER.TYPE, MEMBER.WORKSPACE_ID)
+                .valuesOfRows(
+                    entities.map { DSL.row(it.id, it.name, it.description, it.parentId, it.type, it.workspaceId) },
                 )
-                .values(
-                    member.id,
-                    member.workspaceId,
-                    member.name,
-                    member.description,
-                    member.parentId,
-                    member.type,
-                ).execute() == 1
-        if (!success) throw Exception("Failed to write member ${member.id}")
+                .execute() == 1
+        if (!success) throw Exception("Failed to write entity records")
+    }
+
+    fun writeRelationshipsList(relationships: List<C4RelationshipEntity>) {
+        val success =
+            ctx.insertInto(RELATIONSHIP)
+                .columns(RELATIONSHIP.START_MEMBER, RELATIONSHIP.END_MEMBER, RELATIONSHIP.WORKSPACE_ID, RELATIONSHIP.DESCRIPTION)
+                .valuesOfRows(
+                    relationships.map {
+                        DSL.row(
+                            it.from,
+                            it.to,
+                            it.workspaceId,
+                            it.description,
+                        )
+                    },
+                )
+                .execute() == 1
+        if (!success) throw Exception("Failed to write relationships list")
+    }
+
+    fun writeWorkspace(workspace: C4WorkspaceEntity) {
+        val success =
+            ctx.insertInto(WORKSPACE)
+                .columns(WORKSPACE.ID, WORKSPACE.NAME, WORKSPACE.DESCRIPTION)
+                .values(workspace.id, workspace.name, workspace.description)
+                .execute() == 1
+        if (!success) throw Exception("Failed to write workspace record with id ${workspace.id} (${workspace.name})")
     }
 }
