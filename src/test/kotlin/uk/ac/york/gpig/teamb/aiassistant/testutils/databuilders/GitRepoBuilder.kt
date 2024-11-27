@@ -5,17 +5,14 @@ import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import java.util.UUID
 
 @TestDSL
-class GitRepoBuilder(val createWorkspace: Boolean) : TestDataWithIdBuilder<GitRepoBuilder, UUID?>() {
+class GitRepoBuilder : TestDataWithIdBuilder<GitRepoBuilder, UUID?>() {
     override var id: UUID = UUID.randomUUID()
     var url: String = "https://github.com/some-coder/my-fancy-repo"
     var fullName: String = "some-coder/my-fancy-repo"
 
     companion object {
         @TestDSL
-        fun gitRepo(
-            createWorkspace: Boolean = true,
-            setup: GitRepoBuilder.() -> Unit,
-        ): GitRepoBuilder = GitRepoBuilder(createWorkspace).apply(setup)
+        fun gitRepo(setup: GitRepoBuilder.() -> Unit): GitRepoBuilder = GitRepoBuilder().apply(setup)
     }
 
     private val workspaceId = UUID.randomUUID()
@@ -35,7 +32,7 @@ class GitRepoBuilder(val createWorkspace: Boolean) : TestDataWithIdBuilder<GitRe
             GITHUB_REPOSITORY,
             GITHUB_REPOSITORY.ID,
         ) {
-            val workspace = if (createWorkspace) WorkspaceBuilder.workspace(workspaceBuilder).create(ctx) else null
+            val workspace = WorkspaceBuilder.workspace(workspaceBuilder).create(ctx)
             ctx.insertInto(GITHUB_REPOSITORY)
                 .columns(
                     GITHUB_REPOSITORY.ID,
@@ -47,7 +44,7 @@ class GitRepoBuilder(val createWorkspace: Boolean) : TestDataWithIdBuilder<GitRe
                     id,
                     fullName,
                     url,
-                    workspace?.id,
+                    workspace.id,
                 )
                 .execute()
         }

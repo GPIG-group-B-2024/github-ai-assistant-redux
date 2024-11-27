@@ -46,8 +46,6 @@ dependencies {
   jooqGenerator("org.postgresql:postgresql:42.7.2")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   // =========================
-  implementation(
-      "com.structurizr:structurizr-dsl:3.1.0") // for parsing incoming structurizr content from LLM
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
