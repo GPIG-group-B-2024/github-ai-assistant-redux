@@ -12,6 +12,7 @@ workspace "My-weather-app" "A simple yet powerful weather app with a database an
             }
         }
 
+
         wa -> db "Reads from and writes to"
         serviceLayer -> dba "Converts raw database output to easy-to-read JSON"
         cont -> u "Send and receive HTTP traffic"
