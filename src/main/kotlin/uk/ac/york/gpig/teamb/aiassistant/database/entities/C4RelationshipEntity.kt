@@ -11,6 +11,7 @@ data class C4RelationshipEntity(
     val fromName: String,
     val toName: String,
     val description: String?,
+    val workspaceId: UUID,
 ) {
     companion object {
         /**
@@ -30,6 +31,7 @@ data class C4RelationshipEntity(
                 description = record.get(RELATIONSHIP.DESCRIPTION),
                 fromName = record.get(fromMember.NAME)!!,
                 toName = record.get(toMember.NAME)!!,
+                workspaceId = record.get(RELATIONSHIP.WORKSPACE_ID)!!,
             )
     }
 
