@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.verifyNoInteractions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
@@ -174,14 +173,10 @@ class WebhookControllerMockMvcTest {
                 Gson().toJson(mockWebhook),
             ),
         )
-            .andExpect(status().isBadRequest)  // Expect 400 bad request
+            .andExpect(status().isBadRequest) // Expect 400 bad request
 
 //        verify {
 //            issueManager.processNewIssue(mockWebhook)
 //        }
     }
-
-
-
-
 }
