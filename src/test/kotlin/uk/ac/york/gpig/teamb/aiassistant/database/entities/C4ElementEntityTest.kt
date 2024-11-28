@@ -8,7 +8,7 @@ import java.util.UUID
 
 class C4ElementEntityTest {
     @Test
-    fun `formats variable name to exclude periods and spaces`()  {
+    fun `formats variable name to exclude periods and spaces`() {
         val entity =
             C4ElementEntity(
                 id = UUID.randomUUID(),
