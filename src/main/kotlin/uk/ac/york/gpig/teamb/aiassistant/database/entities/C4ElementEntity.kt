@@ -16,7 +16,7 @@ data class C4ElementEntity(
     /**
      * The variable associated with this element in structurizr DSL
      * */
-    val variableName = this.name.replace("[\\s.]]".toRegex(), "-") // replace dots and spaces with dashes
+    val variableName = this.name.replace("[\\s.]".toRegex(), "-") // replace dots and spaces with dashes
 
     companion object {
         fun fromJooq(record: Record): C4ElementEntity =
