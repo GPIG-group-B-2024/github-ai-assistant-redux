@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
+import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException.NotFoundByNameException
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
@@ -193,6 +195,26 @@ class C4ManagerTest {
                 "Controllers" to "Business logic" toTriple "Calls functions corresponding to user requests",
                 "Database Access" to "Database Schema" toTriple "Compiles and executes queries",
             )
+        }
+
+        @Test
+        fun `throws for unknown github repository`() {
+            gitRepo(createWorkspace = false) {
+                this.fullName = "some-dev/my-weather-app"
+            }.create(ctx)
+
+            expectThrows<NotFoundByNameException> {
+                sut.consumeStructurizrWorkspace(
+                    "unknown-repo",
+                    """
+                    workspace "blank" "should not get parsed - but is still valid structurizr" {
+                        
+                    }
+                    """,
+                )
+            }.and {
+                get { this.message }.isEqualTo("Could not find github repository with name \"unknown-repo\"")
+            }
         }
     }
 }
