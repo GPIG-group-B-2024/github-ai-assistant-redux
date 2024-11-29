@@ -11,7 +11,7 @@ CREATE TABLE github_repository
     id           UUID NOT NULL PRIMARY KEY,
     url          TEXT NOT NULL,
     full_name    TEXT NOT NULL,
-    workspace_id UUID NOT NULL REFERENCES workspace (id)
+    workspace_id UUID REFERENCES workspace (id)
 );
 
 
