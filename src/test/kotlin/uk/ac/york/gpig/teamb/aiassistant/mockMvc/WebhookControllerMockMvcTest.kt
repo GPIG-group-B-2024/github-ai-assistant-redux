@@ -174,9 +174,5 @@ class WebhookControllerMockMvcTest {
             ),
         )
             .andExpect(status().isBadRequest) // Expect 400 bad request
-
-//        verify {
-//            issueManager.processNewIssue(mockWebhook)
-//        }
     }
 }
