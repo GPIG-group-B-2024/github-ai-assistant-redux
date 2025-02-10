@@ -48,6 +48,10 @@ dependencies {
   // =========================
   implementation(
       "com.structurizr:structurizr-dsl:3.1.0") // for parsing incoming structurizr content from LLM
+  implementation(
+      "com.fasterxml.jackson.module:jackson-module-jsonSchema-jakarta:2.18.2") // JSON schema
+  // generation
+  // (openAI)
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
@@ -56,6 +60,7 @@ dependencies {
       "io.github.sparsick.testcontainers.gitserver:testcontainers-gitserver") // mock git server
   testImplementation("com.maciejwalkowiak.spring:wiremock-spring-boot:2.1.3")
   testImplementation("org.testcontainers:postgresql:1.17.6")
+  testImplementation("io.strikt:strikt-jackson:0.34.0")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -92,7 +97,7 @@ val container =
 // apply migrations
 flyway {
   logging.captureStandardOutput(LogLevel.INFO)
-  url = container?.getJdbcUrl()
+  url = container?.jdbcUrl
   user = container?.username
   password = container?.password
   schemas = arrayOf("github_ai_assistant")
@@ -107,7 +112,7 @@ jooq {
         logging = Logging.WARN
         jdbc.apply {
           driver = "org.postgresql.Driver"
-          url = container?.getJdbcUrl()
+          url = container?.jdbcUrl
           user = container?.username
           password = container?.password
         }
