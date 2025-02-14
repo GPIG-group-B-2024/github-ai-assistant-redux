@@ -16,6 +16,9 @@ data class OpenAIMessage(
 
         @JsonProperty("system")
         SYSTEM,
+
+        @JsonProperty("assistant")
+        ASSISTANT,
     }
 }
 

@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.database.conversions
+package uk.ac.york.gpig.teamb.aiassistant.database.c4.conversions
 
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType
 

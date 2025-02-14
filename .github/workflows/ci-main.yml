@@ -25,10 +25,11 @@ jobs:
       - name: Generate JOOQ classes
         run: ./gradlew --no-daemon generateJooq
       - name: Run tests
+        id: tests
         run: ./gradlew --no-daemon test
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: steps.tests.outcome == 'failure' || steps.tests.outcome == 'success'
         with:
           name: Gradle tests
           path: ./build/test-results/*/*.xml

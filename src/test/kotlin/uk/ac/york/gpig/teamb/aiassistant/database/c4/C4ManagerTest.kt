@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.database
+package uk.ac.york.gpig.teamb.aiassistant.database.c4
 
 import org.jooq.DSLContext
 import org.junit.jupiter.api.DisplayName

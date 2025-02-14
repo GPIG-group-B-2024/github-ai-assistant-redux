@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.database.entities
+package uk.ac.york.gpig.teamb.aiassistant.database.c4.entities
 
 import org.jooq.Record
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType

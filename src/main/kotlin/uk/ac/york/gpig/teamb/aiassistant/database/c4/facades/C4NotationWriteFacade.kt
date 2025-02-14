@@ -1,11 +1,11 @@
-package uk.ac.york.gpig.teamb.aiassistant.database.facades
+package uk.ac.york.gpig.teamb.aiassistant.database.c4.facades
 
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4ElementEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4WorkspaceEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4ElementEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4WorkspaceEntity
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.RELATIONSHIP

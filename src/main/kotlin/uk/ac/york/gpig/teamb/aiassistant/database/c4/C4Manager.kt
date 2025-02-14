@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.database
+package uk.ac.york.gpig.teamb.aiassistant.database.c4
 
 import com.structurizr.dsl.StructurizrDslParser
 import com.structurizr.model.Component
@@ -8,13 +8,13 @@ import com.structurizr.model.SoftwareSystem
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
-import uk.ac.york.gpig.teamb.aiassistant.database.conversions.toStructurizrString
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4ElementEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4WorkspaceEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException.NotFoundByNameException
-import uk.ac.york.gpig.teamb.aiassistant.database.facades.C4NotationReadFacade
-import uk.ac.york.gpig.teamb.aiassistant.database.facades.C4NotationWriteFacade
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.conversions.toStructurizrString
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4ElementEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4WorkspaceEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationWriteFacade
+import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType
 import java.util.UUID
 
@@ -36,7 +36,7 @@ class C4Manager(
         val workspace =
             c4NotationReadFacade.getRepositoryWorkspace(
                 repoName,
-            ) ?: throw NotFoundByNameException(repoName, "github repository")
+            ) ?: throw NotFoundException.NotFoundByNameException(repoName, "github repository")
         logger.info("Found repository with name $repoName")
         val members = c4NotationReadFacade.getMembers(workspace.id)
         logger.info("Found ${members.size} members in repo $repoName")
@@ -68,7 +68,7 @@ class C4Manager(
     ) {
         if (!c4NotationReadFacade.checkRepositoryExists(repoName)) {
             // we don't know of this repository - throw exception and abort early
-            throw NotFoundByNameException(repoName, "github repository")
+            throw NotFoundException.NotFoundByNameException(repoName, "github repository")
         }
         logger.info("Found repository with name $repoName")
 

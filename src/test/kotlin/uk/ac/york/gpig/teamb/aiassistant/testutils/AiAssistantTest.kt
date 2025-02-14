@@ -51,8 +51,8 @@ private class DbCleanUpExtension : BeforeAllCallback, AfterEachCallback {
     /**
      * Delete everything from every known table in the database
      * */
-    override fun afterEach(context: ExtensionContext) {
-        val ctx = SpringExtension.getApplicationContext(context).getBean(DSLContext::class.java)
-        appTables!!.forEach { ctx.truncate(it).cascade().execute() }
-    }
+    override fun afterEach(context: ExtensionContext) =
+        SpringExtension.getApplicationContext(context).getBean(DSLContext::class.java).let { ctx ->
+            appTables!!.forEach { ctx.truncate(it).cascade().execute() }
+        }
 }

@@ -1,12 +1,12 @@
-package uk.ac.york.gpig.teamb.aiassistant.database.facades
+package uk.ac.york.gpig.teamb.aiassistant.database.c4.facades
 
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4ElementEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity.Companion.fromMember
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4RelationshipEntity.Companion.toMember
-import uk.ac.york.gpig.teamb.aiassistant.database.entities.C4WorkspaceEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4ElementEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity.Companion.fromMember
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity.Companion.toMember
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4WorkspaceEntity
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.RELATIONSHIP
@@ -31,7 +31,7 @@ class C4NotationReadFacade(
             .where(
                 MEMBER.WORKSPACE_ID
                     .eq(workspaceId),
-            ).fetch(C4ElementEntity::fromJooq)
+            ).fetch(C4ElementEntity.Companion::fromJooq)
 
     /**
      * Gets all known relationships from a workspace
@@ -55,7 +55,7 @@ class C4NotationReadFacade(
             .join(GITHUB_REPOSITORY)
             .on(GITHUB_REPOSITORY.WORKSPACE_ID.eq(WORKSPACE.ID))
             .where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName))
-            .fetchOne(C4WorkspaceEntity::fromJooq)
+            .fetchOne(C4WorkspaceEntity.Companion::fromJooq)
 
     /**
      * Check that a github repository with the given name exists in the database
@@ -64,4 +64,9 @@ class C4NotationReadFacade(
      * */
     fun checkRepositoryExists(repoName: String): Boolean =
         ctx.fetchExists(GITHUB_REPOSITORY.where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName)))
+
+    /**
+     * Check that a github repository with the given ID exists in the database
+     * */
+    fun checkRepositoryExists(repoId: UUID): Boolean = ctx.fetchExists(GITHUB_REPOSITORY.where(GITHUB_REPOSITORY.ID.eq(repoId)))
 }
