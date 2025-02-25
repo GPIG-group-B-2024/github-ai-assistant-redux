@@ -10,7 +10,6 @@ import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.conversions.to
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationWriteFacade
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage
-import java.lang.IllegalStateException
 import java.util.UUID
 
 @Service
@@ -52,4 +51,11 @@ class LLMConversationManager(
         }
         logger.info("Stored new conversation with id $conversationId and first message with id $messageId")
     }
+
+    fun fetchConversations() = llmConversationReadFacade.fetchConversations().also { logger.info("Found ${it.size} conversations") }
+
+    fun fetchConversationMessages(conversationId: UUID) =
+        llmConversationReadFacade.listConversationMessages(conversationId).also {
+            logger.info("Found ${it.size} messages in conversation $conversationId")
+        }
 }

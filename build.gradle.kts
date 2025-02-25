@@ -1,4 +1,5 @@
 import org.jooq.meta.jaxb.Logging
+import org.springframework.boot.gradle.tasks.run.BootRun
 import org.testcontainers.containers.PostgreSQLContainer
 
 plugins {
@@ -34,6 +35,8 @@ dependencyManagement {
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+  developmentOnly("org.springframework.boot:spring-boot-devtools")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r") // git API
   implementation("org.kohsuke:github-api:1.326") // GitHub API
@@ -69,6 +72,7 @@ kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 tasks.withType<Test> { useJUnitPlatform() }
 
 // formatting
+fun resourcesOfType(type: String) = "src/main/resources/**/*.$type"
 
 spotless {
   kotlin {
@@ -80,6 +84,14 @@ spotless {
   kotlinGradle {
     target("*.gradle.kts") // default target for kotlinGradle
     ktfmt()
+  }
+  format("html") {
+    target(resourcesOfType("html"))
+    prettier().config(mapOf("parser" to "html"))
+  }
+  format("css") {
+    target(resourcesOfType("css"))
+    prettier().config(mapOf("parser" to "css"))
   }
 }
 
@@ -145,4 +157,12 @@ tasks.named("generateJooq").configure {
   dependsOn(tasks.named("flywayMigrate"))
   val taskNames = project.gradle.startParameter.taskNames
   onlyIf { taskNames == listOf("generateJooq") }
+}
+
+tasks.register<BootRun>("bootRunLocal") {
+  group = "application"
+  description = "Run with `application-dev.yml` config applied"
+  classpath = sourceSets["main"].runtimeClasspath
+  mainClass.set("uk.ac.york.gpig.teamb.aiassistant.AiAssistantApplicationKt")
+  systemProperty("spring.profiles.active", "dev")
 }

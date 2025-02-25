@@ -20,8 +20,10 @@ class InstallationTargetFilter : OncePerRequestFilter() {
     ) {
         val targetHeader = request.getHeader("x-github-hook-installation-target-type")
         when (targetHeader) {
-            "repository" -> filterChain.doFilter(request, response)
-            else -> {}
+            "repository", // we have received a request from github itself
+            null, // no header i.e. request not coming from github. Let request through
+            -> filterChain.doFilter(request, response)
+            else -> {} // request has the github header but the value is wrong. This is a duplicate request from smee. Do not let through.
         }
     }
 }

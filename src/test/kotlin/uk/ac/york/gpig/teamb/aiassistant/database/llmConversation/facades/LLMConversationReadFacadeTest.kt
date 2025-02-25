@@ -117,11 +117,13 @@ class LLMConversationReadFacadeTest {
             val conversationId = UUID.randomUUID()
             val issueId = 10
             val repoId = UUID.randomUUID()
+            val repoName = "my-fancy-repo"
             conversation {
                 this.id = conversationId
                 this.issueId = issueId
                 this.gitRepo {
                     this.id = repoId
+                    this.fullName = repoName
                 }
             }.create(ctx)
 
@@ -131,6 +133,7 @@ class LLMConversationReadFacadeTest {
                 get { this.id }.isEqualTo(conversationId)
                 get { this.issueId }.isEqualTo(issueId)
                 get { this.repoId }.isEqualTo(repoId)
+                get { this.repoName }.isEqualTo(repoName)
             }
         }
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.entities.LLMConversationEntity
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.entities.LLMMessageEntity
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.CONVERSATION_MESSAGE
+import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_CONVERSATION
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_MESSAGE
 import java.util.UUID
@@ -39,7 +40,11 @@ class LLMConversationReadFacade(
         repoId: UUID,
         issueId: Int,
     ): LLMConversationEntity? =
-        ctx.selectFrom(LLM_CONVERSATION)
+        ctx.selectFrom(
+            LLM_CONVERSATION
+                .leftJoin(GITHUB_REPOSITORY)
+                .on(LLM_CONVERSATION.REPO_ID.eq(GITHUB_REPOSITORY.ID)),
+        )
             .where(
                 LLM_CONVERSATION.REPO_ID.eq(
                     repoId,
@@ -49,6 +54,13 @@ class LLMConversationReadFacade(
                     ),
             )
             .fetchOne(LLMConversationEntity::fromJooq)
+
+    fun fetchConversations() =
+        ctx.selectFrom(
+            LLM_CONVERSATION
+                .leftJoin(GITHUB_REPOSITORY)
+                .on(LLM_CONVERSATION.REPO_ID.eq(GITHUB_REPOSITORY.ID)),
+        ).fetch(LLMConversationEntity::fromJooq)
 
     /**
      * Check if we already have a conversation for this issue in this repository.

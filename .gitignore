@@ -40,3 +40,6 @@ out/
 
 ### key files ###
 **/**.pem
+
+### local dev spring profile ###
+/src/main/resources/application-dev.yml

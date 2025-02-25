@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Admin dashboard</title>
+  </head>
+  <link
+    rel="stylesheet"
+    href="../../static/css/main.css"
+    th:href="@{/css/main.css}"
+  />
+  <body>
+    <h2 th:text="|Conversations (${conversationCount} entries)|"></h2>
+    <div class="table-container">
+      <table class="conversations-list-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Github repo</th>
+            <th>Github issue ID</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${data}">
+            <td>
+              <a th:href="|/admin/conversations/${item.id}|">
+                <span class="convo-id" th:text="${item.id}" />
+              </a>
+            </td>
+            <td th:text="${item.repoName}"></td>
+            <td th:text="${item.issueId}"></td>
+            <td>
+              <div
+                class="badge badge-timestamp"
+                th:text="${#temporals.format(item.getCreatedAt(), 'dd MMMM yyyy HH:mm:ss')}"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

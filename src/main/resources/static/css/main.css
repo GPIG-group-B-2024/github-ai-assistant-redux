@@ -1,0 +1,164 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Helvetica, sans-serif;
+}
+
+h2 {
+  text-align: start;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+table {
+  align-self: center;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 400px;
+  box-shadow: 0 0 20px rgb(0 0 0 / 15%);
+  table-layout: fixed;
+}
+
+.table-container {
+  margin: auto 20px;
+}
+
+tr {
+  display: grid;
+}
+
+thead tr {
+  background-color: cornflowerblue;
+  color: white;
+  text-align: left;
+}
+
+td {
+  overflow: hidden;
+  align-content: center;
+}
+
+th,
+td {
+  padding: 12px 15px;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.badge {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 20px;
+  color: white;
+}
+
+.badge-user-role {
+  background-color: orangered;
+}
+
+.badge-system-role {
+  background-color: rebeccapurple;
+}
+
+.badge-assistant-role {
+  background-color: yellowgreen;
+}
+
+.badge-timestamp {
+  background-color: gray;
+}
+
+.conversation-table tr {
+  grid-template-columns: 1fr 5fr 2fr;
+}
+
+.conversations-list-table tr {
+  grid-template-columns: 4fr 3fr 1fr 2fr;
+}
+
+tbody tr:hover {
+  background-color: whitesmoke;
+  transition: background 0.2s ease;
+}
+
+.convo-id {
+  font-family: "Noto Sans Mono", monospace;
+  text-transform: lowercase;
+  color: gray;
+}
+
+.conversation-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.button-home {
+  border-radius: 5px;
+  color: cornflowerblue;
+  height: fit-content;
+  padding: 2px 5px;
+  font-size: 24pt;
+  margin: auto 20px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+}
+
+.button-home:hover {
+  background-color: whitesmoke;
+  transition: background-color 0.2s ease;
+}
+
+.message-contents-cell {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.expand-message-checkbox {
+  display: none;
+  width: fit-content;
+}
+
+.expand-message-checkbox + label {
+  cursor: pointer;
+  display: inline;
+  height: 1em;
+  position: absolute;
+  top: 1em;
+  left: 0;
+  margin-top: auto;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.expand-message-checkbox:checked + label {
+  transform: rotate(0deg);
+}
+
+.message-contents {
+  max-height: 3em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: max-height 0.5s ease-in-out;
+}
+
+.expand-message-checkbox:checked + label + .message-contents {
+  max-height: 50em;
+  overflow: scroll;
+  white-space: pre-line;
+  margin: 0;
+}
+
+.error-home-button-container {
+  width: 100%;
+  align-items: center;
+}
