@@ -4,10 +4,10 @@ import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.C4Manager
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIClient
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIStructuredRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
