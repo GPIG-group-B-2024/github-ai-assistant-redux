@@ -45,6 +45,33 @@ class GitHubFacade {
     }
 
     /**
+     * Retrieve a list of "blobs" (raw file contents) for the provided list of paths (from repo root).
+     *
+     * Returns a list of filenames with their contents.
+     * */
+    fun retrieveBlobs(
+        repoName: String,
+        paths: List<String>,
+        ref: String = "HEAD",
+    ): List<FileBlob> =
+        authenticateAndCheckoutRepo(repoName).let { repo ->
+            paths.map { path ->
+                logger.info("Trying to read file $path of repo $repoName (ref: $ref)")
+                // bit of a mouthful - basically, get the text from the bytes returned by the API
+                val fileContents =
+                    repo.getFileContent(path, ref) // make request...
+                        .read() // get bytes...
+                        .reader() // create reader...
+                        .use { it.readText() } // get text and close the reader
+                logger.info("Success")
+                FileBlob(
+                    path = path,
+                    contents = fileContents,
+                )
+            }
+        }
+
+    /**
      * Generate an installation token for use with the wider GitHub API.
      *
      * */
