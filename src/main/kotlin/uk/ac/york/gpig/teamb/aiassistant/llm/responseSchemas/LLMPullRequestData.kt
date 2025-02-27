@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.llm.client
+package uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas
 
 data class LLMPullRequestData(
     val pullRequestBody: String,
