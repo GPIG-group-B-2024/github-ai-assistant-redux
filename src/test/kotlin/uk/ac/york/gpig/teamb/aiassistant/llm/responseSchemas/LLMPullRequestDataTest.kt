@@ -7,7 +7,7 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
 class LLMPullRequestDataTest {
     @Test
-    fun `smoke test2`() {
+    fun `smoke test`() {
         expectThat(LLMPullRequestData::class.toJsonSchema()).isEqualToJson(
             """
             {
