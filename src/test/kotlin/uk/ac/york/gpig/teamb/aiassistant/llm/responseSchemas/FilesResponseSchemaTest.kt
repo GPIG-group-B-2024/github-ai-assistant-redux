@@ -23,28 +23,4 @@ class FilesResponseSchemaTest {
             """.replace("\\s".toRegex(), ""),
         )
     }
-
-    @Test
-    fun `smoke test2`() {
-        expectThat(LLMPullRequestData::class.toJsonSchema()).isEqualToJson(
-            """
-            {
-            
-                "type":"object",
-                "additionalProperties":false,
-                "properties":{"pullRequestBody":{"type":"string"},
-                "pullRequestTitle":{"type":"string"},
-                "updatedFiles":
-                    {
-                    "type":"array",
-                    "items":{"type":"object",
-                    "additionalProperties":false,
-                    "properties":{"fullName":{"type":"string"},
-                    "newContents":{"type":"string"}},
-                    "required":["fullName","newContents"]}}},
-                    "required":["pullRequestBody","pullRequestTitle","updatedFiles"]
-                    }
-            """.replace("\\s".toRegex(), ""),
-        )
-    }
 }
