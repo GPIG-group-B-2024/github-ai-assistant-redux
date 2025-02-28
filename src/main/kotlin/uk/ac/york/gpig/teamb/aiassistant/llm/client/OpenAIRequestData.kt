@@ -3,7 +3,7 @@ package uk.ac.york.gpig.teamb.aiassistant.llm.client
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 
-data class OpenAIMessage(
+open class OpenAIMessage(
     val role: Role,
     val message: String,
 ) {
