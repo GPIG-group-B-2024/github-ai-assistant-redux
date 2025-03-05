@@ -1,5 +1,6 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm.client
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.ok
@@ -11,6 +12,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
+import strikt.api.expectThrows
+import strikt.assertions.contains
+import strikt.assertions.isNotNull
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 
 @AiAssistantTest
@@ -95,5 +101,77 @@ class OpenAIClientTest {
                     ),
                 ),
         )
+    }
+
+    @Test
+    fun `throws on server error`()  {
+        data class Car(val make: String, val model: String, val horsePower: Int)
+        stubFor(
+            post("/").willReturn(
+                ResponseDefinitionBuilder().withStatus(500)
+                    .withBody("Something went wrong on the server side"),
+            ),
+        )
+        expectThrows<HttpServerErrorException> {
+            sut.performStructuredOutputQuery(
+                OpenAIStructuredRequestData(
+                    model = "latest-chatgpt",
+                    messages =
+                        listOf(
+                            OpenAIMessage(
+                                role = OpenAIMessage.Role.SYSTEM,
+                                message = "You are a car inventor. When prompted, create a new car.",
+                            ),
+                            OpenAIMessage(
+                                role = OpenAIMessage.Role.USER,
+                                message =
+                                    """
+                                    Create a powerful car with a confidence-inspiring model name. 
+                                    Use a well-respected manufacturer as the make.
+                                    """.trimIndent(),
+                            ),
+                        ),
+                    responseFormatClass = Car::class,
+                ),
+            )
+        }.and {
+            get { this.message }.isNotNull().contains("Something went wrong on the server side")
+        }
+    }
+
+    @Test
+    fun `throws on client error`()  {
+        data class Car(val make: String, val model: String, val horsePower: Int)
+        stubFor(
+            post("/").willReturn(
+                ResponseDefinitionBuilder().withStatus(403)
+                    .withBody("Something went wrong on the client side"),
+            ),
+        )
+        expectThrows<HttpClientErrorException> {
+            sut.performStructuredOutputQuery(
+                OpenAIStructuredRequestData(
+                    model = "latest-chatgpt",
+                    messages =
+                        listOf(
+                            OpenAIMessage(
+                                role = OpenAIMessage.Role.SYSTEM,
+                                message = "You are a car inventor. When prompted, create a new car.",
+                            ),
+                            OpenAIMessage(
+                                role = OpenAIMessage.Role.USER,
+                                message =
+                                    """
+                                    Create a powerful car with a confidence-inspiring model name. 
+                                    Use a well-respected manufacturer as the make.
+                                    """.trimIndent(),
+                            ),
+                        ),
+                    responseFormatClass = Car::class,
+                ),
+            )
+        }.and {
+            get { this.message }.isNotNull().contains("Something went wrong on the client side")
+        }
     }
 }
