@@ -123,7 +123,7 @@ class GitFacadeTest {
                 Git.open(gitPath).branchCreate().setName("new-branch").call() // create a new branch (which we will push)
                 // act
                 val result =
-                    sut.printTree(
+                    sut.fetchFileTree(
                         gitPath,
                         "new-branch",
                     )
@@ -155,7 +155,7 @@ class GitFacadeTest {
                 Git.open(gitPath).branchCreate().setName("new-branch").call() // create a new branch (which we will push)
                 // act
                 expectThrows<IllegalArgumentException> {
-                    sut.printTree(
+                    sut.fetchFileTree(
                         gitPath,
                         "unknown-branch",
                     )

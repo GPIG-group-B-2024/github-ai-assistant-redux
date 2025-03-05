@@ -39,6 +39,21 @@ class GitFacade {
         return gitPath
     }
 
+    fun cloneRepo(
+        repoUrl: String,
+        clonePath: File,
+        token: String,
+    ): File {
+        logger.info("Cloning repo at $repoUrl into $clonePath with auth token")
+        Git.cloneRepository()
+            .setURI(repoUrl)
+            .setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token))
+            .setDirectory(clonePath)
+            .call()
+        val gitPath = File(clonePath, ".git")
+        return gitPath
+    }
+
     /**
      * Create a branch with given name from the latest `main` branch
      * */
@@ -96,7 +111,7 @@ class GitFacade {
      * Returns a single string, with each file's path (from repo root) on it's own line.
      * TODO: see if just giving ChatGPT the paths is enough. If not, add some nesting to the tree.
      * */
-    fun printTree(
+    fun fetchFileTree(
         gitPath: File,
         branchName: String,
     ): String =

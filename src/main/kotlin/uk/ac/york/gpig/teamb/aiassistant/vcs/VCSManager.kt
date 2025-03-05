@@ -2,6 +2,8 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
+import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
@@ -14,8 +16,22 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 class VCSManager(
     val gitFacade: GitFacade,
     val gitHubFacade: GitHubFacade,
+    val c4NotationReadFacade: C4NotationReadFacade,
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
+
+    fun retrieveFileTree(
+        repoName: String,
+        branchName: String = "main",
+    ): String =
+        withTempDir { tempDir ->
+            val token = gitHubFacade.generateInstallationToken()
+            val repoUrl =
+                c4NotationReadFacade.getRepoUrl(repoName)
+                    ?: throw NotFoundException.NotFoundByNameException(repoName, "github repo")
+            val gitFile = gitFacade.cloneRepo(repoUrl, tempDir.toFile(), token)
+            gitFacade.fetchFileTree(gitFile, branchName)
+        }
 
     fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->

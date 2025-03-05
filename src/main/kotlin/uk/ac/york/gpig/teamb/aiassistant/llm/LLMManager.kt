@@ -1,7 +1,6 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm
 
 import com.google.gson.Gson
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
@@ -14,6 +13,7 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
+import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 // Model version that supports the "structured output" feature
 const val CHATGPT_VERSION = "gpt-4o-2024-08-06"
@@ -23,17 +23,13 @@ const val CHATGPT_VERSION = "gpt-4o-2024-08-06"
  * */
 @Service
 class LLMManager(
-    @Autowired
-    private val client: OpenAIClient,
-    @Autowired
-    private val c4Manager: C4Manager,
-    @Autowired
-    private val conversationManager: LLMConversationManager,
     @Value("\${app_settings.chatgpt_version:gpt-4o-2024-08-06")
     private val chatGptVersion: String,
-    @Autowired
+    private val client: OpenAIClient,
+    private val c4Manager: C4Manager,
+    private val conversationManager: LLMConversationManager,
     private val transactionTemplate: TransactionTemplate,
-    @Autowired
+    private val vscManager: VCSManager,
     private val gson: Gson,
 ) {
     /**
@@ -63,7 +59,7 @@ class LLMManager(
                 Here is some information about the repository:
                 
                 * C4 model: ${c4Manager.gitRepoToStructurizrDsl(repoName)}
-                * File tree: 
+                * File tree: ${vscManager.retrieveFileTree(repoName)}
                 * Issue title: ${issue.title}
                 * Issue body: ${issue.body}
                 

@@ -74,4 +74,9 @@ class C4NotationReadFacade(
         ctx.selectFrom(
             GITHUB_REPOSITORY,
         ).where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName)).fetchOne(GITHUB_REPOSITORY.ID)
+
+    fun getRepoUrl(repoName: String): String? =
+        ctx.selectFrom(
+            GITHUB_REPOSITORY,
+        ).where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName)).fetchOne(GITHUB_REPOSITORY.URL)
 }
