@@ -23,7 +23,19 @@ class OpenAIClientTest {
     @Test
     fun `smoke test`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
-        stubFor(post("/").willReturn(ok()))
+        stubFor(
+            post("/").willReturn(
+                ok().withBody(
+                    """
+            {
+            "make": "BMW",
+            "model": "3-series",
+            "horsePower": 100
+            }
+        """,
+                ),
+            ),
+        )
         sut.performStructuredOutputQuery(
             OpenAIStructuredRequestData(
                 model = "latest-chatgpt",

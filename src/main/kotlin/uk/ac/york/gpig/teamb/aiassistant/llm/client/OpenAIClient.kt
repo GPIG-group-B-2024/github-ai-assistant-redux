@@ -17,7 +17,7 @@ class OpenAIClient {
     @Value("\${app_settings.openai_api_endpoint:https://api.openai.com/v1/chat/completions}")
     private lateinit var openAIEndpoint: String
 
-    @Value("app_settings.openai_api_key:my-fancy-token")
+    @Value("\${app_settings.openai_api_key}")
     private lateinit var apiKey: String // TODO: setup token (we can use application-dev for now)
 
     /**
@@ -35,9 +35,11 @@ class OpenAIClient {
             .defaultHeader("Content-Type", "application/json")
             .defaultHeader("Authorization", "Bearer $apiKey") // attach the token to the request
             .build()
-            .post()
-            .body(requestData)
-            .retrieve()
-            .body(String::class.java)
+            .run {
+                post()
+                    .body(requestData)
+                    .retrieve()
+                    .body(String::class.java)
+            }
             .let { Gson().fromJson(it, outputClass) }
 }
