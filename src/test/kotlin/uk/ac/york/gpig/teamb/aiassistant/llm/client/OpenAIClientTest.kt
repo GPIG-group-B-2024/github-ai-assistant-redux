@@ -104,7 +104,7 @@ class OpenAIClientTest {
     }
 
     @Test
-    fun `throws on server error`()  {
+    fun `throws on server error`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
             post("/").willReturn(
@@ -140,7 +140,7 @@ class OpenAIClientTest {
     }
 
     @Test
-    fun `throws on client error`()  {
+    fun `throws on client error`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
             post("/").willReturn(
