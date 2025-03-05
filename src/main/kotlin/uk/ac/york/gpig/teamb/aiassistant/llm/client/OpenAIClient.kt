@@ -34,17 +34,15 @@ class OpenAIClient {
             .defaultHeader("Content-Type", "application/json")
             .defaultHeader("Authorization", "Bearer $apiKey") // attach the token to the request
             .build()
-            .run {
-                post()
-                    .body(
-                        mapOf(
-                            "model" to requestData.model,
-                            "response_format" to requestData.responseFormatClass.toJsonSchema(),
-                            "messages" to requestData.messages,
-                        ),
-                    )
-                    .retrieve()
-                    .body(String::class.java)
-            }
+            .post()
+            .body(
+                mapOf(
+                    "model" to requestData.model,
+                    "response_format" to requestData.responseFormatClass.toJsonSchema(),
+                    "messages" to requestData.messages,
+                ),
+            )
+            .retrieve()
+            .body(String::class.java)
             .let { Gson().fromJson(it, requestData.responseFormatClass.java) }
 }
