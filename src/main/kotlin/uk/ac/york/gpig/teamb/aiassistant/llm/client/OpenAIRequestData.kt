@@ -3,7 +3,7 @@ package uk.ac.york.gpig.teamb.aiassistant.llm.client
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlin.reflect.KClass
 
-open class OpenAIMessage(
+data class OpenAIMessage(
     val role: Role,
     val message: String,
 ) {
