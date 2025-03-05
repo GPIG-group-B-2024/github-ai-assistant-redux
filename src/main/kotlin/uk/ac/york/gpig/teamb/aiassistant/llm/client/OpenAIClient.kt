@@ -2,6 +2,7 @@ package uk.ac.york.gpig.teamb.aiassistant.llm.client
 
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
@@ -33,10 +34,12 @@ class OpenAIClient(
     fun <TOutput : Any> performStructuredOutputQuery(requestData: OpenAIStructuredRequestData<TOutput>): TOutput =
         RestClient.builder()
             .baseUrl(openAIEndpoint)
-            .defaultHeader("Content-Type", "application/json")
-            .defaultHeader("Authorization", "Bearer $apiKey") // attach the token to the request
             .build()
             .post()
+            .headers {
+                it.contentType = MediaType.APPLICATION_JSON
+                it.setBearerAuth(apiKey)
+            }
             .body(
                 mapOf(
                     "model" to requestData.model,
