@@ -10,7 +10,9 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
  * Performs web requests to the OpenAI API
  * */
 @Service
-class OpenAIClient {
+class OpenAIClient(
+    val gson: Gson,
+) {
     /**
      * We use a different endpoint address for mocking OpenAI requests in testing.
      * In production, use the normal OpenAI endpoint
@@ -44,5 +46,5 @@ class OpenAIClient {
             )
             .retrieve()
             .body(String::class.java)
-            .let { Gson().fromJson(it, requestData.responseFormatClass.java) }
+            .let { gson.fromJson(it, requestData.responseFormatClass.java) }
 }
