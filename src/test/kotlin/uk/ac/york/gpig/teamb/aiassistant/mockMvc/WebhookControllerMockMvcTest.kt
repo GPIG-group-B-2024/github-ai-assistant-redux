@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.controllers.WebhookController
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 @WebMvcTest(controllers = [WebhookController::class])
 class WebhookControllerMockMvcTest {
@@ -20,7 +20,7 @@ class WebhookControllerMockMvcTest {
     private lateinit var mockMvc: MockMvc
 
     @MockkBean(relaxed = true)
-    private lateinit var issueManager: IssueManager
+    private lateinit var vcsManager: VCSManager
 
     @Test
     fun `receiving opened issue`() {
@@ -58,7 +58,7 @@ class WebhookControllerMockMvcTest {
         )
 
         verify {
-            issueManager.processNewIssue(mockWebhook)
+            vcsManager.processNewIssue(mockWebhook)
         }
     }
 
@@ -98,7 +98,7 @@ class WebhookControllerMockMvcTest {
         )
 
         verify {
-            issueManager.processNewIssueComment(mockWebhook)
+            vcsManager.processNewIssueComment(mockWebhook)
         }
     }
 
@@ -138,7 +138,7 @@ class WebhookControllerMockMvcTest {
         )
 
         verify(exactly = 0) {
-            issueManager.processNewIssue(mockWebhook)
+            vcsManager.processNewIssue(mockWebhook)
         }
     }
 

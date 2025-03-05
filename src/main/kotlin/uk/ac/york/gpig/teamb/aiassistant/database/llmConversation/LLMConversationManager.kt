@@ -27,13 +27,15 @@ class LLMConversationManager(
 
     /**
      * Start a new conversation and add the first message to it.
+     *
+     * @return the id of the newly created conversation
      * */
     fun initConversationWithFirstMessage(
         repoId: UUID,
         issueId: Int,
         role: OpenAIMessage.Role,
         content: String,
-    ) {
+    ): UUID {
         when {
             !c4NotationReadFacade.checkRepositoryExists(repoId) -> throw NotFoundByIdException(repoId, "Git repo")
             llmConversationReadFacade.checkConversationExists(
@@ -50,6 +52,7 @@ class LLMConversationManager(
             llmConversationWriteFacade.linkMessageToConversation(conversationId, messageId)
         }
         logger.info("Stored new conversation with id $conversationId and first message with id $messageId")
+        return conversationId
     }
 
     fun fetchConversations() = llmConversationReadFacade.fetchConversations().also { logger.info("Found ${it.size} conversations") }
@@ -58,4 +61,14 @@ class LLMConversationManager(
         llmConversationReadFacade.listConversationMessages(conversationId).also {
             logger.info("Found ${it.size} messages in conversation $conversationId")
         }
+
+    fun addMessageToConversation(
+        conversationId: UUID,
+        message: OpenAIMessage,
+    ) = transactionTemplate.execute {
+        val messageId = UUID.randomUUID()
+        llmConversationWriteFacade.storeMessage(messageId, message.role.toJooqMessageRole(), message.message)
+        llmConversationWriteFacade.linkMessageToConversation(conversationId, messageId)
+        logger.info("Created message with id $messageId and linked it to conversation with id $conversationId")
+    }
 }

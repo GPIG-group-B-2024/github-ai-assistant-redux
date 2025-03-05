@@ -69,4 +69,9 @@ class C4NotationReadFacade(
      * Check that a github repository with the given ID exists in the database
      * */
     fun checkRepositoryExists(repoId: UUID): Boolean = ctx.fetchExists(GITHUB_REPOSITORY.where(GITHUB_REPOSITORY.ID.eq(repoId)))
+
+    fun getRepoId(repoName: String): UUID? =
+        ctx.selectFrom(
+            GITHUB_REPOSITORY,
+        ).where(GITHUB_REPOSITORY.FULL_NAME.eq(repoName)).fetchOne(GITHUB_REPOSITORY.ID)
 }

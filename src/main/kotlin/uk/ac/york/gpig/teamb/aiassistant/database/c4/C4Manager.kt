@@ -145,6 +145,11 @@ class C4Manager(
         logger.info("Database write successful")
     }
 
+    fun getRepoId(repoName: String): UUID =
+        c4NotationReadFacade.getRepoId(
+            repoName,
+        ) ?: throw NotFoundException.NotFoundByNameException(repoName, "github repo")
+
     /**
      * Print a C4 entity and its children, if any, in a nested block
      *

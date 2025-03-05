@@ -15,7 +15,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 @AiAssistantTest
 class IssueManagerTest {
     @Autowired
-    private lateinit var sut: IssueManager
+    private lateinit var sut: VCSManager
 
     @MockkBean(relaxed = true)
     private lateinit var gitFacade: GitFacade

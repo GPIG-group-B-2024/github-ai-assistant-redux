@@ -11,7 +11,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
  * Manages the response to issues: interacts with the git repository and creates pull requests
  * */
 @Service
-class IssueManager(
+class VCSManager(
     val gitFacade: GitFacade,
     val gitHubFacade: GitHubFacade,
 ) {

@@ -44,6 +44,7 @@ class OpenAIClientTest {
                     ),
                 responseFormat = Car::class.toJsonSchema(),
             ),
+            Car::class.java,
         )
         verify(
             postRequestedFor(urlEqualTo("/"))
