@@ -12,7 +12,6 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIStructuredRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 // Model version that supports the "structured output" feature
@@ -72,7 +71,7 @@ class LLMManager(
         val firstRequestData =
             OpenAIStructuredRequestData(
                 model = chatGptVersion,
-                responseFormat = FilesResponseSchema::class.toJsonSchema(),
+                responseFormatClass = FilesResponseSchema::class,
                 messages =
                     listOf(
                         systemPrompt,
@@ -98,7 +97,6 @@ class LLMManager(
         val filesToInspectInFull =
             client.performStructuredOutputQuery(
                 firstRequestData,
-                FilesResponseSchema::class.java,
             )
 
         // store chatGPT's response into the database
@@ -136,7 +134,7 @@ class LLMManager(
             client.performStructuredOutputQuery(
                 OpenAIStructuredRequestData(
                     model = chatGptVersion,
-                    responseFormat = LLMPullRequestData::class.toJsonSchema(),
+                    responseFormatClass = LLMPullRequestData::class,
                     messages =
                         listOf(
                             systemPrompt,
@@ -145,7 +143,6 @@ class LLMManager(
                             secondMessage,
                         ),
                 ),
-                LLMPullRequestData::class.java,
             )
         // we have received the pull request data. Write the remaining message to the database and return the data.
 

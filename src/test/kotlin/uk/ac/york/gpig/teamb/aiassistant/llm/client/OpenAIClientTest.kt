@@ -12,7 +12,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
 @AiAssistantTest
 @WireMockTest(httpPort = 3001)
@@ -54,9 +53,8 @@ class OpenAIClientTest {
                                 """.trimIndent(),
                         ),
                     ),
-                responseFormat = Car::class.toJsonSchema(),
+                responseFormatClass = Car::class,
             ),
-            Car::class.java,
         )
         verify(
             postRequestedFor(urlEqualTo("/"))
@@ -65,7 +63,7 @@ class OpenAIClientTest {
                     equalToJson(
                         """
                         {
-                        "responseFormat": {
+                        "response_format": {
                           "type": "object",
                           "additionalProperties": false,
                           "required": ["make", "model", "horsePower"],

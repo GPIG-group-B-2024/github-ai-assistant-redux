@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
 /**
  * Performs web requests to the OpenAI API
@@ -24,12 +25,10 @@ class OpenAIClient {
      * Send a single request to the OpenAI API and receive a structured output of a given type.
      *
      * @param requestData information about the model version, the previous messages in the conversation (if present), and the output format
-     * @param outputClass the class into which the raw output will be parsed
+     *
+     * @return ChatGPT response, conforming to the provided response format
      * */
-    fun <TOutput : Any> performStructuredOutputQuery(
-        requestData: OpenAIStructuredRequestData,
-        outputClass: Class<TOutput>,
-    ): TOutput =
+    fun <TOutput : Any> performStructuredOutputQuery(requestData: OpenAIStructuredRequestData<TOutput>): TOutput =
         RestClient.builder()
             .baseUrl(openAIEndpoint)
             .defaultHeader("Content-Type", "application/json")
@@ -37,9 +36,15 @@ class OpenAIClient {
             .build()
             .run {
                 post()
-                    .body(requestData)
+                    .body(
+                        mapOf(
+                            "model" to requestData.model,
+                            "response_format" to requestData.responseFormatClass.toJsonSchema(),
+                            "messages" to requestData.messages,
+                        ),
+                    )
                     .retrieve()
                     .body(String::class.java)
             }
-            .let { Gson().fromJson(it, outputClass) }
+            .let { Gson().fromJson(it, requestData.responseFormatClass.java) }
 }

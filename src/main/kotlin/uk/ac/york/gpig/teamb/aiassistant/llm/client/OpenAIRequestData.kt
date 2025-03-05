@@ -1,7 +1,7 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm.client
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
+import kotlin.reflect.KClass
 
 open class OpenAIMessage(
     val role: Role,
@@ -27,8 +27,8 @@ sealed class OpenAIRequestData {
     abstract val messages: List<OpenAIMessage>
 }
 
-data class OpenAIStructuredRequestData(
-    val responseFormat: JsonNode,
+data class OpenAIStructuredRequestData<TResponse : Any>(
+    val responseFormatClass: KClass<TResponse>,
     override val model: String,
     override val messages: List<OpenAIMessage>,
 ) : OpenAIRequestData()
