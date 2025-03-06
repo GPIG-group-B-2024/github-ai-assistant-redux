@@ -2,9 +2,7 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
-import org.eclipse.jgit.treewalk.TreeWalk
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.File

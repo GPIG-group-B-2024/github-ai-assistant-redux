@@ -70,6 +70,7 @@ class GitHubFacade {
                 )
             }
         }
+
     /**
      * Fetches the __flattened__ file structure of the repo i.e. the path to every file.
      * */

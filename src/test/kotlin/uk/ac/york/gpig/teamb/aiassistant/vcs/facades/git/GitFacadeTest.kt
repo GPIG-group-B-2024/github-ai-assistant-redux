@@ -5,15 +5,11 @@ import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectDoesNotThrow
 import strikt.api.expectThat
-import strikt.api.expectThrows
 import strikt.assertions.contains
-import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest

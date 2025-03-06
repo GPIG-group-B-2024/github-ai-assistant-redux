@@ -3,7 +3,6 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
-import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
