@@ -70,6 +70,16 @@ class GitHubFacade {
                 )
             }
         }
+    /**
+     * Fetches the __flattened__ file structure of the repo i.e. the path to every file.
+     * */
+    fun fetchFileTree(
+        repoName: String,
+        branchName: String = "main",
+    ): List<String> =
+        authenticateAndCheckoutRepo(repoName).let { repo ->
+            repo.getTreeRecursive(branchName, 1).tree.filter { it.type == "blob" }.map { it.path }
+        }
 
     /**
      * Generate an installation token for use with the wider GitHub API.

@@ -23,15 +23,7 @@ class VCSManager(
     fun retrieveFileTree(
         repoName: String,
         branchName: String = "main",
-    ): String =
-        withTempDir { tempDir ->
-            val token = gitHubFacade.generateInstallationToken()
-            val repoUrl =
-                c4NotationReadFacade.getRepoUrl(repoName)
-                    ?: throw NotFoundException.NotFoundByNameException(repoName, "github repo")
-            val gitFile = gitFacade.cloneRepo(repoUrl, tempDir.toFile(), token)
-            gitFacade.fetchFileTree(gitFile, branchName)
-        }
+    ): String = gitHubFacade.fetchFileTree(repoName, branchName).joinToString("\n")
 
     fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->

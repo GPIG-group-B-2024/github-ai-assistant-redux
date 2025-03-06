@@ -104,37 +104,4 @@ class GitFacade {
         logger.info("Pushing branch $branchName to remote")
         repo.push().setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token)).call()
     }
-
-    /**
-     * Print all the files in the given branch of a given git repository.
-     *
-     * Returns a single string, with each file's path (from repo root) on it's own line.
-     * TODO: see if just giving ChatGPT the paths is enough. If not, add some nesting to the tree.
-     * */
-    fun fetchFileTree(
-        gitPath: File,
-        branchName: String,
-    ): String =
-        buildString {
-            Git.open(gitPath).use { repo ->
-                RevWalk(repo.repository).use { revWalk ->
-                    // step 1: check if the ref (see git docs) for the current branch exists
-                    // should exist if the branch has been created prior to calling this function
-                    val branchRef =
-                        repo.repository.findRef(branchName)
-                            ?: throw IllegalArgumentException("Could not find ref for branch $branchName")
-                    // step 2: starting at the root, walk the file tree and record each leaf (file)
-                    // TODO: come up with a reasonable list of file extensions to filter out (e.g. markdown, PDF, txt...)
-                    val tree = revWalk.parseCommit(branchRef.objectId).tree
-                    TreeWalk(repo.repository).use { treeWalk ->
-                        treeWalk.addTree(tree)
-                        treeWalk.isRecursive = true
-                        while (treeWalk.next()) {
-                            // add path to the output
-                            appendLine(treeWalk.pathString)
-                        }
-                    }
-                }
-            }
-        }
 }
