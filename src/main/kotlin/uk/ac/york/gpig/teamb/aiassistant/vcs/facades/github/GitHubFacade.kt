@@ -27,8 +27,7 @@ class GitHubFacade {
         featureBranch: String,
         title: String,
         body: String,
-    ) {
-        val repo = authenticateAndCheckoutRepo(repoName)
+    ) = withAuthInRepo(repoName) { repo ->
         val pullRequest = repo.createPullRequest(title, featureBranch, baseBranch, body)
         logger.info("Successfully created pull request ${pullRequest.number} in repository ${repo.name}")
     }
@@ -37,8 +36,7 @@ class GitHubFacade {
         repoName: String,
         issueNumber: Int,
         body: String,
-    ) {
-        val repo = authenticateAndCheckoutRepo(repoName)
+    ) = withAuthInRepo(repoName) { repo ->
         val issue = repo.getIssue(issueNumber)
         issue.comment(body)
         logger.info("Successfully commented on issue ${issue.number} in repository ${repo.name}")
@@ -54,7 +52,7 @@ class GitHubFacade {
         paths: List<String>,
         ref: String = "HEAD",
     ): List<FileBlob> =
-        authenticateAndCheckoutRepo(repoName).let { repo ->
+        withAuthInRepo(repoName) { repo ->
             paths.map { path ->
                 logger.info("Trying to read file $path of repo $repoName (ref: $ref)")
                 // bit of a mouthful - basically, get the text from the bytes returned by the API
@@ -78,7 +76,7 @@ class GitHubFacade {
         repoName: String,
         branchName: String = "main",
     ): List<String> =
-        authenticateAndCheckoutRepo(repoName).let { repo ->
+        withAuthInRepo(repoName) { repo ->
             repo.getTreeRecursive(branchName, 1).tree.filter { it.type == "blob" }.map { it.path }
         }
 
@@ -98,11 +96,17 @@ class GitHubFacade {
             .token
 
     /**
-     * Helper function that generates a fresh installation token and uses it to get a github repository by the given name.
+     * Authenticate, checkout the repository with a given name, do some stuff with it and return the output (if any)
+     *
+     * @param block the function to run once the repo is checked out
      * */
-    internal fun authenticateAndCheckoutRepo(repoName: String): GHRepository {
+    internal fun <R> withAuthInRepo(
+        repoName: String,
+        block: (GHRepository) -> R,
+    ): R {
         val token = generateInstallationToken()
         val github = GitHubBuilder().withEndpoint(githubEndpoint).withAppInstallationToken(token).build()
-        return github.getRepository(repoName).also { logger.info("Successfully authenticated") }
+        val repo = github.getRepository(repoName).also { logger.info("Successfully authenticated") }
+        return block(repo)
     }
 }
