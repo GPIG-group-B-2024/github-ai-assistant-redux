@@ -14,9 +14,6 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
-// Model version that supports the "structured output" feature
-const val CHATGPT_VERSION = "gpt-4o-2024-08-06"
-
 /**
  * Handles interactions with the OpenAI API
  * */
