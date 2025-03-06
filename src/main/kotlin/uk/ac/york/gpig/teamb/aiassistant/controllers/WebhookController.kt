@@ -17,7 +17,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
  * */
 @RestController
 class WebhookController(
-    private val VCSManager: VCSManager,
+    private val vcsManager: VCSManager,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,11 +30,11 @@ class WebhookController(
         when (EventType.fromString(eventType) to issueContents.action) {
             (EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
-                VCSManager.processNewIssue(issueContents)
+                vcsManager.processNewIssue(issueContents)
             }
             (EventType.ISSUE_COMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
-                VCSManager.processNewIssueComment(issueContents)
+                vcsManager.processNewIssueComment(issueContents)
             }
             else -> logger.info("No handler for event type $eventType")
         }
