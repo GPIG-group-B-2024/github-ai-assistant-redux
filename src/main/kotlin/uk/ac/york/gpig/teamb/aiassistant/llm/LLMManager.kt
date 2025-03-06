@@ -31,6 +31,53 @@ class LLMManager(
     private val vscManager: VCSManager,
     private val gson: Gson,
 ) {
+    internal fun getSystemPrompt(repoName: String) =
+        OpenAIMessage(
+            OpenAIMessage.Role.SYSTEM,
+            """
+            You are a software engineer working on a repo called $repoName.
+            
+            You will be provided with an issue description, the repo's file tree and its model in the c4 modelling framework.
+            
+            Your task is to respond to user messages with your best attempts at solving their issue.
+            """.trimIndent(),
+        )
+
+    internal fun getRepoInfoMessage(
+        repoName: String,
+        issue: Issue,
+    ) = OpenAIMessage(
+        OpenAIMessage.Role.USER,
+        """
+        Here is some information about the repository:
+        
+        * C4 model: ${c4Manager.gitRepoToStructurizrDsl(repoName)}
+        * File tree: ${vscManager.retrieveFileTree(repoName)}
+        * Issue title: ${issue.title}
+        * Issue body: ${issue.body}
+        
+        Your first task is to give me the list of files you need to inspect in full before creating your solution.
+        You should pick the files that you will need to either know in full or modify when making your fix to the issue.
+        Respond with a single list of strings, where each string represents a path to the file from the **repository root**
+        """.trimIndent(),
+    )
+
+    internal fun getPullRequestMessage(attachedFiles: FilesResponseSchema) =
+        OpenAIMessage(
+            OpenAIMessage.Role.USER,
+            """
+            Great. I am now sending you the files you requested. Your task is to now produce a pull request. 
+            Your response should consist of:
+            * Pull request title
+            * Pull request body
+            * Your changes: **IMPORTANT** - you must send the updated files in __full__, they must be able to overwrite 
+            the original file without breaking any functionality not affected by the pull request.
+            
+            Here are the files you requested:
+            ${attachedFiles.fileList.joinToString("\n\n")}
+            """.trimIndent(),
+        )
+
     /**
      * Walk through the conversation flow outlined in the issue description
      * */
@@ -39,34 +86,9 @@ class LLMManager(
         issue: Issue,
     ): LLMPullRequestData {
         // step 1: send in the system prompt, gather data about repo + send in the issue description
-        val systemPrompt =
-            OpenAIMessage(
-                OpenAIMessage.Role.SYSTEM,
-                """
-                You are a software engineer working on a repo called $repoName.
-                
-                You will be provided with an issue description, the repo's file tree and its model in the c4 modelling framework.
-                
-                Your task is to respond to user messages with your best attempts at solving their issue.
-                """.trimIndent(),
-            )
+        val systemPrompt = getSystemPrompt(repoName)
 
-        val initialMessage =
-            OpenAIMessage(
-                OpenAIMessage.Role.USER,
-                """
-                Here is some information about the repository:
-                
-                * C4 model: ${c4Manager.gitRepoToStructurizrDsl(repoName)}
-                * File tree: ${vscManager.retrieveFileTree(repoName)}
-                * Issue title: ${issue.title}
-                * Issue body: ${issue.body}
-                
-                Your first task is to give me the list of files you need to inspect in full before creating your solution.
-                You should pick the files that you will need to either know in full or modify when making your fix to the issue.
-                Respond with a single list of strings, where each string represents a path to the file from the **repository root**
-                """.trimIndent(),
-            )
+        val initialMessage = getRepoInfoMessage(repoName, issue)
 
         val firstRequestData =
             OpenAIStructuredRequestData(
@@ -112,21 +134,7 @@ class LLMManager(
 
         // send the requested files and ask for the final output - the pull request data
 
-        val secondMessage =
-            OpenAIMessage(
-                OpenAIMessage.Role.USER,
-                """
-                Great. I am now sending you the files you requested. Your task is to now produce a pull request. 
-                Your response should consist of:
-                * Pull request title
-                * Pull request body
-                * Your changes: **IMPORTANT** - you must send the updated files in __full__, they must be able to overwrite 
-                the original file without breaking any functionality not affected by the pull request.
-                
-                Here are the files you requested:
-                ${filesToInspectInFull.fileList.joinToString("\n\n")}
-                """.trimIndent(),
-            )
+        val secondMessage = getPullRequestMessage(filesToInspectInFull)
 
         conversationManager.addMessageToConversation(conversationId, secondMessage)
 
