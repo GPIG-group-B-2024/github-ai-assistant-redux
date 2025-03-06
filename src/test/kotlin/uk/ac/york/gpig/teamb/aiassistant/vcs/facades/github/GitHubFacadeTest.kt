@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.ninjasquad.springmockk.SpykBean
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
@@ -213,5 +215,37 @@ class GitHubFacadeTest {
         }
     }
 
+    @Nested
+    @WireMockTest(httpPort = 3000)
+    inner class TreeFetchTests {
+        @Test
+        fun `fetches the flattened file tree`() {
+            every { sut.generateInstallationToken() } returns "my-fancy-token"
+            val getTreeOutput = File("src/test/resources/wiremock/get-repo-tree-output.json").readText()
+            stubFor(
+                get(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*")).willReturn(
+                    ok().withBody(getTreeOutput),
+                ),
+            )
+            val result =
+                sut.fetchFileTree(
+                    "my-owner/my-test-repo",
+                    "main",
+                )
+            verify(
+                getRequestedFor(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*")).withQueryParam(
+                    "recursive",
+                    equalToJson("1"),
+                ),
+            )
+            expectThat(result).containsExactlyInAnyOrder(
+                "README.md",
+                "greeter/greeting.py",
+                "math/addition.py",
+                "math/subtraction.py",
+                "math/utils/is_three.py",
+            )
+        }
+    }
     // TODO: write a test for the generate token func
 }
