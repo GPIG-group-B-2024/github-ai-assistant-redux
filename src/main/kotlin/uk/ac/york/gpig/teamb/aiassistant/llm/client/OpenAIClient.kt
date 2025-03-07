@@ -18,7 +18,7 @@ class OpenAIClient(
      * We use a different endpoint address for mocking OpenAI requests in testing.
      * In production, use the normal OpenAI endpoint
      * */
-    @Value("\${app_settings.openai_api_endpoint:https://api.openai.com/v1/chat/completions}")
+    @Value("\${app_settings.openai_api_endpoint:https://api.openai.com}")
     private lateinit var openAIEndpoint: String
 
     @Value("\${app_settings.openai_api_key}")
@@ -33,7 +33,7 @@ class OpenAIClient(
      * */
     fun <TOutput : Any> performStructuredOutputQuery(requestData: OpenAIStructuredRequestData<TOutput>): TOutput =
         RestClient.builder()
-            .baseUrl(openAIEndpoint)
+            .baseUrl("$openAIEndpoint/v1/chat/completions/")
             .build()
             .post()
             .headers {
