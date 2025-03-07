@@ -29,7 +29,7 @@ class OpenAIClientTest {
     fun `smoke test`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
-            post("/").willReturn(
+            post("/v1/chat/completions/").willReturn(
                 ok().withBody(
                     """
             {
@@ -63,7 +63,7 @@ class OpenAIClientTest {
             ),
         )
         verify(
-            postRequestedFor(urlEqualTo("/"))
+            postRequestedFor(urlEqualTo("/v1/chat/completions/"))
                 .withHeader("Authorization", equalTo("Bearer my-secret-token"))
                 .withRequestBody(
                     equalToJson(
@@ -107,7 +107,7 @@ class OpenAIClientTest {
     fun `throws on server error`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
-            post("/").willReturn(
+            post("/v1/chat/completions/").willReturn(
                 ResponseDefinitionBuilder().withStatus(500)
                     .withBody("Something went wrong on the server side"),
             ),
@@ -143,7 +143,7 @@ class OpenAIClientTest {
     fun `throws on client error`() {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
-            post("/").willReturn(
+            post("/v1/chat/completions/").willReturn(
                 ResponseDefinitionBuilder().withStatus(403)
                     .withBody("Something went wrong on the client side"),
             ),

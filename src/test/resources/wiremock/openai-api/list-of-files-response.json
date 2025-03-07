@@ -1,0 +1,6 @@
+{
+  "fileList": [
+    "src/weather_app/main.py",
+    "test/weather_app/test_main.py"
+  ]
+}

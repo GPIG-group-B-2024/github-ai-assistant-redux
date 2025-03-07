@@ -6,5 +6,5 @@ spring:
 
 app_settings:
   github_api_endpoint: http://localhost:3000 # redirect github API requests to a running Wiremock instance
-  openai_api_endpoint: http://localhost:3001 # redirect openAI API requests to a running Wiremock instance
+  openai_api_endpoint: http://localhost:3001/v1/chat/completions/ # redirect openAI API requests to a running Wiremock instance
   openai_api_key: my-secret-token
