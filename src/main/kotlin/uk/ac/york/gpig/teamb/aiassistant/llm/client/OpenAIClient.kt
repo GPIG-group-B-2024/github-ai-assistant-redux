@@ -1,6 +1,6 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm.client
 
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -14,7 +14,7 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
  * */
 @Service
 class OpenAIClient(
-    val gson: Gson,
+    val objectMapper: ObjectMapper,
 ) {
     /**
      * We use a different endpoint address for mocking OpenAI requests in testing.
@@ -59,11 +59,7 @@ class OpenAIClient(
                     FinishReason.CONTENT_FILTER -> throw PromptRefusedException(
                         "Request with ID '${response.id}' refused with reason: ${message.refusal}",
                     )
-                    FinishReason.STOP -> {
-                        message.content?.let {
-                            gson.fromJson(it, requestData.responseFormatClass.java)
-                        } ?: throw NoContentException("Request with ID '${response.id}' returned a blank message")
-                    }
+                    FinishReason.STOP -> objectMapper.readValue(message.content, requestData.responseFormatClass.java)
                 }
             } ?: throw MalformedOutputException("OpenAI API responded with no body")
 }
