@@ -34,38 +34,38 @@ class OpenAIClientTest {
                     .withHeader("Content-Type", "application/json")
                     .withBody(
                         """
-            {
-  "id": "chatcmpl-123456",
-  "object": "chat.completion",
-  "created": 1728933352,
-  "model": "gpt-4o-2024-08-06",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "{\"make\":\"BMW\",\"model\":\"3-series\",\"horsepower\":150}",
-        "refusal": null
-      },
-      "logprobs": null,
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 19,
-    "completion_tokens": 10,
-    "total_tokens": 29,
-    "prompt_tokens_details": {
-      "cached_tokens": 0
-    },
-    "completion_tokens_details": {
-      "reasoning_tokens": 0,
-      "accepted_prediction_tokens": 0,
-      "rejected_prediction_tokens": 0
-    }
-  },
-  "system_fingerprint": "fp_6b68a8204b"
-}""",
+                        {
+                          "id": "chatcmpl-123456",
+                          "object": "chat.completion",
+                          "created": 1728933352,
+                          "model": "gpt-4o-2024-08-06",
+                          "choices": [
+                            {
+                              "index": 0,
+                              "message": {
+                                "role": "assistant",
+                                "content": "{\"make\":\"BMW\",\"model\":\"3-series\",\"horsepower\":150}",
+                                "refusal": null
+                              },
+                              "logprobs": null,
+                              "finish_reason": "stop"
+                            }
+                          ],
+                          "usage": {
+                            "prompt_tokens": 19,
+                            "completion_tokens": 10,
+                            "total_tokens": 29,
+                            "prompt_tokens_details": {
+                              "cached_tokens": 0
+                            },
+                            "completion_tokens_details": {
+                              "reasoning_tokens": 0,
+                              "accepted_prediction_tokens": 0,
+                              "rejected_prediction_tokens": 0
+                            }
+                          },
+                          "system_fingerprint": "fp_6b68a8204b"
+                        }""",
                     ),
             ),
         )
@@ -96,35 +96,46 @@ class OpenAIClientTest {
                 .withRequestBody(
                     equalToJson(
                         """
+                    {
+                      "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {
+                          "strict": true,
+                          "name": "Car",
+                          "schema": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "make": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "horsePower": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "make",
+                              "model",
+                              "horsePower"
+                            ]
+                          }
+                        }
+                      },
+                      "model": "latest-chatgpt",
+                      "messages": [
                         {
-                        "response_format": {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": ["make", "model", "horsePower"],
-                          "properties": {
-                            "make": {
-                              "type": "string"
-                            },
-                            "model": {
-                              "type": "string"
-                            },
-                            "horsePower": {
-                              "type": "integer"
-                            }
-                          }
+                          "role": "system",
+                          "message": "You are a car inventor. When prompted, create a new car."
                         },
-                        "model": "latest-chatgpt",
-                        "messages": [
-                          {
-                            "role": "system",
-                            "message": "You are a car inventor. When prompted, create a new car."
-                          },
-                          {
-                            "role": "user",
-                            "message": "Create a powerful car with a confidence-inspiring model name. \nUse a well-respected manufacturer as the make."
-                          }
-                        ]
-                      }
+                        {
+                          "role": "user",
+                          "message": "Create a powerful car with a confidence-inspiring model name. \nUse a well-respected manufacturer as the make."
+                        }
+                      ]
+                    }
                     """,
                     ),
                 ),

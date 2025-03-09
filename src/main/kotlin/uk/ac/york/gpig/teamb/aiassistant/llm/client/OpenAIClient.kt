@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.FinishReason
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.OpenAIResponseFormat
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
 /**
  * Performs web requests to the OpenAI API
@@ -45,7 +44,7 @@ class OpenAIClient(
             .body(
                 mapOf(
                     "model" to requestData.model,
-                    "response_format" to requestData.responseFormatClass.toJsonSchema(),
+                    "response_format" to requestData.toPostRequestBody(),
                     "messages" to requestData.messages,
                 ),
             )
