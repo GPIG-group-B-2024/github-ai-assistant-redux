@@ -125,6 +125,7 @@ class LLMManagerTest {
                     urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"),
                 ).willReturn(
                     ok()
+                        .withHeader("Content-Type", "application/json")
                         .withBody(File("src/test/resources/wiremock/github-api/get-repo-tree-output.json").readText()),
                 ),
             )
@@ -134,7 +135,12 @@ class LLMManagerTest {
                 post(urlMatching("/v1/chat/completions.*"))
                     .inScenario("ChatGPT conversation")
                     .whenScenarioStateIs(STARTED)
-                    .willReturn(ok().withBody(File("src/test/resources/wiremock/openai-api/list-of-files-response.json").readText()))
+                    .willReturn(
+                        ok().withHeader(
+                            "Content-Type",
+                            "application/json",
+                        ).withBody(File("src/test/resources/wiremock/openai-api/list-of-files-response.json").readText()),
+                    )
                     .willSetStateTo("List of files received"),
             )
             // then respond with PR data
@@ -142,7 +148,12 @@ class LLMManagerTest {
                 post(urlMatching("/v1/chat/completions.*"))
                     .inScenario("ChatGPT conversation")
                     .whenScenarioStateIs("List of files received")
-                    .willReturn(ok().withBody(File("src/test/resources/wiremock/openai-api/pr-data-response.json").readText())),
+                    .willReturn(
+                        ok().withHeader(
+                            "Content-Type",
+                            "application/json",
+                        ).withBody(File("src/test/resources/wiremock/openai-api/pr-data-response.json").readText()),
+                    ),
             )
             return repoId
         }
@@ -247,7 +258,7 @@ class LLMManagerTest {
                     },
                     {
                       "fullName": "test/weather_app/test_main.py",
-                      "newContents": "assert(greet(\"steve\") == \"hello steve\")"
+                      "newContents": "assert(greet('steve') == 'hello steve')"
                     }
                   ]
                 }

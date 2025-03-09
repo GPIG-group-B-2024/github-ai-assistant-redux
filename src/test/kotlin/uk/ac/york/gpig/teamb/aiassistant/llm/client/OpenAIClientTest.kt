@@ -30,15 +30,43 @@ class OpenAIClientTest {
         data class Car(val make: String, val model: String, val horsePower: Int)
         stubFor(
             post("/v1/chat/completions/").willReturn(
-                ok().withBody(
-                    """
+                ok()
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(
+                        """
             {
-            "make": "BMW",
-            "model": "3-series",
-            "horsePower": 100
-            }
-        """,
-                ),
+  "id": "chatcmpl-123456",
+  "object": "chat.completion",
+  "created": 1728933352,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"make\":\"BMW\",\"model\":\"3-series\",\"horsepower\":150}",
+        "refusal": null
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 19,
+    "completion_tokens": 10,
+    "total_tokens": 29,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "system_fingerprint": "fp_6b68a8204b"
+}""",
+                    ),
             ),
         )
         sut.performStructuredOutputQuery(

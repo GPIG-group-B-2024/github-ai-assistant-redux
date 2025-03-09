@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.FinishReason
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.OpenAIResponseFormat
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 
 /**
@@ -48,6 +50,20 @@ class OpenAIClient(
                 ),
             )
             .retrieve()
-            .body(String::class.java)
-            .let { gson.fromJson(it, requestData.responseFormatClass.java) }
+            .body(OpenAIResponseFormat::class.java)?.let { response ->
+                val (_, finishReason, message) = response.choices.first() // index is always 0
+                when (finishReason) {
+                    FinishReason.LENGTH -> throw PromptTooLongException(
+                        "Request ID '${response.id}' exceeded length limit (total usage: ${response.usage.totalTokens})",
+                    )
+                    FinishReason.CONTENT_FILTER -> throw PromptRefusedException(
+                        "Request with ID '${response.id}' refused with reason: ${message.refusal}",
+                    )
+                    FinishReason.STOP -> {
+                        message.content?.let {
+                            gson.fromJson(it, requestData.responseFormatClass.java)
+                        } ?: throw NoContentException("Request with ID '${response.id}' returned a blank message")
+                    }
+                }
+            } ?: throw MalformedOutputException("OpenAI API responded with no body")
 }
