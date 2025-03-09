@@ -48,10 +48,10 @@ class OpenAIClient(
                 val (_, finishReason, message) = response.choices.first() // index is always 0
                 when (finishReason) {
                     FinishReason.LENGTH -> throw PromptTooLongException(
-                        "Request ID '${response.id}' exceeded length limit (total usage: ${response.usage.totalTokens})",
+                        "Response ID '${response.id}' exceeded length limit (total usage: ${response.usage.totalTokens})",
                     )
                     FinishReason.CONTENT_FILTER -> throw PromptRefusedException(
-                        "Request with ID '${response.id}' refused with reason: ${message.refusal}",
+                        "Response with ID '${response.id}' refused with reason: ${message.refusal}",
                     )
                     FinishReason.STOP -> objectMapper.readValue(message.content, requestData.responseFormatClass.java)
                 }
