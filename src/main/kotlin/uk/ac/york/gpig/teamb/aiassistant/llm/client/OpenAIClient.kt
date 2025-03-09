@@ -42,13 +42,7 @@ class OpenAIClient(
                 it.contentType = MediaType.APPLICATION_JSON
                 it.setBearerAuth(apiKey)
             }
-            .body(
-                mapOf(
-                    "model" to requestData.model,
-                    "response_format" to requestData.toPostRequestBody(),
-                    "messages" to requestData.messages,
-                ),
-            )
+            .body(requestData.toPostRequestBody())
             .retrieve()
             .body(OpenAIResponseFormat::class.java)?.let { response ->
                 val (_, finishReason, message) = response.choices.first() // index is always 0

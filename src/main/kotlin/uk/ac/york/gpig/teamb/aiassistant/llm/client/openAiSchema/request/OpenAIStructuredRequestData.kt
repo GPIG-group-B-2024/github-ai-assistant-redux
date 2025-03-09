@@ -11,16 +11,21 @@ data class OpenAIStructuredRequestData<TResponse : Any>(
     val messages: List<OpenAIMessage>,
 ) {
     fun toPostRequestBody() =
-        OpenAIResponseFormatField(
-            jsonSchema =
-                OpenAIJsonSchema(
-                    // use the simple name if available (it should be if the schema class is not anonymous.)
-                    // otherwise, use the full JVM name
-                    name =
-                        this.responseFormatClass.run {
-                            simpleName ?: jvmName
-                        },
-                    schema = this.responseFormatClass.toJsonSchema(),
+        OpenAIPostRequestBody(
+            model = this.model,
+            messages = this.messages,
+            responseFormat =
+                OpenAIResponseFormatField(
+                    jsonSchema =
+                        OpenAIJsonSchema(
+                            // use the simple name if available (it will be if the class is not anonymous)
+                            // otherwise, use the full JVM name
+                            name =
+                                this.responseFormatClass.run {
+                                    simpleName ?: jvmName
+                                },
+                            schema = this.responseFormatClass.toJsonSchema(),
+                        ),
                 ),
         )
 }
