@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema
+package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

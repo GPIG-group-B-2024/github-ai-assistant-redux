@@ -7,8 +7,8 @@ import org.springframework.transaction.support.TransactionTemplate
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.C4Manager
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.LLMConversationManager
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIClient
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIStructuredRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue

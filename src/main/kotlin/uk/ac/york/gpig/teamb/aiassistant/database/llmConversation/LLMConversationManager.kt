@@ -9,7 +9,7 @@ import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException.N
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.conversions.toJooqMessageRole
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationWriteFacade
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
 import java.util.UUID
 
 @Service

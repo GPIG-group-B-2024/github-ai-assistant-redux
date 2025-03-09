@@ -1,7 +1,7 @@
-package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema
+package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.response
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage.Role
 
 /**
  * Represents a chat completion choice.
@@ -15,7 +15,7 @@ data class Choice(
     val message: Message,
 ) {
     data class Message(
-        val role: OpenAIMessage.Role,
+        val role: Role,
         val content: String?,
         /** if the message is refused (i.e. finishReason is [FinishReason.CONTENT_FILTER]), this will contain the reason why. otherwise it's null */
         val refusal: String?,

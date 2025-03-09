@@ -17,6 +17,8 @@ import org.springframework.web.client.HttpServerErrorException
 import strikt.api.expectThrows
 import strikt.assertions.contains
 import strikt.assertions.isNotNull
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 
 @AiAssistantTest

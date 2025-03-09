@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.FinishReason
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.OpenAIResponseFormat
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.response.FinishReason
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.response.OpenAIResponseFormat
 
 /**
  * Performs web requests to the OpenAI API

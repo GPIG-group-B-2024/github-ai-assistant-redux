@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema
+package uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.response
 
 /**
  * This data class mirrors the "chat completion object" as outlined in the OpenAI [docs](https://platform.openai.com/docs/api-reference/chat/object).
