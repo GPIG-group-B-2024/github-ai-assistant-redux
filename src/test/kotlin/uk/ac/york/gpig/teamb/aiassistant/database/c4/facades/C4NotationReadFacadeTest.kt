@@ -200,4 +200,64 @@ class C4NotationReadFacadeTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("get ... byRepoName()")
+    inner class GetXByRepoNameTests {
+        @Test
+        fun `gets repo ID by name`() {
+            val repoName = "my-cool-repo"
+            val repoId = UUID.randomUUID()
+            val otherRepoId = UUID.randomUUID()
+            gitRepo {
+                this.fullName = repoName
+                this.id = repoId
+            }.create(ctx)
+            gitRepo {
+                this.fullName = "my-other-repo"
+                this.id = otherRepoId
+            }.create(ctx) // check this one isn't returned
+
+            expectThat(sut.getRepoId(repoName)).isEqualTo(repoId)
+        }
+
+        @Test
+        fun `gets repo URL by name`() {
+            val repoName = "my-cool-repo"
+            val repoUrl = "my-fancy-url"
+            gitRepo {
+                this.fullName = repoName
+                this.url = repoUrl
+            }.create(ctx)
+            gitRepo {
+                this.fullName = "my-other-repo"
+            }.create(ctx) // check this one isn't returned
+
+            expectThat(sut.getRepoUrl(repoName)).isEqualTo(repoUrl)
+        }
+
+        @Test
+        fun `returns null if URL not found`() {
+            val repoName = "my-cool-repo"
+            val repoUrl = "my-fancy-url"
+            gitRepo {
+                this.fullName = repoName
+                this.url = repoUrl
+            }.create(ctx)
+
+            expectThat(sut.getRepoUrl("unknown-repo")).isNull()
+        }
+
+        @Test
+        fun `returns null if ID not found`() {
+            val repoName = "my-cool-repo"
+            val repoId = UUID.randomUUID()
+            gitRepo {
+                this.fullName = repoName
+                this.id = repoId
+            }.create(ctx)
+
+            expectThat(sut.getRepoUrl("unknown-repo")).isNull()
+        }
+    }
 }

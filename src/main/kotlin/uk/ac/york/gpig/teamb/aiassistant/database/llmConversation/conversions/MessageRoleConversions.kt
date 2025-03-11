@@ -1,7 +1,7 @@
 package uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.conversions
 
 import uk.ac.york.gpig.teamb.aiassistant.enums.LlmMessageRole
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage.Role
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage.Role
 
 fun LlmMessageRole.toOpenAIMessageRole(): Role =
     when (this) {

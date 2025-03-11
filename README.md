@@ -1,3 +1,4 @@
+![CI status](https://github.com/GPIG-group-B-2024/gitHub-ai-assistant/actions/workflows/ci-main.yml/badge.svg)
 # Github AI assistant
 
 ## What is this?

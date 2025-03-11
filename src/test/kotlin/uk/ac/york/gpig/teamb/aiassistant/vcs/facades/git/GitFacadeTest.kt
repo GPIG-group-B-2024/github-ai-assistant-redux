@@ -5,15 +5,11 @@ import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectDoesNotThrow
 import strikt.api.expectThat
-import strikt.api.expectThrows
 import strikt.assertions.contains
-import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
@@ -103,65 +99,4 @@ class GitFacadeTest {
                 )
             }
         }
-
-    @Nested
-    @DisplayName("printTree tests")
-    inner class PrintTreeTests {
-        @Test
-        fun `prints file tree`() =
-            withTempDir<Unit> { tempDir ->
-                val mockRepoDir = File("src/test/resources/mockRepo")
-                // setup
-                // clone repo using the 3rd party tool to not rely on our own implementation
-                Git.lsRemoteRepository().setRemote(gitServer.gitRepoURIAsHttp.toString()).call()
-                Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
-                val gitPath = File(tempDir.toFile(), ".git")
-                mockRepoDir.copyRecursively(tempDir.toFile())
-                Git.open(gitPath).add().addFilepattern(".").call()
-                Git.open(gitPath).commit().setMessage("initial commit")
-                    .call() // create an initial commit to establish a HEAD
-                Git.open(gitPath).branchCreate().setName("new-branch").call() // create a new branch (which we will push)
-                // act
-                val result =
-                    sut.printTree(
-                        gitPath,
-                        "new-branch",
-                    )
-
-                expectThat(result).isEqualTo(
-                    """README.md
-              |greeter/greeting.py
-              |math/addition.py
-              |math/subtraction.py
-              |math/utils/is_three.py
-              |
-                    """.trimMargin(),
-                )
-            }
-
-        @Test
-        fun `throws for unknown branch name`() =
-            withTempDir<Unit> { tempDir ->
-                val mockRepoDir = File("src/test/resources/mockRepo")
-                // setup
-                // clone repo using the 3rd party tool to not rely on our own implementation
-                Git.lsRemoteRepository().setRemote(gitServer.gitRepoURIAsHttp.toString()).call()
-                Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
-                val gitPath = File(tempDir.toFile(), ".git")
-                mockRepoDir.copyRecursively(tempDir.toFile())
-                Git.open(gitPath).add().addFilepattern(".").call()
-                Git.open(gitPath).commit().setMessage("initial commit")
-                    .call() // create an initial commit to establish a HEAD
-                Git.open(gitPath).branchCreate().setName("new-branch").call() // create a new branch (which we will push)
-                // act
-                expectThrows<IllegalArgumentException> {
-                    sut.printTree(
-                        gitPath,
-                        "unknown-branch",
-                    )
-                }.and {
-                    get { this.message }.isEqualTo("Could not find ref for branch unknown-branch")
-                }
-            }
-    }
 }

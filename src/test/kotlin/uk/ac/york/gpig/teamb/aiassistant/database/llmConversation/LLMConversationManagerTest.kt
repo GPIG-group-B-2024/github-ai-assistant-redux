@@ -11,7 +11,7 @@ import strikt.assertions.isNotNull
 import strikt.assertions.startsWith
 import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException
 import uk.ac.york.gpig.teamb.aiassistant.enums.LlmMessageRole
-import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIMessage.Role
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage.Role
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.CONVERSATION_MESSAGE
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_CONVERSATION
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_MESSAGE

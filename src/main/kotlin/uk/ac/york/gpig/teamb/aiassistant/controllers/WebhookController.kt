@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.EventType
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 /**
  * Receives incoming webhook events.
@@ -17,7 +17,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
  * */
 @RestController
 class WebhookController(
-    private val issueManager: IssueManager,
+    private val vcsManager: VCSManager,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,11 +30,11 @@ class WebhookController(
         when (EventType.fromString(eventType) to issueContents.action) {
             (EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
-                issueManager.processNewIssue(issueContents)
+                vcsManager.processNewIssue(issueContents)
             }
             (EventType.ISSUE_COMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
-                issueManager.processNewIssueComment(issueContents)
+                vcsManager.processNewIssueComment(issueContents)
             }
             else -> logger.info("No handler for event type $eventType")
         }

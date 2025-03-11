@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThrows
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import uk.ac.york.gpig.teamb.aiassistant.vcs.IssueManager
+import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 @AiAssistantTest
 class WebhookControllerTest {
     @MockkBean
-    private lateinit var issueManager: IssueManager
+    private lateinit var vcsManager: VCSManager
 
     @Autowired
     private lateinit var sut: WebhookController
@@ -24,7 +24,7 @@ class WebhookControllerTest {
     @Test
     fun `passes issues event payload to issue manager`() {
         // setup
-        every { issueManager.processNewIssue(any()) } just runs
+        every { vcsManager.processNewIssue(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -51,14 +51,14 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
         // verify
         verify {
-            issueManager.processNewIssue(issueBody)
+            vcsManager.processNewIssue(issueBody)
         }
     }
 
     @Test
     fun `ignores issues events with action other than OPENED`() {
         // setup
-        every { issueManager.processNewIssue(any()) } just runs
+        every { vcsManager.processNewIssue(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CLOSED,
@@ -85,14 +85,14 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody)) // to string function to be able to put enum here rather than string?
         // verify
         verify(exactly = 0) {
-            issueManager.processNewIssue(any())
+            vcsManager.processNewIssue(any())
         }
     }
 
     @Test
     fun `passes issue_comment event payload to issue manager`() {
         // setup
-        every { issueManager.processNewIssueComment(any()) } just runs
+        every { vcsManager.processNewIssueComment(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CREATED,
@@ -119,14 +119,14 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issue_comment", Gson().toJson(issueBody))
         // verify
         verify {
-            issueManager.processNewIssueComment(issueBody)
+            vcsManager.processNewIssueComment(issueBody)
         }
     }
 
     @Test
     fun `ignores issue_comment events with action other than CREATED`() {
         // setup
-        every { issueManager.processNewIssueComment(any()) } just runs
+        every { vcsManager.processNewIssueComment(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CLOSED,
@@ -156,15 +156,15 @@ class WebhookControllerTest {
         ) // to string function to be able to put enum here rather than string?
         // verify
         verify(exactly = 0) {
-            issueManager.processNewIssueComment(any())
+            vcsManager.processNewIssueComment(any())
         }
     }
 
     @Test
     fun `ignores unhandled event types`() {
         // setup
-        every { issueManager.processNewIssue(any()) } just runs
-        every { issueManager.processNewIssueComment(any()) } just runs
+        every { vcsManager.processNewIssue(any()) } just runs
+        every { vcsManager.processNewIssueComment(any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CLOSED,

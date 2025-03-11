@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlMatching
 import com.github.tomakehurst.wiremock.client.WireMock.verify
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.ninjasquad.springmockk.SpykBean
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
@@ -36,8 +38,11 @@ class GitHubFacadeTest {
     @BeforeEach
     fun mockRepoAccess() {
         // mock github API output: this is basically an exact copy of an example response from the docs page, but with the owner and repo name changed
-        val getRepoOutput = File("src/test/resources/wiremock/get-repo-output.json").readText()
+        val getRepoOutput = File("src/test/resources/wiremock/github-api/get-repo-output.json").readText()
         stubFor(get("/repos/my-owner/my-test-repo").willReturn(ok().withBody(getRepoOutput)))
+        every {
+            sut.generateInstallationToken()
+        } returns "my-fancy-token" // TODO think of a strategy to test the auth functionality. For now, we can mock it away every time
     }
 
     @Nested
@@ -45,9 +50,7 @@ class GitHubFacadeTest {
     inner class PullRequestTests {
         @Test
         fun `creates a pull request with the right parameters`() {
-            every { sut.generateInstallationToken() } returns "my-fancy-token" // we don't actually need the token here, mock it.
-
-            val createPROutput = File("src/test/resources/wiremock/create-pull-request-output.json").readText()
+            val createPROutput = File("src/test/resources/wiremock/github-api/create-pull-request-output.json").readText()
             // ^ same as above, except we do not care *at all* what the output is, we only need it for the underlying github library to run without exceptions
             stubFor(
                 post(
@@ -86,10 +89,9 @@ class GitHubFacadeTest {
     inner class CommentTests {
         @Test
         fun `writes a comment on the correct issue`() {
-            every { sut.generateInstallationToken() } returns "my-fancy-token"
             // mock github API output: this is basically an exact copy of an example response from the docs page, but with the owner and repo name changed
-            val getIssueOutput = File("src/test/resources/wiremock/get-issue-output.json").readText()
-            val createCommentOutput = File("src/test/resources/wiremock/create-comment-output.json").readText()
+            val getIssueOutput = File("src/test/resources/wiremock/github-api/get-issue-output.json").readText()
+            val createCommentOutput = File("src/test/resources/wiremock/github-api/create-comment-output.json").readText()
             // ^ same as above, except we do not care *at all* what the output is, we only need it for the underlying github library to run without exceptions
             stubFor(get("/repos/my-owner/my-test-repo/issues/5").willReturn(ok().withBody(getIssueOutput)))
             stubFor(
@@ -135,7 +137,7 @@ class GitHubFacadeTest {
         ): String {
             val objectMapper = ObjectMapper()
             // grab the json file and parse it into a Json node
-            val initialResponseString = File("src/test/resources/wiremock/file-contents-output.json").readText()
+            val initialResponseString = File("src/test/resources/wiremock/github-api/file-contents-output.json").readText()
             val initialResponseJson = objectMapper.readValue(initialResponseString, JsonNode::class.java)
 
             val expectedContentEncoded = Base64.encode(expectedContent.toByteArray())
@@ -147,7 +149,6 @@ class GitHubFacadeTest {
 
         @Test
         fun `fetches file blob for single file`() {
-            every { sut.generateInstallationToken() } returns "my-fancy-token"
             val pathToFetch = "README.md" // repo-root/README.md
             stubFor(
                 get("/repos/my-owner/my-test-repo/contents/$pathToFetch?ref=HEAD").willReturn(
@@ -173,7 +174,6 @@ class GitHubFacadeTest {
 
         @Test
         fun `handles multiple files`() {
-            every { sut.generateInstallationToken() } returns "my-fancy-token"
             val expectedFiles =
                 mapOf(
                     "README.md" to """
@@ -213,5 +213,35 @@ class GitHubFacadeTest {
         }
     }
 
-    // TODO: write a test for the generate token func
+    @Nested
+    @WireMockTest(httpPort = 3000)
+    inner class TreeFetchTests {
+        @Test
+        fun `fetches the flattened file tree`() {
+            val getTreeOutput = File("src/test/resources/wiremock/github-api/get-repo-tree-output.json").readText()
+            stubFor(
+                get(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*")).willReturn(
+                    ok().withBody(getTreeOutput),
+                ),
+            )
+            val result =
+                sut.fetchFileTree(
+                    "my-owner/my-test-repo",
+                    "main",
+                )
+            verify(
+                getRequestedFor(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*")).withQueryParam(
+                    "recursive",
+                    equalToJson("1"),
+                ),
+            )
+            expectThat(result).containsExactlyInAnyOrder(
+                "README.md",
+                "greeter/greeting.py",
+                "math/addition.py",
+                "math/subtraction.py",
+                "math/utils/is_three.py",
+            )
+        }
+    }
 }

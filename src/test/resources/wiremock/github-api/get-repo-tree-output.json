@@ -1,0 +1,68 @@
+{
+  "sha": "1234567890abcdef1234567890abcdef12345678",
+  "url": "https://api.github.com/repos/mock-user/mock-repo/trees/1234567890abcdef1234567890abcdef12345678",
+  "tree": [
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "size": 120,
+      "sha": "1111111111111111111111111111111111111111",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/blobs/1111111111111111111111111111111111111111"
+    },
+    {
+      "path": "greeter",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "2222222222222222222222222222222222222222",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/trees/2222222222222222222222222222222222222222"
+    },
+    {
+      "path": "greeter/greeting.py",
+      "mode": "100644",
+      "type": "blob",
+      "size": 200,
+      "sha": "3333333333333333333333333333333333333333",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/blobs/3333333333333333333333333333333333333333"
+    },
+    {
+      "path": "math",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4444444444444444444444444444444444444444",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/trees/4444444444444444444444444444444444444444"
+    },
+    {
+      "path": "math/addition.py",
+      "mode": "100644",
+      "type": "blob",
+      "size": 180,
+      "sha": "5555555555555555555555555555555555555555",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/blobs/5555555555555555555555555555555555555555"
+    },
+    {
+      "path": "math/subtraction.py",
+      "mode": "100644",
+      "type": "blob",
+      "size": 190,
+      "sha": "6666666666666666666666666666666666666666",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/blobs/6666666666666666666666666666666666666666"
+    },
+    {
+      "path": "math/utils",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "7777777777777777777777777777777777777777",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/trees/7777777777777777777777777777777777777777"
+    },
+    {
+      "path": "math/utils/is_three.py",
+      "mode": "100644",
+      "type": "blob",
+      "size": 160,
+      "sha": "8888888888888888888888888888888888888888",
+      "url": "https://api.github.com/repos/mock-user/mock-repo/git/blobs/8888888888888888888888888888888888888888"
+    }
+  ],
+  "truncated": false
+}

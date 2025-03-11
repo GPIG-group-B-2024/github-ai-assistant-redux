@@ -6,3 +6,6 @@ spring:
     enabled: true
     schemas: github_ai_assistant
     connect-retries: 4
+
+app_settings:
+  chatgpt_version: gpt-4o-2024-08-06
