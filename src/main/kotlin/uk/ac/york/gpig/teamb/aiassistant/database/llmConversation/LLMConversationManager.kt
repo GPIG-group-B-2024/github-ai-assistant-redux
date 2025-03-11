@@ -67,7 +67,7 @@ class LLMConversationManager(
         message: OpenAIMessage,
     ) = transactionTemplate.execute {
         val messageId = UUID.randomUUID()
-        llmConversationWriteFacade.storeMessage(messageId, message.role.toJooqMessageRole(), message.message)
+        llmConversationWriteFacade.storeMessage(messageId, message.role.toJooqMessageRole(), message.content)
         llmConversationWriteFacade.linkMessageToConversation(conversationId, messageId)
         logger.info("Created message with id $messageId and linked it to conversation with id $conversationId")
     }

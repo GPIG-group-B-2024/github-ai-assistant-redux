@@ -78,11 +78,11 @@ class OpenAIClientTest {
                     listOf(
                         OpenAIMessage(
                             role = OpenAIMessage.Role.SYSTEM,
-                            message = "You are a car inventor. When prompted, create a new car.",
+                            content = "You are a car inventor. When prompted, create a new car.",
                         ),
                         OpenAIMessage(
                             role = OpenAIMessage.Role.USER,
-                            message =
+                            content =
                                 """
                                 Create a powerful car with a confidence-inspiring model name. 
                                 Use a well-respected manufacturer as the make.
@@ -130,11 +130,11 @@ class OpenAIClientTest {
                       "messages": [
                         {
                           "role": "system",
-                          "message": "You are a car inventor. When prompted, create a new car."
+                          "content": "You are a car inventor. When prompted, create a new car."
                         },
                         {
                           "role": "user",
-                          "message": "Create a powerful car with a confidence-inspiring model name. \nUse a well-respected manufacturer as the make."
+                          "content": "Create a powerful car with a confidence-inspiring model name. \nUse a well-respected manufacturer as the make."
                         }
                       ]
                     }
@@ -161,11 +161,11 @@ class OpenAIClientTest {
                         listOf(
                             OpenAIMessage(
                                 role = OpenAIMessage.Role.SYSTEM,
-                                message = "You are a car inventor. When prompted, create a new car.",
+                                content = "You are a car inventor. When prompted, create a new car.",
                             ),
                             OpenAIMessage(
                                 role = OpenAIMessage.Role.USER,
-                                message =
+                                content =
                                     """
                                     Create a powerful car with a confidence-inspiring model name. 
                                     Use a well-respected manufacturer as the make.
@@ -197,11 +197,11 @@ class OpenAIClientTest {
                         listOf(
                             OpenAIMessage(
                                 role = OpenAIMessage.Role.SYSTEM,
-                                message = "You are a car inventor. When prompted, create a new car.",
+                                content = "You are a car inventor. When prompted, create a new car.",
                             ),
                             OpenAIMessage(
                                 role = OpenAIMessage.Role.USER,
-                                message =
+                                content =
                                     """
                                     Create a powerful car with a confidence-inspiring model name. 
                                     Use a well-respected manufacturer as the make.

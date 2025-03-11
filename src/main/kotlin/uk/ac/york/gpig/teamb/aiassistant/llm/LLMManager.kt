@@ -106,7 +106,7 @@ class LLMManager(
                         c4Manager.getRepoId(repoName),
                         issue.number,
                         OpenAIMessage.Role.SYSTEM,
-                        systemPrompt.message,
+                        systemPrompt.content,
                     )
                 conversationManager.addMessageToConversation(conversationId, initialMessage)
                 conversationId
