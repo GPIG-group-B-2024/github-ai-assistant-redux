@@ -71,4 +71,68 @@ class VCSManager(
             logger.info("Latest comment is from myself, aborting...")
         }
     }
+
+    fun processChanges(repoName: String, issue: Issue, changes: LLMPullRequestData) =
+        withTempDir { tempDir ->
+            logger.info("Processing issue ${issue.id}")
+            val installationToken = gitHubFacade.generateInstallationToken()
+            
+            logger.info("Cloning git repo...")
+            val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
+            
+            logger.info("Creating a new branch linked to the issue...")
+            val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
+            gitFacade.createBranch(gitFile, branchName)
+            
+            logger.info("Created branch $branchName, fetching file tree...")
+            val fileTree = gitHubFacade.fetchFileTree(repoName, branchName)
+            
+            logger.info("Fetched file tree, applying changes...")
+            val git = Git.open(gitFile)
+            git.checkout().setName(branchName).call()
+            for (change: Change in changes) {
+                when (change.type) {
+                    "modify" -> {
+                        if (!fileTree.contains(change.filePath)){
+                            // if file does not exist throw error
+                            return
+                        }
+                        // update file - no idea if this is correct, is a little confusing
+                        git.add().addFilepattern(change.filePath).call();
+                        git.add().setUpdate(true).addFilepattern(change.filePath).call();
+                    }
+                    "create" -> {
+                        if (fileTree.contains(change.filePath)){
+                            // if file exists throw error
+                            return
+                        }
+                        // add file
+                        git.add().addFilepattern(change.filePath).call()
+                    }
+                    "delete" -> {
+                        if (!fileTree.contains(change.filePath)){
+                            // if file does not exist throw error
+                            return
+                        }
+                        // remove file
+                        git.rm().addFilepattern(change.filePath).call();
+                    }
+                    else -> return // dont need when make enum
+                }
+            }
+
+            logger.info("Changes applied, pushing to branch...")
+            gitFacade.pushBranch(gitFile, branchName, installationToken)
+
+            logger.info("Changes pushed, Creating Pull Request...")
+            gitHubFacade.createPullRequest(
+                repoName,
+                "main",
+                branchName,
+                changes.pullRequestTitle,
+                changes.pullRequestBody)
+
+            logger.info("Success!")
+
+        }
 }

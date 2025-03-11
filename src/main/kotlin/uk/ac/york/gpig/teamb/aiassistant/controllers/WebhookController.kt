@@ -18,6 +18,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 @RestController
 class WebhookController(
     private val vcsManager: VCSManager,
+    private val llmManager: LLMManager,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,7 +31,9 @@ class WebhookController(
         when (EventType.fromString(eventType) to issueContents.action) {
             (EventType.ISSUES to WebhookPayload.Action.OPENED) -> {
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
-                vcsManager.processNewIssue(issueContents)
+                val (issue, _, repository, comment) = issueContents
+                val pullRequestData = llmManager.produceIssueSolution(repository.fullName, issue)
+                vcsManager.processChanges(repository.fullName, issue, pullRequestData)
             }
             (EventType.ISSUE_COMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")

@@ -27,6 +27,7 @@ class GitFacade {
      * Most of the git API uses the `.git` folder to identify the repository, therefore this function provides a convienient
      * way to obtain the path for future use.
      * */
+    @Deprecated(message = "use the one with auth")
     fun cloneRepo(
         repoUrl: String,
         clonePath: File,
