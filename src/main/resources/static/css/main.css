@@ -52,6 +52,8 @@ tbody tr {
 }
 
 .badge {
+  display: flex;
+  gap: 0.5em;
   width: fit-content;
   padding: 4px 8px;
   border-radius: 20px;
@@ -79,7 +81,7 @@ tbody tr {
 }
 
 .conversations-list-table tr {
-  grid-template-columns: 4fr 3fr 1fr 2fr;
+  grid-template-columns: 4fr 3fr 1fr 1fr 2fr;
 }
 
 tbody tr:hover {
@@ -161,4 +163,38 @@ tbody tr:hover {
 .error-home-button-container {
   width: 100%;
   align-items: center;
+}
+
+.badge-conversation-completed {
+  background-color: green;
+
+  &::before {
+    content: "\f00c";
+    font-family: FontAwesome, serif;
+  }
+}
+
+.badge-conversation-failed {
+  background-color: red;
+
+  &::before {
+    content: "\f00d";
+    font-family: FontAwesome, serif;
+  }
+}
+
+.badge-conversation-in-progress {
+  background-color: orange;
+
+  &::before {
+    content: "\f110";
+    font-family: FontAwesome, serif;
+    animation: spin 2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }

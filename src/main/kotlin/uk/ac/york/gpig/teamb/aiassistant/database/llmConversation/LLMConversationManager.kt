@@ -9,6 +9,7 @@ import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException.N
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.conversions.toJooqMessageRole
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationWriteFacade
+import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
 import java.util.UUID
 
@@ -54,6 +55,14 @@ class LLMConversationManager(
         logger.info("Stored new conversation with id $conversationId and first message with id $messageId")
         return conversationId
     }
+
+    fun updateConversationStatus(
+        conversationId: UUID,
+        status: ConversationStatus,
+    ) = llmConversationWriteFacade.updateStatus(
+        conversationId,
+        status,
+    )
 
     fun fetchConversations() = llmConversationReadFacade.fetchConversations().also { logger.info("Found ${it.size} conversations") }
 

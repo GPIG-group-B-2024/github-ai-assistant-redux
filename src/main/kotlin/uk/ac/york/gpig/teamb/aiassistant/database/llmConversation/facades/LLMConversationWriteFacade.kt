@@ -3,6 +3,7 @@ package uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades
 import org.jooq.DSLContext
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
+import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
 import uk.ac.york.gpig.teamb.aiassistant.enums.LlmMessageRole
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.CONVERSATION_MESSAGE
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_CONVERSATION
@@ -47,8 +48,19 @@ class LLMConversationWriteFacade(
             if (insertCount != 1) throw Exception("Failed to store message $id")
         }
 
+    fun updateStatus(
+        id: UUID,
+        newStatus: ConversationStatus,
+    ) = ctx.update(LLM_CONVERSATION)
+        .set(LLM_CONVERSATION.STATUS, newStatus)
+        .where(LLM_CONVERSATION.ID.eq(id))
+        .execute()
+        .let { updateCount ->
+            if (updateCount != 1) throw Exception("Failed to update status of conversation $id")
+        }
+
     /**
-     * Create and store a new (empty) conversation
+     * Create and store a new (empty) conversation, setting the status to [ConversationStatus.IN_PROGRESS]
      * */
     fun initConversation(
         id: UUID,
@@ -60,8 +72,9 @@ class LLMConversationWriteFacade(
             LLM_CONVERSATION.REPO_ID,
             LLM_CONVERSATION.ISSUE_ID,
             LLM_CONVERSATION.CREATED_AT,
+            LLM_CONVERSATION.STATUS,
         )
-        .values(id, repoId, issueId, OffsetDateTime.now())
+        .values(id, repoId, issueId, OffsetDateTime.now(), ConversationStatus.IN_PROGRESS)
         .execute().let { insertCount ->
             if (insertCount != 1) throw Exception("Failed to store conversation $id")
         }

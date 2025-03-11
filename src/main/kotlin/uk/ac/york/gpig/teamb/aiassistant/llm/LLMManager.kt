@@ -1,11 +1,13 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm
 
 import com.google.gson.Gson
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.C4Manager
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.LLMConversationManager
+import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIClient
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
@@ -19,7 +21,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
  * */
 @Service
 class LLMManager(
-    @Value("\${app_settings.chatgpt_version:gpt-4o-2024-08-06")
+    @Value("\${app_settings.chatgpt_version:gpt-4o-2024-08-06}")
     private val chatGptVersion: String,
     private val client: OpenAIClient,
     private val c4Manager: C4Manager,
@@ -75,6 +77,8 @@ class LLMManager(
             """.trimIndent(),
         )
 
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     /**
      * Walk through the conversation flow outlined in the issue description
      * */
@@ -114,9 +118,15 @@ class LLMManager(
 
         // make first request: we should get a list of files back
         val filesToInspectInFull =
-            client.performStructuredOutputQuery(
-                firstRequestData,
-            )
+            try {
+                client.performStructuredOutputQuery(
+                    firstRequestData,
+                )
+            } catch (e: Exception) {
+                logger.error("Marking conversation $conversationId as failed after 1st user message")
+                conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
+                throw Exception("LLM query in conversation $conversationId failed with error after 1st user message: $e ")
+            }
 
         // store chatGPT's response into the database
         val chatGptResponseMessage =
@@ -136,28 +146,37 @@ class LLMManager(
         conversationManager.addMessageToConversation(conversationId, secondMessage)
 
         val pullRequestData =
-            client.performStructuredOutputQuery(
-                OpenAIStructuredRequestData(
-                    model = chatGptVersion,
-                    responseFormatClass = LLMPullRequestData::class,
-                    messages =
-                        listOf(
-                            systemPrompt,
-                            initialMessage,
-                            chatGptResponseMessage,
-                            secondMessage,
-                        ),
+            try {
+                client.performStructuredOutputQuery(
+                    OpenAIStructuredRequestData(
+                        model = chatGptVersion,
+                        responseFormatClass = LLMPullRequestData::class,
+                        messages =
+                            listOf(
+                                systemPrompt,
+                                initialMessage,
+                                chatGptResponseMessage,
+                                secondMessage,
+                            ),
+                    ),
+                )
+            } catch (e: Exception) {
+                logger.error("Marking conversation $conversationId as failed after 2nd user message")
+                conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
+                throw Exception("LLM query in conversation $conversationId failed with error after 2nd user message: $e ")
+            }
+        // we have received the pull request data. Write the remaining message to the database, mark the conversation as complete and return the data.
+        transactionTemplate.execute {
+            conversationManager.addMessageToConversation(
+                conversationId,
+                OpenAIMessage(
+                    OpenAIMessage.Role.ASSISTANT,
+                    gson.toJson(pullRequestData),
                 ),
             )
-        // we have received the pull request data. Write the remaining message to the database and return the data.
+            conversationManager.updateConversationStatus(conversationId, ConversationStatus.COMPLETED)
+        }
 
-        conversationManager.addMessageToConversation(
-            conversationId,
-            OpenAIMessage(
-                OpenAIMessage.Role.ASSISTANT,
-                gson.toJson(pullRequestData),
-            ),
-        )
         return pullRequestData
     }
 }
