@@ -97,9 +97,9 @@ class VCSManager(
                             // if file does not exist throw error
                             return
                         }
-                        // update file - no idea if this is correct, is a little confusing
-                        git.add().addFilepattern(change.filePath).call();
-                        git.add().setUpdate(true).addFilepattern(change.filePath).call();
+                        // update file
+                        val newFile = File(gitFile.parentFile, change.filePath) // hopefully doesnt error if file already exists
+                        newFile.writeText(change.newContents)
                     }
                     "create" -> {
                         if (fileTree.contains(change.filePath)){
@@ -107,7 +107,8 @@ class VCSManager(
                             return
                         }
                         // add file
-                        git.add().addFilepattern(change.filePath).call()
+                        val newFile = File(gitFile.parentFile, change.filePath)
+                        newFile.writeText(change.newContents)
                     }
                     "delete" -> {
                         if (!fileTree.contains(change.filePath)){
@@ -115,13 +116,16 @@ class VCSManager(
                             return
                         }
                         // remove file
-                        git.rm().addFilepattern(change.filePath).call();
+                        git.rm().addFilepattern(change.filePath).call()
                     }
                     else -> return // dont need when make enum
                 }
             }
 
-            logger.info("Changes applied, pushing to branch...")
+            logger.info("Staging and commiting changes...")
+            gitFacade.stageAndCommitChanges(git, changes.pullRequestTitle) // TODO: have the model produce an actual commit message?
+
+            logger.info("Changes commited, pushing to branch...")
             gitFacade.pushBranch(gitFile, branchName, installationToken)
 
             logger.info("Changes pushed, Creating Pull Request...")

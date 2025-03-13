@@ -89,6 +89,15 @@ class GitFacade {
         repo.commit().setCommitter(personIdent).setAuthor(personIdent).setMessage("Added $name").call()
     }
 
+    fun stageAndCommitChanges(
+        git: Git,
+        commitMessage: String,
+    ) {
+        git.add().setUpdate(true).addFilepattern(".").call() // stage modified and deleted
+        git.add().addFilepattern(".").call() // stage modified and new
+        git.commit().setMessage(commitMessage).call() 
+    }
+
     /**
      * Checkout the branch with the provided name and push it to the upstream (github) location.
      * Requires the app **Installation token** (not the JWT), see github API docs.
