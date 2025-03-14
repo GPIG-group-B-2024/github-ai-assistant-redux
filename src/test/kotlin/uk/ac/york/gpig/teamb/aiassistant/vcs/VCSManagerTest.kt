@@ -13,7 +13,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 
 @AiAssistantTest
-class IssueManagerTest {
+class VCSManagerTest {
     @Autowired
     private lateinit var sut: VCSManager
 
@@ -166,4 +166,26 @@ class IssueManagerTest {
             gitHubFacade.createComment(any(), any(), any())
         }
     }
+
+    @Test
+    fun `creates a new file with correct data`() {
+        val contents = "some contents"
+        withTempDir { tempDir ->
+
+        // Act
+            myFile = addFile(File("parentFile"), "newfile.txt", contents)
+        // Verify
+            verify {
+                myFile.readText == contents
+            }
+        }
+    }
+
+    // @Test
+    // fun `overwrites data of an existing file`() {
+        
+    //     // Act
+
+    //     // Verify
+    // }
 }

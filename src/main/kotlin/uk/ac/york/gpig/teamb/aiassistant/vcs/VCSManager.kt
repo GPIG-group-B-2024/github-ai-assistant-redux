@@ -7,6 +7,10 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.Change
+import org.eclipse.jgit.api.Git
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 
 /**
  * Manages the response to issues: interacts with the git repository and creates pull requests
@@ -72,7 +76,7 @@ class VCSManager(
         }
     }
 
-    fun processChanges(repoName: String, issue: Issue, changes: LLMPullRequestData) =
+    fun processChanges(repository: Repository, issue: Issue, changes: LLMPullRequestData) =
         withTempDir { tempDir ->
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
@@ -85,7 +89,7 @@ class VCSManager(
             gitFacade.createBranch(gitFile, branchName)
             
             logger.info("Created branch $branchName, fetching file tree...")
-            val fileTree = gitHubFacade.fetchFileTree(repoName, branchName)
+            val fileTree = gitHubFacade.fetchFileTree(repository.fullName, branchName)
             
             logger.info("Fetched file tree, applying changes...")
             val git = Git.open(gitFile)
@@ -98,8 +102,7 @@ class VCSManager(
                             return
                         }
                         // update file
-                        val newFile = File(gitFile.parentFile, change.filePath) // hopefully doesnt error if file already exists
-                        newFile.writeText(change.newContents)
+                        addFile(gitFile.parentFile, changes.filePath, changes.newContents)
                     }
                     "create" -> {
                         if (fileTree.contains(change.filePath)){
@@ -107,8 +110,7 @@ class VCSManager(
                             return
                         }
                         // add file
-                        val newFile = File(gitFile.parentFile, change.filePath)
-                        newFile.writeText(change.newContents)
+                        addFile(gitFile.parentFile, changes.filePath, changes.newContents)
                     }
                     "delete" -> {
                         if (!fileTree.contains(change.filePath)){
@@ -130,7 +132,7 @@ class VCSManager(
 
             logger.info("Changes pushed, Creating Pull Request...")
             gitHubFacade.createPullRequest(
-                repoName,
+                repository.fullName,
                 "main",
                 branchName,
                 changes.pullRequestTitle,
@@ -139,4 +141,10 @@ class VCSManager(
             logger.info("Success!")
 
         }
+
+    fun addFile(parentFile: File, filePath: String, contents: String): File {
+        val newFile = File(parentFile, filePath) // hopefully doesnt error if file already exists
+        newFile.writeText(contents)
+        return newFile
+    }
 }

@@ -33,7 +33,7 @@ class WebhookController(
                 logger.info("Received new open issue with id ${issueContents.issue.id}")
                 val (issue, _, repository, comment) = issueContents
                 val pullRequestData = llmManager.produceIssueSolution(repository.fullName, issue)
-                vcsManager.processChanges(repository.fullName, issue, pullRequestData)
+                vcsManager.processChanges(repository, issue, pullRequestData)
             }
             (EventType.ISSUE_COMMENT to WebhookPayload.Action.CREATED) -> {
                 logger.info("Received new comment on issue with id ${issueContents.issue.id}")
