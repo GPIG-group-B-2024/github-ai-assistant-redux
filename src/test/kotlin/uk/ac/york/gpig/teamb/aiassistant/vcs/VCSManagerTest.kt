@@ -7,10 +7,14 @@ import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import strikt.api.expectThat
+import strikt.assertions.isEqualTo
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
+import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
+import java.io.File
 
 @AiAssistantTest
 class VCSManagerTest {
@@ -172,18 +176,19 @@ class VCSManagerTest {
         val contents = "some contents"
         withTempDir { tempDir ->
 
-        // Act
-            myFile = addFile(File("parentFile"), "newfile.txt", contents)
-        // Verify
-            verify {
-                myFile.readText == contents
-            }
+            // Act
+            val myFile = sut.addFile(File("parentFile"), "newfile.txt", contents)
+            // Verify
+//            verify {
+//                myFile.readText == contents
+//            }
+            expectThat(myFile.readText()).isEqualTo(contents)
         }
     }
 
     // @Test
     // fun `overwrites data of an existing file`() {
-        
+
     //     // Act
 
     //     // Verify

@@ -6,7 +6,8 @@ data class LLMPullRequestData(
     val updatedFiles: List<Change>,
 ) {
     data class Change(
-        val type: String, // TODO: make enum
+        // TODO: make enum
+        val type: String,
         val filePath: String,
         val newContents: String,
     )

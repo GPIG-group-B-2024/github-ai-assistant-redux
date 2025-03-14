@@ -95,7 +95,7 @@ class GitFacade {
     ) {
         git.add().setUpdate(true).addFilepattern(".").call() // stage modified and deleted
         git.add().addFilepattern(".").call() // stage modified and new
-        git.commit().setMessage(commitMessage).call() 
+        git.commit().setMessage(commitMessage).call()
     }
 
     /**

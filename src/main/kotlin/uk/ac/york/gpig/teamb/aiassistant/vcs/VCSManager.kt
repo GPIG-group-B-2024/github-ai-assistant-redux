@@ -1,16 +1,18 @@
 package uk.ac.york.gpig.teamb.aiassistant.vcs
 
+import org.eclipse.jgit.api.Git
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
-import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
-import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
-import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.Change
-import org.eclipse.jgit.api.Git
+import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
+import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Repository
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
+import java.io.File
 
 /**
  * Manages the response to issues: interacts with the git repository and creates pull requests
@@ -76,73 +78,80 @@ class VCSManager(
         }
     }
 
-    fun processChanges(repository: Repository, issue: Issue, changes: LLMPullRequestData) =
-        withTempDir { tempDir ->
-            logger.info("Processing issue ${issue.id}")
-            val installationToken = gitHubFacade.generateInstallationToken()
-            
-            logger.info("Cloning git repo...")
-            val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
-            
-            logger.info("Creating a new branch linked to the issue...")
-            val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
-            gitFacade.createBranch(gitFile, branchName)
-            
-            logger.info("Created branch $branchName, fetching file tree...")
-            val fileTree = gitHubFacade.fetchFileTree(repository.fullName, branchName)
-            
-            logger.info("Fetched file tree, applying changes...")
-            val git = Git.open(gitFile)
-            git.checkout().setName(branchName).call()
-            for (change: Change in changes) {
-                when (change.type) {
-                    "modify" -> {
-                        if (!fileTree.contains(change.filePath)){
-                            // if file does not exist throw error
-                            return
-                        }
-                        // update file
-                        addFile(gitFile.parentFile, changes.filePath, changes.newContents)
+    fun processChanges(
+        repository: Repository,
+        issue: Issue,
+        changes: LLMPullRequestData,
+    ) = withTempDir { tempDir ->
+        logger.info("Processing issue ${issue.id}")
+        val installationToken = gitHubFacade.generateInstallationToken()
+
+        logger.info("Cloning git repo...")
+        val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
+
+        logger.info("Creating a new branch linked to the issue...")
+        val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
+        gitFacade.createBranch(gitFile, branchName)
+
+        logger.info("Created branch $branchName, fetching file tree...")
+        val fileTree = gitHubFacade.fetchFileTree(repository.fullName, branchName)
+
+        logger.info("Fetched file tree, applying changes...")
+        val git = Git.open(gitFile)
+        git.checkout().setName(branchName).call()
+        for (change: Change in changes.updatedFiles) {
+            when (change.type) {
+                "modify" -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        return@withTempDir
                     }
-                    "create" -> {
-                        if (fileTree.contains(change.filePath)){
-                            // if file exists throw error
-                            return
-                        }
-                        // add file
-                        addFile(gitFile.parentFile, changes.filePath, changes.newContents)
-                    }
-                    "delete" -> {
-                        if (!fileTree.contains(change.filePath)){
-                            // if file does not exist throw error
-                            return
-                        }
-                        // remove file
-                        git.rm().addFilepattern(change.filePath).call()
-                    }
-                    else -> return // dont need when make enum
+                    // update file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
                 }
+                "create" -> {
+                    if (fileTree.contains(change.filePath)) {
+                        // if file exists throw error
+                        return@withTempDir
+                    }
+                    // add file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
+                }
+                "delete" -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        return@withTempDir
+                    }
+                    // remove file
+                    git.rm().addFilepattern(change.filePath).call()
+                }
+                else -> return@withTempDir // dont need when make enum
             }
-
-            logger.info("Staging and commiting changes...")
-            gitFacade.stageAndCommitChanges(git, changes.pullRequestTitle) // TODO: have the model produce an actual commit message?
-
-            logger.info("Changes commited, pushing to branch...")
-            gitFacade.pushBranch(gitFile, branchName, installationToken)
-
-            logger.info("Changes pushed, Creating Pull Request...")
-            gitHubFacade.createPullRequest(
-                repository.fullName,
-                "main",
-                branchName,
-                changes.pullRequestTitle,
-                changes.pullRequestBody)
-
-            logger.info("Success!")
-
         }
 
-    fun addFile(parentFile: File, filePath: String, contents: String): File {
+        logger.info("Staging and commiting changes...")
+        gitFacade.stageAndCommitChanges(git, changes.pullRequestTitle) // TODO: have the model produce an actual commit message?
+
+        logger.info("Changes commited, pushing to branch...")
+        gitFacade.pushBranch(gitFile, branchName, installationToken)
+
+        logger.info("Changes pushed, Creating Pull Request...")
+        gitHubFacade.createPullRequest(
+            repository.fullName,
+            "main",
+            branchName,
+            changes.pullRequestTitle,
+            changes.pullRequestBody,
+        )
+
+        logger.info("Success!")
+    }
+
+    fun addFile(
+        parentFile: File,
+        filePath: String,
+        contents: String,
+    ): File {
         val newFile = File(parentFile, filePath) // hopefully doesnt error if file already exists
         newFile.writeText(contents)
         return newFile
