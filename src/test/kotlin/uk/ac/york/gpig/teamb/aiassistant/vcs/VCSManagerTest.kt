@@ -177,20 +177,23 @@ class VCSManagerTest {
         withTempDir { tempDir ->
 
             // Act
-            val myFile = sut.addFile(File("parentFile"), "newfile.txt", contents)
+            val myFile = sut.addFile(tempDir.toFile(), "newfile.txt", contents)
             // Verify
-//            verify {
-//                myFile.readText == contents
-//            }
             expectThat(myFile.readText()).isEqualTo(contents)
         }
     }
 
-    // @Test
-    // fun `overwrites data of an existing file`() {
-
-    //     // Act
-
-    //     // Verify
-    // }
+    @Test
+    fun `overwrites data of an existing file`() {
+        val contents = "some contents"
+        val filePath = "newFile.txt"
+        withTempDir { tempDir ->
+            val newFile = File(tempDir.toFile(), filePath)
+            newFile.writeText("This will be overwritten")
+            // Act
+            val myFile = sut.addFile(tempDir.toFile(), filePath, contents)
+            // Verify
+            expectThat(myFile.readText()).isEqualTo(contents)
+        }
+    }
 }
