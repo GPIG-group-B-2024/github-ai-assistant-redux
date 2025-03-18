@@ -1,5 +1,7 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas
 
+import com.google.gson.annotations.SerializedName
+
 data class LLMPullRequestData(
     val pullRequestBody: String,
     val pullRequestTitle: String,
@@ -7,8 +9,23 @@ data class LLMPullRequestData(
 ) {
     data class Change(
         // TODO: make enum
-        val type: String,
+        val type: ChangeType,
         val filePath: String,
         val newContents: String,
     )
+
+    /**
+     * The change type of a model suggested change
+
+     * */
+    enum class ChangeType {
+        @SerializedName("modify")
+        MODIFY,
+
+        @SerializedName("create")
+        CREATE,
+
+        @SerializedName("delete")
+        DELETE,
+    }
 }

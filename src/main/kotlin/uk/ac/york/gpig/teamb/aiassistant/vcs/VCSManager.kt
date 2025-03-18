@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.Change
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.ChangeType
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
@@ -101,31 +102,30 @@ class VCSManager(
         git.checkout().setName(branchName).call()
         for (change: Change in changes.updatedFiles) {
             when (change.type) {
-                "modify" -> {
+                ChangeType.MODIFY -> {
                     if (!fileTree.contains(change.filePath)) {
                         // if file does not exist throw error
-                        return@withTempDir
+                        throw FileNotFoundException("Cannot modify '${change.filePath}' as it does not exist")
                     }
                     // update file
                     addFile(gitFile.parentFile, change.filePath, change.newContents)
                 }
-                "create" -> {
+                ChangeType.CREATE -> {
                     if (fileTree.contains(change.filePath)) {
                         // if file exists throw error
-                        return@withTempDir
+                        throw FileAlreadyExistsException("Cannot create '${change.filePath}' as it already exists")
                     }
                     // add file
                     addFile(gitFile.parentFile, change.filePath, change.newContents)
                 }
-                "delete" -> {
+                ChangeType.DELETE -> {
                     if (!fileTree.contains(change.filePath)) {
                         // if file does not exist throw error
-                        return@withTempDir
+                        throw FileNotFoundException("Cannot delete '${change.filePath}' as it does not exist")
                     }
                     // remove file
                     git.rm().addFilepattern(change.filePath).call()
                 }
-                else -> return@withTempDir // dont need when make enum
             }
         }
 
@@ -152,7 +152,7 @@ class VCSManager(
         filePath: String,
         contents: String,
     ): File {
-        val newFile = File(parentFile, filePath) // hopefully doesnt error if file already exists
+        val newFile = File(parentFile, filePath)
         newFile.writeText(contents)
         return newFile
     }
