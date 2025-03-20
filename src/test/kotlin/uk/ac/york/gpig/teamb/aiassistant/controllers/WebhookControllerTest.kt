@@ -21,7 +21,7 @@ class WebhookControllerTest {
     @MockkBean
     private lateinit var vcsManager: VCSManager
 
-    @MockkBean(relaxed=true)
+    @MockkBean(relaxed = true)
     private lateinit var llmManager: LLMManager
 
     @Autowired
