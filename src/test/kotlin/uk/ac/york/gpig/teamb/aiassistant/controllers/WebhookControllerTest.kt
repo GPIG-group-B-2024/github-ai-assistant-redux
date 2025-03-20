@@ -12,11 +12,15 @@ import strikt.api.expectThrows
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
+import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 
 @AiAssistantTest
 class WebhookControllerTest {
     @MockkBean
     private lateinit var vcsManager: VCSManager
+
+    @MockkBean(relaxed = true)
+    private lateinit var llmManager: LLMManager
 
     @Autowired
     private lateinit var sut: WebhookController
@@ -51,7 +55,9 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
         // verify
         verify {
-            vcsManager.processNewIssue(issueBody)
+            // TODO: verify functions are called with correct data?
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(), any(), any())
         }
     }
 

@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.controllers.WebhookController
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
+import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 
 @WebMvcTest(controllers = [WebhookController::class])
 class WebhookControllerMockMvcTest {
@@ -21,6 +22,9 @@ class WebhookControllerMockMvcTest {
 
     @MockkBean(relaxed = true)
     private lateinit var vcsManager: VCSManager
+
+    @MockkBean(relaxed = true)
+    private lateinit var llmManager: LLMManager
 
     @Test
     fun `receiving opened issue`() {
@@ -56,9 +60,11 @@ class WebhookControllerMockMvcTest {
                 Gson().toJson(mockWebhook),
             ),
         )
-
+        
         verify {
-            vcsManager.processNewIssue(mockWebhook)
+            // TODO: verify functions are called with correct data?
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(), any(), any())
         }
     }
 
