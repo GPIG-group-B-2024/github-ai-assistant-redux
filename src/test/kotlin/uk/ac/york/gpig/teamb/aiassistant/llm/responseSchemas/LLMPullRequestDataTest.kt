@@ -11,23 +11,50 @@ class LLMPullRequestDataTest {
         expectThat(LLMPullRequestData::class.toJsonSchema()).isEqualToJson(
             """
             {
-            
-                "type":"object",
-                "additionalProperties":false,
-                "properties":{"pullRequestBody":{"type":"string"},
-                "pullRequestTitle":{"type":"string"},
-                "updatedFiles":
-                    {
-                    "type":"array",
-                    "items":{"type":"object",
-                    "additionalProperties":false,
-                    "properties":{"type":{"type":"string",
-                    "enum": ["MODIFY","CREATE","DELETE"]},
-                    "filePath":{"type":"string"},
-                    "newContents":{"type":"string"}},
-                    "required":["filePath","newContents"]}}},
-                    "required":["pullRequestBody","pullRequestTitle","updatedFiles"]
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "pullRequestBody": {
+                    "type": "string"
+                    },
+                    "pullRequestTitle": {
+                    "type": "string"
+                    },
+                    "updatedFiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                            "MODIFY",
+                            "CREATE",
+                            "DELETE"
+                            ]
+                        },
+                        "filePath": {
+                            "type": "string"
+                        },
+                        "newContents": {
+                            "type": "string"
+                        }
+                        },
+                        "required": [
+                        "type",
+                        "filePath",
+                        "newContents"
+                        ]
                     }
+                    }
+                },
+                "required": [
+                    "pullRequestBody",
+                    "pullRequestTitle",
+                    "updatedFiles"
+                ]
+            }
             """.replace("\\s".toRegex(), ""),
         )
     }

@@ -21,7 +21,7 @@ class WebhookControllerTest {
     @MockkBean
     private lateinit var vcsManager: VCSManager
 
-    @MockkBean(relaxed = true)
+    @MockkBean
     private lateinit var llmManager: LLMManager
 
     @Autowired
@@ -30,7 +30,8 @@ class WebhookControllerTest {
     @Test
     fun `passes issues event payload to issue manager`() {
         // setup
-        every { vcsManager.processNewIssue(any()) } just runs
+        every { llmManager.produceIssueSolution(any(), any()) } just runs
+        every { vcsManager.processChanges(any(), any(), any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -66,7 +67,8 @@ class WebhookControllerTest {
     @Test
     fun `ignores issues events with action other than OPENED`() {
         // setup
-        every { vcsManager.processNewIssue(any()) } just runs
+        every { llmManager.produceIssueSolution(any(), any()) } just runs
+        every { vcsManager.processChanges(any(), any(), any()) } just runs
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CLOSED,
@@ -173,7 +175,8 @@ class WebhookControllerTest {
     @Test
     fun `ignores unhandled event types`() {
         // setup
-        every { vcsManager.processNewIssue(any()) } just runs
+        every { llmManager.produceIssueSolution(any(), any()) } just runs
+        every { vcsManager.processChanges(any(), any(), any()) } just runs
         every { vcsManager.processNewIssueComment(any()) } just runs
         val issueBody =
             WebhookPayload(
