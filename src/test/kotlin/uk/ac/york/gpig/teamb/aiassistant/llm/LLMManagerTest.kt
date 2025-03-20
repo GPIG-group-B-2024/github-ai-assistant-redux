@@ -269,7 +269,7 @@ class LLMManagerTest {
                     },
                     {
                       "type": "CREATE",
-                      "fullName": "test/weather_app/test_main.py",
+                      "filePath": "test/weather_app/test_main.py",
                       "newContents": "assert(greet('steve') == 'hello steve')"
                     }
                   ]

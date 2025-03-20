@@ -138,7 +138,8 @@ class WebhookControllerMockMvcTest {
         )
 
         verify(exactly = 0) {
-            vcsManager.processNewIssue(unsupportedOpWebhook)
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(),any(),any()) // TODO: verify not called with specific data?
         }
     }
 
