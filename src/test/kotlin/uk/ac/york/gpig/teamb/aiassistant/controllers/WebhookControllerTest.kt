@@ -9,10 +9,10 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThrows
+import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
-import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 
 @AiAssistantTest
 class WebhookControllerTest {
