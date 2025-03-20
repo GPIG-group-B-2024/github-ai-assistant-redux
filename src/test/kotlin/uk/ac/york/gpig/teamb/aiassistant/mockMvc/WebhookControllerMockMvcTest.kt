@@ -139,7 +139,7 @@ class WebhookControllerMockMvcTest {
 
         verify(exactly = 0) {
             llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(),any(),any()) // TODO: verify not called with specific data?
+            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
         }
     }
 
