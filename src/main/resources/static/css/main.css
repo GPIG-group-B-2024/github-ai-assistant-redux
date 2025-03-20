@@ -52,6 +52,8 @@ tbody tr {
 }
 
 .badge {
+  display: flex;
+  gap: 0.5em;
   width: fit-content;
   padding: 4px 8px;
   border-radius: 20px;
@@ -79,7 +81,7 @@ tbody tr {
 }
 
 .conversations-list-table tr {
-  grid-template-columns: 4fr 3fr 1fr 2fr;
+  grid-template-columns: 4fr 3fr 1fr 1fr 2fr;
 }
 
 tbody tr:hover {
@@ -94,10 +96,12 @@ tbody tr:hover {
 }
 
 .conversation-header {
-  display: flex;
+  display: grid;
   flex-direction: row;
-  justify-content: space-between;
+  grid-template-columns: 20fr 1fr 2fr;
   width: 100%;
+  padding-right: 20px;
+  align-items: center;
 }
 
 .button-home {
@@ -161,4 +165,76 @@ tbody tr:hover {
 .error-home-button-container {
   width: 100%;
   align-items: center;
+}
+
+.badge-conversation-completed {
+  background-color: green;
+
+  &::before {
+    content: "\f00c";
+    font-family: FontAwesome, serif;
+  }
+}
+
+.badge-conversation-failed {
+  background-color: red;
+
+  &::before {
+    content: "\f00d";
+    font-family: FontAwesome, serif;
+  }
+}
+
+.badge-conversation-in-progress {
+  background-color: orange;
+
+  &::before {
+    content: "\f110";
+    font-family: FontAwesome, serif;
+    animation: spin 2s linear infinite;
+  }
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.profile-info {
+  display: inline-flex;
+  gap: 0.5em;
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.email-logout {
+  display: block;
+}
+
+.email-logout button {
+  border-radius: 5px;
+  height: fit-content;
+  background-color: white;
+  font-size: 12pt;
+  padding: 2px;
+  border: 2px solid gray;
+
+  &:hover {
+    background-color: whitesmoke;
+    transition: background-color 0.2s ease;
+  }
+}
+
+.profile-info img {
+  height: 3em;
+  border-radius: 100%;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }

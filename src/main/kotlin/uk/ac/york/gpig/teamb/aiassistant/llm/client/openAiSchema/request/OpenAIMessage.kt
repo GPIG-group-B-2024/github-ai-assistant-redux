@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * */
 data class OpenAIMessage(
     val role: Role,
-    val message: String,
+    val content: String,
 ) {
     /**
      * What kind of prompt this message is: system vs user.

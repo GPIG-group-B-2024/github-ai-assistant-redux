@@ -9,6 +9,7 @@ import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.NotFoundException.N
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.conversions.toJooqMessageRole
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.facades.LLMConversationWriteFacade
+import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
 import java.util.UUID
 
@@ -55,6 +56,14 @@ class LLMConversationManager(
         return conversationId
     }
 
+    fun updateConversationStatus(
+        conversationId: UUID,
+        status: ConversationStatus,
+    ) = llmConversationWriteFacade.updateStatus(
+        conversationId,
+        status,
+    )
+
     fun fetchConversations() = llmConversationReadFacade.fetchConversations().also { logger.info("Found ${it.size} conversations") }
 
     fun fetchConversationMessages(conversationId: UUID) =
@@ -67,7 +76,7 @@ class LLMConversationManager(
         message: OpenAIMessage,
     ) = transactionTemplate.execute {
         val messageId = UUID.randomUUID()
-        llmConversationWriteFacade.storeMessage(messageId, message.role.toJooqMessageRole(), message.message)
+        llmConversationWriteFacade.storeMessage(messageId, message.role.toJooqMessageRole(), message.content)
         llmConversationWriteFacade.linkMessageToConversation(conversationId, messageId)
         logger.info("Created message with id $messageId and linked it to conversation with id $conversationId")
     }

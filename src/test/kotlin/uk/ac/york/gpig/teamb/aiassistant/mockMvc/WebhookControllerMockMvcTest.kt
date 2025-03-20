@@ -5,17 +5,19 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.controllers.WebhookController
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
+import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
-@WebMvcTest(controllers = [WebhookController::class])
+@AiAssistantTest
+@AutoConfigureMockMvc
 class WebhookControllerMockMvcTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -52,7 +54,7 @@ class WebhookControllerMockMvcTest {
             )
         mockMvc.perform(
             post(
-                "/new-issue",
+                "/webhooks",
             ).header(
                 "x-github-event",
                 "issues",
@@ -94,7 +96,7 @@ class WebhookControllerMockMvcTest {
             )
         mockMvc.perform(
             post(
-                "/new-issue",
+                "/webhooks",
             ).header(
                 "x-github-event",
                 "issue_comment",
@@ -134,7 +136,7 @@ class WebhookControllerMockMvcTest {
             )
         mockMvc.perform(
             post(
-                "/new-issue",
+                "/webhooks",
             ).header(
                 "x-github-event",
                 "issues",
@@ -174,7 +176,7 @@ class WebhookControllerMockMvcTest {
             )
         mockMvc.perform(
             post(
-                "/new-issue",
+                "/webhooks",
             ).header("x-github-hook-installation-target-type", "repository").contentType(MediaType.APPLICATION_JSON).content(
                 Gson().toJson(mockWebhook),
             ),

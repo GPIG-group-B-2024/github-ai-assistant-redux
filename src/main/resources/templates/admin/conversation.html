@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
   <head>
     <title>Admin dashboard</title>
   </head>
@@ -25,6 +29,18 @@
       <a href="/admin/conversations" class="button button-home">
         <i class="fa fa-home"></i>
       </a>
+      <div class="profile-info" sec:authorize="isAuthenticated()">
+        <img
+          th:src="${profile.get('picture')}"
+          th:attr="alt=${profile.get('name')}"
+        />
+        <div class="email-logout">
+          <p th:text="${profile.get('name')}"></p>
+          <form name="logoutForm" th:action="@{/logout}" method="post">
+            <button type="submit">Log out</button>
+          </form>
+        </div>
+      </div>
     </div>
     <div class="table-container">
       <table class="conversation-table">

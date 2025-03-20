@@ -21,14 +21,20 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.all
 import strikt.assertions.contains
 import strikt.assertions.containsExactly
 import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotNull
+import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
 import uk.ac.york.gpig.teamb.aiassistant.enums.LlmMessageRole
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIClient
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.PromptRefusedException
+import uk.ac.york.gpig.teamb.aiassistant.llm.client.PromptTooLongException
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.CONVERSATION_MESSAGE
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.LLM_CONVERSATION
@@ -68,6 +74,9 @@ class LLMManagerTest {
 
     @SpykBean
     private lateinit var gitHubFacade: GitHubFacade
+
+    @SpykBean
+    private lateinit var client: OpenAIClient
 
     @Nested
     inner class ProduceIssueSolutionTest {
@@ -175,6 +184,7 @@ class LLMManagerTest {
             expectThat(ctx.selectFrom(LLM_CONVERSATION).fetch()).hasSize(1).get { this.first() }.and {
                 get { this.issueId }.isEqualTo(1)
                 get { this.repoId }.isEqualTo(repoId)
+                get { this.status }.isEqualTo(ConversationStatus.COMPLETED)
             }
             // check that there are 5 recorded messages (system prompt, 1st user, 1st response, 2nd user, 2nd response)
             expectThat(
@@ -265,6 +275,77 @@ class LLMManagerTest {
                   ]
                 }
                 """.trimIndent(),
+            )
+        }
+
+        @Test
+        fun <T> `marks conversation as failed if first user message unsuccessful`() {
+            every<T> { client.performStructuredOutputQuery(any()) } throws PromptRefusedException("naughty naughty")
+            val repoName = "my-owner/my-test-repo"
+            prepareTestEnv(repoName)
+            expectThrows<Exception> {
+                sut.produceIssueSolution(
+                    repoName,
+                    Issue(
+                        title = "Add function to greet the user",
+                        body = "Create a function that, given the user's name, greets them.",
+                        id = 1L,
+                        number = 1,
+                    ),
+                )
+            }.and { get { this.message }.isNotNull().contains("after 1st user message") }
+            // check that conversation has been created but status is `failed`
+            val foundConversations = ctx.selectFrom(LLM_CONVERSATION).fetch()
+            expectThat(foundConversations).hasSize(1).and {
+                get { this.first().status }.isEqualTo(ConversationStatus.FAILED)
+            }
+
+            // check that there are 2 recorded messages (system prompt, 1st user, FAIL)
+            expectThat(
+                ctx.selectFrom(LLM_MESSAGE).orderBy(LLM_MESSAGE.CREATED_AT).fetch().map { it.role },
+            ).containsExactly(
+                LlmMessageRole.SYSTEM,
+                LlmMessageRole.USER,
+            )
+        }
+
+        @Test
+        fun <T> `marks conversation as failed if second user message unsuccessful`() {
+            every<T> {
+                client.performStructuredOutputQuery(
+                    any(),
+                )
+            } answers { callOriginal() } andThenThrows PromptTooLongException("naughty naughty")
+            val repoName = "my-owner/my-test-repo"
+            prepareTestEnv(repoName)
+            expectThrows<Exception> {
+                sut.produceIssueSolution(
+                    repoName,
+                    Issue(
+                        title = "Add function to greet the user",
+                        body = "Create a function that, given the user's name, greets them.",
+                        id = 1L,
+                        number = 1,
+                    ),
+                )
+            }.and {
+                get { this.message }.isNotNull()
+                    .contains("after 2nd user message")
+            }
+            // check that conversation has been created but status is `failed`
+            val foundConversations = ctx.selectFrom(LLM_CONVERSATION).fetch()
+            expectThat(foundConversations).hasSize(1).and {
+                get { this.first().status }.isEqualTo(ConversationStatus.FAILED)
+            }
+
+            // check that there are 4 recorded messages (system prompt, 1st user, assistant, 2nd user, FAIL)
+            expectThat(
+                ctx.selectFrom(LLM_MESSAGE).orderBy(LLM_MESSAGE.CREATED_AT).fetch().map { it.role },
+            ).containsExactly(
+                LlmMessageRole.SYSTEM,
+                LlmMessageRole.USER,
+                LlmMessageRole.ASSISTANT,
+                LlmMessageRole.USER,
             )
         }
     }
