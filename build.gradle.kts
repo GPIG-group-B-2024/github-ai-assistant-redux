@@ -35,7 +35,12 @@ dependencyManagement {
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("com.okta.spring:okta-spring-boot-starter:3.0.5")
+  implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+  implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+  testImplementation("org.springframework.security:spring-security-test")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r") // git API
@@ -56,6 +61,7 @@ dependencies {
   // generation
   // (openAI)
   testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
   testImplementation("com.ninja-squad:springmockk:4.0.2") // mocking

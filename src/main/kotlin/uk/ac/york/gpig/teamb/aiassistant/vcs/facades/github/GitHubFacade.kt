@@ -11,7 +11,10 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.auth.JWTGenerator
  * Interacts with the GitHub API for GitHub-specific things like pull requests, comments, issues etc.
  * */
 @Service
-class GitHubFacade {
+class GitHubFacade(
+    @Value("\${app_settings.github_app_key}")
+    val githubKeyFileContents: String,
+) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
@@ -86,7 +89,7 @@ class GitHubFacade {
      * */
     fun generateInstallationToken(): String =
         GitHubBuilder()
-            .withJwtToken(JWTGenerator.generateJWT()) // use the private key to generate a *JWT*
+            .withJwtToken(JWTGenerator.generateJWT(githubKeyFileContents)) // use the private key to generate a *JWT*
             .build()
             .app
             .listInstallations()

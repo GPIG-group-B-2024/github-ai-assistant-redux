@@ -1,19 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
   <head>
     <title>Admin dashboard</title>
   </head>
-  <link
-    rel="stylesheet"
-    href="../../static/css/main.css"
-    th:href="@{/css/main.css}"
-  />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
   <body>
-    <h2 th:text="|Conversations (${conversationCount} entries)|"></h2>
+    <div class="header-container">
+      <h2 th:text="|Conversations (${conversationCount} entries)|" />
+      <div class="profile-info" sec:authorize="isAuthenticated()">
+        <img
+          th:src="${profile.get('picture')}"
+          th:attr="alt=${profile.get('name')}"
+        />
+        <div class="email-logout">
+          <p th:text="${profile.get('name')}"></p>
+          <form name="logoutForm" th:action="@{/logout}" method="post">
+            <button type="submit">Log out</button>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="table-container">
       <table class="conversations-list-table">
         <thead>

@@ -96,10 +96,12 @@ tbody tr:hover {
 }
 
 .conversation-header {
-  display: flex;
+  display: grid;
   flex-direction: row;
-  justify-content: space-between;
+  grid-template-columns: 20fr 1fr 2fr;
   width: 100%;
+  padding-right: 20px;
+  align-items: center;
 }
 
 .button-home {
@@ -191,6 +193,44 @@ tbody tr:hover {
     font-family: FontAwesome, serif;
     animation: spin 2s linear infinite;
   }
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.profile-info {
+  display: inline-flex;
+  gap: 0.5em;
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.email-logout {
+  display: block;
+}
+
+.email-logout button {
+  border-radius: 5px;
+  height: fit-content;
+  background-color: white;
+  font-size: 12pt;
+  padding: 2px;
+  border: 2px solid gray;
+
+  &:hover {
+    background-color: whitesmoke;
+    transition: background-color 0.2s ease;
+  }
+}
+
+.profile-info img {
+  height: 3em;
+  border-radius: 100%;
 }
 
 @keyframes spin {

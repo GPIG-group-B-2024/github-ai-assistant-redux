@@ -21,7 +21,7 @@ class WebhookController(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @PostMapping("/new-issue")
+    @PostMapping("/webhooks")
     fun receiveNewWebhook(
         @RequestHeader("x-github-event") eventType: String,
         @RequestBody body: String,
