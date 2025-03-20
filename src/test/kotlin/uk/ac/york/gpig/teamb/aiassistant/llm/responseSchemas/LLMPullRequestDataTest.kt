@@ -21,9 +21,10 @@ class LLMPullRequestDataTest {
                     "type":"array",
                     "items":{"type":"object",
                     "additionalProperties":false,
-                    "properties":{"fullName":{"type":"string"},
+                    "properties":{"type":{"type":"string"},
+                    "filePath":{"type":"string"},
                     "newContents":{"type":"string"}},
-                    "required":["fullName","newContents"]}}},
+                    "required":["filePath","newContents"]}}},
                     "required":["pullRequestBody","pullRequestTitle","updatedFiles"]
                     }
             """.replace("\\s".toRegex(), ""),
