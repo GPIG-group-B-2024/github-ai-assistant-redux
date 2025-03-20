@@ -167,7 +167,8 @@ class WebhookControllerMockMvcTest {
         }
 
         verify(exactly = 0) {
-            vcsManager.processNewIssue(mockWebhook)
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
         }
     }
 
@@ -194,7 +195,8 @@ class WebhookControllerMockMvcTest {
         }
 
         verify(exactly = 0) {
-            vcsManager.processNewIssue(mockWebhook)
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
         }
     }
 

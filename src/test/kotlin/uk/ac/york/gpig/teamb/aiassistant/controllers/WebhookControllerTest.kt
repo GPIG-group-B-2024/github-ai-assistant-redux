@@ -93,7 +93,9 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody)) // to string function to be able to put enum here rather than string?
         // verify
         verify(exactly = 0) {
-            vcsManager.processNewIssue(any())
+            // TODO: verify functions are called with correct data?
+            llmManager.produceIssueSolution(any(), any())
+            vcsManager.processChanges(any(), any(), any())
         }
     }
 

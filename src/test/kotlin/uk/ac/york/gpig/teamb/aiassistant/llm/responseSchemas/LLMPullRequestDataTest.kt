@@ -21,7 +21,7 @@ class LLMPullRequestDataTest {
                     "type":"array",
                     "items":{"type":"object",
                     "additionalProperties":false,
-                    "properties":{{"type":{"type":"string"},
+                    "properties":{"type":{"type":"string",
                     "enum": ["MODIFY","CREATE","DELETE"]},
                     "filePath":{"type":"string"},
                     "newContents":{"type":"string"}},
