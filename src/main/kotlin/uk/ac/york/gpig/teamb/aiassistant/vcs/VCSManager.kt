@@ -37,7 +37,7 @@ class VCSManager(
             logger.info("Processing issue ${issue.id}")
             val installationToken = gitHubFacade.generateInstallationToken()
             logger.info("Cloning git repo...")
-            val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile())
+            val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
             logger.info("Creating a new branch linked to the issue...")
             val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"
             gitFacade.createBranch(gitFile, branchName)

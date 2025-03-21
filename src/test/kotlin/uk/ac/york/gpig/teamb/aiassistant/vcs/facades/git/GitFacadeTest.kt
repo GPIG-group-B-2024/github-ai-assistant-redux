@@ -2,6 +2,7 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
+import com.ninjasquad.springmockk.MockkBean
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -14,6 +15,7 @@ import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
+import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 import java.io.File
 import kotlin.io.path.listDirectoryEntries
 
@@ -21,6 +23,9 @@ import kotlin.io.path.listDirectoryEntries
 class GitFacadeTest {
     @Autowired
     private lateinit var sut: GitFacade
+
+    @MockkBean
+    private lateinit var gitHubFacade: GitHubFacade
 
     companion object {
         val gitServer =
@@ -48,7 +53,8 @@ class GitFacadeTest {
     @Test
     fun `can clone existing repository`() =
         withTempDir<Unit> { tempDir ->
-            expectDoesNotThrow { sut.cloneRepo(gitServer.gitRepoURIAsHttp.toString(), tempDir.toFile()) }
+            val installationToken = gitHubFacade.generateInstallationToken()
+            expectDoesNotThrow { sut.cloneRepo(gitServer.gitRepoURIAsHttp.toString(), tempDir.toFile(), installationToken) }
             // the repository is currently empty: check that the .git file is present (meaning the git clone was successful)
             val gitFile = tempDir.listDirectoryEntries().find { it.fileName.toString().contains(".git") }
             expectThat(gitFile).isNotNull()

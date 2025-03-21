@@ -1,7 +1,5 @@
 package uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas
 
-import com.google.gson.annotations.SerializedName
-
 data class LLMPullRequestData(
     val pullRequestBody: String,
     val pullRequestTitle: String,
@@ -18,13 +16,10 @@ data class LLMPullRequestData(
 
      * */
     enum class ChangeType {
-        @SerializedName("modify")
         MODIFY,
 
-        @SerializedName("create")
         CREATE,
 
-        @SerializedName("delete")
         DELETE,
     }
 }

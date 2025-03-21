@@ -27,16 +27,6 @@ class GitFacade {
      * Most of the git API uses the `.git` folder to identify the repository, therefore this function provides a convienient
      * way to obtain the path for future use.
      * */
-    @Deprecated(message = "use the one with auth")
-    fun cloneRepo(
-        repoUrl: String,
-        clonePath: File,
-    ): File {
-        logger.info("Cloning repo at $repoUrl into $clonePath")
-        Git.cloneRepository().setURI(repoUrl).setDirectory(clonePath).call()
-        val gitPath = File(clonePath, ".git")
-        return gitPath
-    }
 
     fun cloneRepo(
         repoUrl: String,
