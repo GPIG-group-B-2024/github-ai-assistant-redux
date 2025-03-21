@@ -5,6 +5,9 @@ import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.Change
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.ChangeType
 import java.io.File
 
 /**
@@ -56,28 +59,55 @@ class GitFacade {
         logger.info("All branches are: ${Git.open(gitPath).branchList().call().map { it.name }}")
     }
 
-    /**
-     * This is for the initial prototype only and will most likely be removed:
-     * Create a single `.txt` file with a given name and contents and commit it in a new branch with the provided name.
-     * */
-    @Deprecated("only used in a deprecated function")
-    fun commitTextFile(
-        gitPath: File,
+    fun applyAndCommitChanges(
+        gitFile: File,
         branchName: String,
-        name: String,
-        content: String,
+        changes: LLMPullRequestData,
+        fileTree: String,
     ) {
-        val repo = Git.open(gitPath)
-        logger.info("Committing a text file called '$name' in branch $branchName in $gitPath")
-        repo.checkout().setName(branchName).call()
-        logger.info("Creating $name in ${gitPath.parentFile}")
-        val newFile = File(gitPath.parentFile, name) // the new file to be committed
-        newFile.writeText(content)
-        logger.info("Adding file")
-        repo.add().addFilepattern(".")
-            .call() // Add everything not in .gitignore TODO see if more fine-grained pattern is needed
-        logger.info("Committing file")
-        repo.commit().setCommitter(personIdent).setAuthor(personIdent).setMessage("Added $name").call()
+        val git = Git.open(gitFile)
+        git.checkout().setName(branchName).call()
+        for (change: Change in changes.updatedFiles) {
+            when (change.type) {
+                ChangeType.MODIFY -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        throw FileNotFoundException("Cannot modify '${change.filePath}' as it does not exist")
+                    }
+                    // update file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
+                }
+                ChangeType.CREATE -> {
+                    if (fileTree.contains(change.filePath)) {
+                        // if file exists throw error
+                        throw FileAlreadyExistsException("Cannot create '${change.filePath}' as it already exists")
+                    }
+                    // add file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
+                }
+                ChangeType.DELETE -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        throw FileNotFoundException("Cannot delete '${change.filePath}' as it does not exist")
+                    }
+                    // remove file
+                    git.rm().addFilepattern(change.filePath).call()
+                }
+            }
+        }
+
+        logger.info("Staging and commiting changes...")
+        stageAndCommitChanges(git, changes.pullRequestTitle) // TODO: have the model produce an actual commit message?
+    }
+
+    fun addFile(
+        parentFile: File,
+        filePath: String,
+        contents: String,
+    ): File {
+        val newFile = File(parentFile, filePath)
+        newFile.writeText(contents)
+        return newFile
     }
 
     fun stageAndCommitChanges(

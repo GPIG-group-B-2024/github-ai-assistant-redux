@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.vcs
+package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 sealed class PullRequestCreationException(message: String?) : Exception(message)
 

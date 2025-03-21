@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectDoesNotThrow
 import strikt.api.expectThat
 import strikt.assertions.contains
+import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
@@ -99,4 +100,30 @@ class GitFacadeTest {
                 )
             }
         }
+
+    @Test
+    fun `creates a new file with correct data`() {
+        val contents = "some contents"
+        withTempDir { tempDir ->
+
+            // Act
+            val myFile = sut.addFile(tempDir.toFile(), "newfile.txt", contents)
+            // Verify
+            expectThat(myFile.readText()).isEqualTo(contents)
+        }
+    }
+
+    @Test
+    fun `overwrites data of an existing file`() {
+        val contents = "some contents"
+        val filePath = "newFile.txt"
+        withTempDir { tempDir ->
+            val newFile = File(tempDir.toFile(), filePath)
+            newFile.writeText("This will be overwritten")
+            // Act
+            val myFile = sut.addFile(tempDir.toFile(), filePath, contents)
+            // Verify
+            expectThat(myFile.readText()).isEqualTo(contents)
+        }
+    }
 }

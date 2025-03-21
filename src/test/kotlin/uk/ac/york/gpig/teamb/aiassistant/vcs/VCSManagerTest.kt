@@ -7,15 +7,11 @@ import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
-import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git.GitFacade
 import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
-import java.io.File
 
 @AiAssistantTest
 class VCSManagerTest {
@@ -84,8 +80,8 @@ class VCSManagerTest {
                 repoName = "my-test-repository",
                 baseBranch = "main",
                 featureBranch = expectedBranchName,
-                title = "Important issue title",
-                body = match { it.contains("closes") && it.contains("Important issue body") },
+                title = "This is a pull request title",
+                body = "This is a pull request description",
             )
         }
     }
@@ -199,32 +195,6 @@ class VCSManagerTest {
         // Verify
         verify(exactly = 0) {
             gitHubFacade.createComment(any(), any(), any())
-        }
-    }
-
-    @Test
-    fun `creates a new file with correct data`() {
-        val contents = "some contents"
-        withTempDir { tempDir ->
-
-            // Act
-            val myFile = sut.addFile(tempDir.toFile(), "newfile.txt", contents)
-            // Verify
-            expectThat(myFile.readText()).isEqualTo(contents)
-        }
-    }
-
-    @Test
-    fun `overwrites data of an existing file`() {
-        val contents = "some contents"
-        val filePath = "newFile.txt"
-        withTempDir { tempDir ->
-            val newFile = File(tempDir.toFile(), filePath)
-            newFile.writeText("This will be overwritten")
-            // Act
-            val myFile = sut.addFile(tempDir.toFile(), filePath, contents)
-            // Verify
-            expectThat(myFile.readText()).isEqualTo(contents)
         }
     }
 }
