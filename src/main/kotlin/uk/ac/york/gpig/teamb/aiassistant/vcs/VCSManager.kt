@@ -31,6 +31,7 @@ class VCSManager(
         branchName: String = "main",
     ): String = gitHubFacade.fetchFileTree(repoName, branchName).joinToString("\n")
 
+    @Deprecated("functionality is outdated, see proccessChanges")
     fun processNewIssue(payload: WebhookPayload) =
         withTempDir { tempDir ->
             val (issue, _, repository, _) = payload

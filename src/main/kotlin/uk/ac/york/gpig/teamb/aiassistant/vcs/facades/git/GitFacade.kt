@@ -60,6 +60,7 @@ class GitFacade {
      * This is for the initial prototype only and will most likely be removed:
      * Create a single `.txt` file with a given name and contents and commit it in a new branch with the provided name.
      * */
+    @Deprecated("only used in a deprecated function")
     fun commitTextFile(
         gitPath: File,
         branchName: String,

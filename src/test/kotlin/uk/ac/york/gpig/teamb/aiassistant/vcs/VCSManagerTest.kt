@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
@@ -41,8 +42,8 @@ class VCSManagerTest {
                     ),
                 repository =
                     WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
+                        fullName = "my-test-repository",
+                        url = "my-test-url",
                     ),
                 comment =
                     WebhookPayload.Comment(
@@ -52,7 +53,26 @@ class VCSManagerTest {
                     ),
             )
 
-        sut.processNewIssue(issueBody)
+        val pullRequestData =
+            LLMPullRequestData(
+                pullRequestBody = "This is a pull request description",
+                pullRequestTitle = "This is a pull request title",
+                updatedFiles =
+                    listOf(
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/file.txt",
+                            newContents = "This is some cool text",
+                        ),
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/differentFile.txt",
+                            newContents = "This text is boring",
+                        ),
+                    ),
+            )
+
+        sut.processChanges(issueBody.repository, issueBody.issue, pullRequestData)
         val expectedBranchName = "5-important-issue-title"
 
         verify {
@@ -73,30 +93,41 @@ class VCSManagerTest {
     @Test
     fun `creates and uses a fresh installation token to access github when proccessing a new issue`() {
         every { gitHubFacade.generateInstallationToken() } returns "my-fancy-token"
-        val issueBody =
-            WebhookPayload(
-                action = WebhookPayload.Action.OPENED,
-                issue =
-                    WebhookPayload.Issue(
-                        id = 12345L,
-                        title = "Important issue title",
-                        body = "Important issue body",
-                        number = 5,
-                    ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User(""),
-                        body = "",
+
+        val repository =
+            WebhookPayload.Repository(
+                fullName = "my-test-repository",
+                url = "my-test-url",
+            )
+
+        val issue =
+            WebhookPayload.Issue(
+                id = 12345L,
+                title = "Important issue title",
+                body = "Important issue body",
+                number = 5,
+            )
+
+        val pullRequestData =
+            LLMPullRequestData(
+                pullRequestBody = "This is a pull request description",
+                pullRequestTitle = "This is a pull request title",
+                updatedFiles =
+                    listOf(
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/file.txt",
+                            newContents = "This is some cool text",
+                        ),
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/differentFile.txt",
+                            newContents = "This text is boring",
+                        ),
                     ),
             )
 
-        sut.processNewIssue(issueBody)
+        sut.processChanges(repository, issue, pullRequestData)
         verify(exactly = 1) { gitHubFacade.generateInstallationToken() }
         verify { gitFacade.pushBranch(any(), any(), "my-fancy-token") }
     }
@@ -115,8 +146,8 @@ class VCSManagerTest {
                     ),
                 repository =
                     WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
+                        fullName = "my-test-repository",
+                        url = "my-test-url",
                     ),
                 comment =
                     WebhookPayload.Comment(
@@ -152,8 +183,8 @@ class VCSManagerTest {
                     ),
                 repository =
                     WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
+                        fullName = "my-test-repository",
+                        url = "my-test-url",
                     ),
                 comment =
                     WebhookPayload.Comment(
