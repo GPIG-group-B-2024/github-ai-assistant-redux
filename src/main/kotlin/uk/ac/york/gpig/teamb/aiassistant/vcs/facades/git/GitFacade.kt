@@ -64,6 +64,7 @@ class GitFacade {
         branchName: String,
         changes: LLMPullRequestData,
         fileTree: String,
+        token: String,
     ) {
         val git = Git.open(gitFile)
         git.checkout().setName(branchName).call()
@@ -97,7 +98,7 @@ class GitFacade {
         }
 
         logger.info("Staging and commiting changes...")
-        stageAndCommitChanges(git, changes.pullRequestTitle) // TODO: have the model produce an actual commit message?
+        stageAndCommitChanges(git, changes.pullRequestTitle, token) // TODO: have the model produce an actual commit message?
     }
 
     fun addFile(
@@ -113,10 +114,11 @@ class GitFacade {
     fun stageAndCommitChanges(
         git: Git,
         commitMessage: String,
+        token: String,
     ) {
         git.add().setUpdate(true).addFilepattern(".").call() // stage modified and deleted
         git.add().addFilepattern(".").call() // stage modified and new
-        git.commit().setMessage(commitMessage).call()
+        git.commit().setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token)).setMessage(commitMessage).call()
     }
 
     /**

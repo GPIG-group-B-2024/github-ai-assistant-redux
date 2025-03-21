@@ -61,7 +61,7 @@ class VCSManager(
         val fileTree = retrieveFileTree(repository.fullName, branchName)
 
         logger.info("Fetched file tree, applying changes...")
-        gitFacade.applyAndCommitChanges(gitFile, branchName, changes, fileTree)
+        gitFacade.applyAndCommitChanges(gitFile, branchName, changes, fileTree, installationToken)
 
         logger.info("Changes commited, pushing to branch...")
         gitFacade.pushBranch(gitFile, branchName, installationToken)
