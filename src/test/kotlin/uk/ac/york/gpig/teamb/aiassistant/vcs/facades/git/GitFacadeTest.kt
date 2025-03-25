@@ -146,7 +146,7 @@ class GitFacadeTest {
             sut.stageAndCommitChanges(git, "awesome commit", "super-Token")
 
             // Verify
-            val data = git.pull().setCredentialsProvider(CredentialsProvider.getDefault()).setRemote(gitServer.gitRepoURIAsHttp.toString()).setRemoteBranchName("main").call().toString()
+            val data = git.pull().setCredentialsProvider(CredentialsProvider.getDefault()).setRemote("origin").setRemoteBranchName("master").call().mergeResult.toString()
             expectThat(data).contains(filePaths[0])
             expectThat(data).contains(filePaths[1])
             expectThat(data).contains(filePaths[2])
