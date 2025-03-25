@@ -1,0 +1,24 @@
+name: Deploy app to Koyeb
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
+    branches:
+      - "main"
+
+permissions: read-all
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install and configure the Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: "${{ secrets.KOYEB_API_KEY }}"
+          github_token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Redeploy app
+        run: "koyeb services redeploy ${{secrets.KOYEB_APP_ID}}"

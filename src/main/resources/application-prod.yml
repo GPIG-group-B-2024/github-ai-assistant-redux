@@ -1,0 +1,28 @@
+spring:
+    datasource:
+      url: ${NEON_DB_URL}
+      username: ${NEON_DB_USERNAME}
+      password: ${NEON_DB_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  info:
+    git:
+      mode: simple # to check that the app was deployed correctly. This will display the date of the last git commit
+okta:
+  oauth2:
+    issuer: ${AUTH0_ISSUER}
+    client-id: ${AUTH0_CLIENT_ID}
+    client-secret: ${AUTH0_CLIENT_SECRET}
+
+app_settings:
+  openai_api_key: ${OPENAI_API_KEY}
+  github_webhook_secret: ${GITHUB_WEBHOOK_SECRET}
+  github_app_key: ${GITHUB_APP_KEY}
+
+logging:
+  level:
+    root: info
