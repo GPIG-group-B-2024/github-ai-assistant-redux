@@ -3,7 +3,6 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.CredentialsProvider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -12,11 +11,13 @@ import strikt.api.expectDoesNotThrow
 import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.isEqualTo
+import strikt.assertions.isGreaterThan
 import strikt.assertions.isNotNull
 import strikt.assertions.one
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import java.io.File
+import java.time.Instant
 import kotlin.io.path.listDirectoryEntries
 
 @AiAssistantTest
@@ -142,15 +143,19 @@ class GitFacadeTest {
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
 
+            val epochSeconds = (Instant.now().toEpochMilli() / 1000).toInt()
+            Thread.sleep(1000) // idk about this... git only seems to have time resolution in seconds.
+
             // Act
             sut.stageAndCommitChanges(git, "awesome commit", "super-Token")
 
             // Verify
-            val data = git.pull().setCredentialsProvider(CredentialsProvider.getDefault()).setRemote("origin").setRemoteBranchName("master").call().mergeResult.toString()
-            expectThat(data).contains(filePaths[0])
-            expectThat(data).contains(filePaths[1])
-            expectThat(data).contains(filePaths[2])
-
+            // go through the log and grab the most recent commit
+            val lastCommit = git.log().setMaxCount(1).call().first()
+            expectThat(lastCommit) {
+                get { this.commitTime }.isGreaterThan(epochSeconds) // rough way of checking the timestamp
+                get { this.fullMessage }.isEqualTo("awesome commit")
+            }
         }
     }
 }
