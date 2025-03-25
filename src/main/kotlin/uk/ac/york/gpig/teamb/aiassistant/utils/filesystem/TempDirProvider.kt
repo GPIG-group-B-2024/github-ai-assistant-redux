@@ -11,5 +11,5 @@ import kotlin.io.path.deleteRecursively
 @OptIn(ExperimentalPathApi::class)
 fun <T> withTempDir(block: (Path) -> T): T {
     val tempDir = createTempDirectory()
-    return block(tempDir).also { tempDir.deleteRecursively() }
+    return block(tempDir).also { tempDir.toFile().deleteRecursively() }
 }

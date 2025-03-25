@@ -101,6 +101,12 @@ class GitFacade {
         stageAndCommitChanges(git, changes.pullRequestTitle, token) // TODO: have the model produce an actual commit message?
     }
 
+    /**
+     * Adds a file to the temp directory.
+     * Either:
+     *  -   overwrites the data of an existing file or
+     *  -   creates a new file with the specified contents
+     */
     fun addFile(
         parentFile: File,
         filePath: String,
@@ -111,13 +117,18 @@ class GitFacade {
         return newFile
     }
 
+    /**
+     * This function stages any files that have been modified or created before commiting them.
+     * Staging of deleted files is handled directly in `applyAndCommitChanges` but the change is
+     * not commited until this function is called.
+     */
     fun stageAndCommitChanges(
         git: Git,
         commitMessage: String,
         token: String,
     ) {
-        git.add().setUpdate(true).addFilepattern(".").call() // stage modified and deleted
-        git.add().addFilepattern(".").call() // stage modified and new
+        git.add().setUpdate(true).addFilepattern(".").call()
+        git.add().addFilepattern(".").call()
         git.commit().setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token)).setMessage(commitMessage).call()
     }
 

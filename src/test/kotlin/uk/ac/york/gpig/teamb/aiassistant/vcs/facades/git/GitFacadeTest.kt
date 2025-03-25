@@ -126,4 +126,30 @@ class GitFacadeTest {
             expectThat(myFile.readText()).isEqualTo(contents)
         }
     }
+
+    @Test
+    fun `stages and Commits all changes`() {
+        val filePaths = listOf<String>("newFile.txt", "newerFile.txt", "newestFile.txt")
+        withTempDir { tempDir ->
+            // clone repo using the 3rd party tool to not rely on our own implementation
+            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            val gitPath = File(tempDir.toFile(), ".git")
+            val git = Git.open(gitPath)
+            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+
+            File(gitPath.parentFile, filePaths[0])
+            File(gitPath.parentFile, filePaths[1])
+            File(gitPath.parentFile, filePaths[2])
+
+            // Act
+            sut.stageAndCommitChanges(git, "awesome commit", "super-Token")
+
+            // Verify
+            val data = git.pull().setRemote(gitServer.gitRepoURIAsHttp.toString()).call().toString()
+            expectThat(data).contains(filePaths[0])
+            expectThat(data).contains(filePaths[1])
+            expectThat(data).contains(filePaths[2])
+
+        }
+    }
 }
