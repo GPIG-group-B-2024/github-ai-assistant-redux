@@ -3,6 +3,7 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 import com.github.sparsick.testcontainers.gitserver.GitServerVersions
 import com.github.sparsick.testcontainers.gitserver.http.GitHttpServerContainer
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.transport.CredentialsProvider
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -145,7 +146,7 @@ class GitFacadeTest {
             sut.stageAndCommitChanges(git, "awesome commit", "super-Token")
 
             // Verify
-            val data = git.pull().setRemote(gitServer.gitRepoURIAsHttp.toString()).call().toString()
+            val data = git.pull().setCredentialsProvider(CredentialsProvider.getDefault()).setRemote(gitServer.gitRepoURIAsHttp.toString()).setRemoteBranchName("main").call().toString()
             expectThat(data).contains(filePaths[0])
             expectThat(data).contains(filePaths[1])
             expectThat(data).contains(filePaths[2])
