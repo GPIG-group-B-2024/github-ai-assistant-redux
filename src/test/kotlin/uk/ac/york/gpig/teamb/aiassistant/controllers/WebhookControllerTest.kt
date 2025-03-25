@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.test.context.support.WithMockUser
 import strikt.api.expectThrows
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
@@ -30,7 +31,26 @@ class WebhookControllerTest {
     @Test
     fun `passes issues event payload to issue manager`() {
         // setup
+        val pullRequestData =
+            LLMPullRequestData(
+                pullRequestBody = "This is a pull request description",
+                pullRequestTitle = "This is a pull request title",
+                updatedFiles =
+                    listOf(
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/file.txt",
+                            newContents = "This is some cool text",
+                        ),
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/differentFile.txt",
+                            newContents = "This text is boring",
+                        ),
+                    ),
+            )
         every { vcsManager.processChanges(any(), any(), any()) } just runs
+        every { llmManager.produceIssueSolution(any(), any()) } returns (pullRequestData)
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -57,16 +77,34 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
         // verify
         verify {
-            // TODO: verify functions are called with correct data?
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any())
+            llmManager.produceIssueSolution(issueBody.repository.fullName, issueBody.issue)
+            vcsManager.processChanges(issueBody.repository, issueBody.issue, pullRequestData)
         }
     }
 
     @Test
     fun `ignores issues events with action other than OPENED`() {
         // setup
+        val pullRequestData =
+            LLMPullRequestData(
+                pullRequestBody = "This is a pull request description",
+                pullRequestTitle = "This is a pull request title",
+                updatedFiles =
+                    listOf(
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/file.txt",
+                            newContents = "This is some cool text",
+                        ),
+                        LLMPullRequestData.Change(
+                            type = LLMPullRequestData.ChangeType.CREATE,
+                            filePath = "path/to/a/differentFile.txt",
+                            newContents = "This text is boring",
+                        ),
+                    ),
+            )
         every { vcsManager.processChanges(any(), any(), any()) } just runs
+        every { llmManager.produceIssueSolution(any(), any()) } returns (pullRequestData)
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.CLOSED,
@@ -93,9 +131,8 @@ class WebhookControllerTest {
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody)) // to string function to be able to put enum here rather than string?
         // verify
         verify(exactly = 0) {
-            // TODO: verify functions are called with correct data?
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any())
+            llmManager.produceIssueSolution(issueBody.repository.fullName, issueBody.issue)
+            vcsManager.processChanges(issueBody.repository, issueBody.issue, pullRequestData)
         }
     }
 

@@ -3,6 +3,7 @@ package uk.ac.york.gpig.teamb.aiassistant.mockMvc
 import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.verify
+import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullSource
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Action
@@ -57,6 +59,25 @@ class WebhookControllerMockMvcTest {
                 ),
         )
 
+    val mockPullRequestData =
+        LLMPullRequestData(
+            pullRequestBody = "This is a pull request description",
+            pullRequestTitle = "This is a pull request title",
+            updatedFiles =
+                listOf(
+                    LLMPullRequestData.Change(
+                        type = LLMPullRequestData.ChangeType.CREATE,
+                        filePath = "path/to/a/file.txt",
+                        newContents = "This is some cool text",
+                    ),
+                    LLMPullRequestData.Change(
+                        type = LLMPullRequestData.ChangeType.CREATE,
+                        filePath = "path/to/a/differentFile.txt",
+                        newContents = "This text is boring",
+                    ),
+                ),
+        )
+
     @OptIn(ExperimentalStdlibApi::class)
     private fun createMockSignature(
         mockPayload: WebhookPayload,
@@ -71,6 +92,7 @@ class WebhookControllerMockMvcTest {
 
     @Test
     fun `receiving opened issue`() {
+        every { llmManager.produceIssueSolution(any(), any()) } returns (mockPullRequestData)
         val mockSignature = createMockSignature(mockWebhook)
         mockMvc.perform(
             post(
@@ -88,9 +110,8 @@ class WebhookControllerMockMvcTest {
         }
 
         verify {
-            // TODO: verify functions are called with correct data?
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any())
+            llmManager.produceIssueSolution(mockWebhook.repository.fullName, mockWebhook.issue)
+            vcsManager.processChanges(mockWebhook.repository, mockWebhook.issue, mockPullRequestData)
         }
     }
 
@@ -138,8 +159,8 @@ class WebhookControllerMockMvcTest {
         )
 
         verify(exactly = 0) {
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
+            llmManager.produceIssueSolution(mockWebhook.repository.fullName, mockWebhook.issue)
+            vcsManager.processChanges(mockWebhook.repository, mockWebhook.issue, mockPullRequestData)
         }
     }
 
@@ -167,8 +188,8 @@ class WebhookControllerMockMvcTest {
         }
 
         verify(exactly = 0) {
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
+            llmManager.produceIssueSolution(mockWebhook.repository.fullName, mockWebhook.issue)
+            vcsManager.processChanges(mockWebhook.repository, mockWebhook.issue, mockPullRequestData)
         }
     }
 
@@ -195,24 +216,24 @@ class WebhookControllerMockMvcTest {
         }
 
         verify(exactly = 0) {
-            llmManager.produceIssueSolution(any(), any())
-            vcsManager.processChanges(any(), any(), any()) // TODO: verify not called with specific data?
+            llmManager.produceIssueSolution(mockWebhook.repository.fullName, mockWebhook.issue)
+            vcsManager.processChanges(mockWebhook.repository, mockWebhook.issue, mockPullRequestData)
         }
-    }
 
-    @Test
-    fun `missing x-github-event header and return bad request`() {
-        val mockSignature = createMockSignature(mockWebhook)
-        mockMvc.perform(
-            post(
-                "/webhooks",
+        @Test
+        fun `missing x-github-event header and return bad request`() {
+            val mockSignature = createMockSignature(mockWebhook)
+            mockMvc.perform(
+                post(
+                    "/webhooks",
+                )
+                    .header("x-github-hook-installation-target-type", "integration")
+                    .header("x-hub-signature-256", mockSignature)
+                    .contentType(MediaType.APPLICATION_JSON).content(
+                        Gson().toJson(mockWebhook),
+                    ),
             )
-                .header("x-github-hook-installation-target-type", "integration")
-                .header("x-hub-signature-256", mockSignature)
-                .contentType(MediaType.APPLICATION_JSON).content(
-                    Gson().toJson(mockWebhook),
-                ),
-        )
-            .andExpect(status().isBadRequest) // Expect 400 bad request
+                .andExpect(status().isBadRequest) // Expect 400 bad request
+        }
     }
 }
