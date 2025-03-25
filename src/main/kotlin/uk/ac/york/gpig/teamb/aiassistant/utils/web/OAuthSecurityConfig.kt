@@ -32,6 +32,7 @@ class OAuthSecurityConfig() {
                 authorize("/css/**", permitAll)
                 authorize(HttpMethod.GET, "/actuator/**", permitAll)
                 authorize(HttpMethod.POST, "/webhooks", permitAll)
+                authorize(HttpMethod.GET, "/", authenticated)
                 authorize("/admin", authenticated)
                 authorize("/admin/**", authenticated)
                 // this is a standard practice, reject all requests to unknown URL's

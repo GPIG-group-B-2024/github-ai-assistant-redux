@@ -14,12 +14,12 @@ import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.LLMConversatio
 import java.util.UUID
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("")
 class ConversationAdminController(
     @Autowired
     private val llmConversationManager: LLMConversationManager,
 ) {
-    @GetMapping("/conversations")
+    @GetMapping("/admin/conversations")
     fun index(
         model: Model,
         @AuthenticationPrincipal principal: OidcUser,
@@ -37,9 +37,12 @@ class ConversationAdminController(
     }
 
     @GetMapping
-    fun redirectToIndex() = "redirect:/admin/conversations"
+    fun redirectFromRoot() = "redirect:/admin/conversations"
 
-    @GetMapping("/conversations/{conversationId}")
+    @GetMapping("/admin")
+    fun redirectFromAdminRoot() = "redirect:/admin/conversations"
+
+    @GetMapping("/admin/conversations/{conversationId}")
     fun conversationPage(
         model: Model,
         @PathVariable conversationId: UUID,
