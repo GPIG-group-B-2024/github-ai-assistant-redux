@@ -2,8 +2,8 @@ package uk.ac.york.gpig.teamb.aiassistant.mockMvc
 
 import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.verify
 import io.mockk.every
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullSource
