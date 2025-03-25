@@ -30,6 +30,7 @@ class OAuthSecurityConfig() {
         http {
             authorizeHttpRequests {
                 authorize("/css/**", permitAll)
+                authorize(HttpMethod.GET, "/actuator/**", permitAll)
                 authorize(HttpMethod.POST, "/webhooks", permitAll)
                 authorize("/admin", authenticated)
                 authorize("/admin/**", authenticated)

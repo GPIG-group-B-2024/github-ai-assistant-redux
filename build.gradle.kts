@@ -10,6 +10,7 @@ plugins {
   id("com.diffplug.spotless") version "6.25.0"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"
+  id("com.gorylenko.gradle-git-properties") version "2.5.0"
 }
 
 buildscript {
@@ -34,13 +35,14 @@ dependencyManagement {
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.okta.spring:okta-spring-boot-starter:3.0.5")
-  implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+  implementation("com.okta.spring:okta-spring-boot-starter:3.0.7")
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
   implementation("org.springframework.boot:spring-boot-starter-security")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+  implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-  testImplementation("org.springframework.security:spring-security-test")
+  implementation(
+      "org.springframework.boot:spring-boot-starter-actuator") // health checks, status, etc.
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r") // git API
@@ -61,6 +63,7 @@ dependencies {
   // generation
   // (openAI)
   testImplementation("org.springframework.boot:spring-boot-starter-test")
+  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("io.strikt:strikt-core:0.35.1") // assertions
@@ -102,10 +105,15 @@ spotless {
 }
 
 // Generate Jooq classes and types
-
+// check if we need to start a testcontainer (i.e. we don't have another database to connect to)
+val jooqGenJdbcUrl: String? = System.getenv("JOOQ_DB_URL")
+val jooqGenDbUsername: String? = System.getenv("JOOQ_DB_USERNAME")
+val jooqGenDbPassword: String? = System.getenv("JOOQ_DB_PASSWORD")
+val jooqEnvAllSet =
+    listOf(jooqGenJdbcUrl, jooqGenDbUsername, jooqGenDbPassword).none { it.isNullOrEmpty() }
 // Create a postgres testcontainer
 val container =
-    if ("generateJooq" in project.gradle.startParameter.taskNames) {
+    if ("generateJooq" in project.gradle.startParameter.taskNames && !jooqEnvAllSet) {
       PostgreSQLContainer("postgres:15.4").apply {
         withDatabaseName("github_ai_assistant")
         start()
@@ -115,9 +123,9 @@ val container =
 // apply migrations
 flyway {
   logging.captureStandardOutput(LogLevel.INFO)
-  url = container?.jdbcUrl
-  user = container?.username
-  password = container?.password
+  url = jooqGenJdbcUrl ?: container?.jdbcUrl
+  user = jooqGenDbUsername ?: container?.username
+  password = jooqGenDbPassword ?: container?.password
   schemas = arrayOf("github_ai_assistant")
   createSchemas = true
 }
@@ -130,9 +138,9 @@ jooq {
         logging = Logging.WARN
         jdbc.apply {
           driver = "org.postgresql.Driver"
-          url = container?.jdbcUrl
-          user = container?.username
-          password = container?.password
+          url = jooqGenJdbcUrl ?: container?.jdbcUrl
+          user = jooqGenDbUsername ?: container?.username
+          password = jooqGenDbPassword ?: container?.password
         }
         generator.apply {
           name = "org.jooq.codegen.KotlinGenerator"
