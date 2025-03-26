@@ -263,11 +263,13 @@ class LLMManagerTest {
                   "pullRequestTitle": "Create greeter function",
                   "updatedFiles": [
                     {
-                      "fullName": "src/weather_app/main.py",
+                      "type": "CREATE",
+                      "filePath": "src/weather_app/main.py",
                       "newContents": "def greet(name):\n\tprint(f'hello {name}')"
                     },
                     {
-                      "fullName": "test/weather_app/test_main.py",
+                      "type": "CREATE",
+                      "filePath": "test/weather_app/test_main.py",
                       "newContents": "assert(greet('steve') == 'hello steve')"
                     }
                   ]

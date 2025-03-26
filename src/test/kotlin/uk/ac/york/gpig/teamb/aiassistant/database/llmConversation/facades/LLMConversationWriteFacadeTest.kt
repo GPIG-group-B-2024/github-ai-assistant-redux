@@ -39,6 +39,8 @@ class LLMConversationWriteFacadeTest {
             }.create(ctx)
             val issueId = 10
             val beforeInsertTimestamp = OffsetDateTime.now()
+            Thread.sleep(500)
+
             sut.initConversation(conversationId, repoId, issueId)
 
             val result = ctx.selectFrom(LLM_CONVERSATION).fetch()
@@ -59,6 +61,8 @@ class LLMConversationWriteFacadeTest {
             val messageId = UUID.randomUUID()
             val messageContents = "This is my first message!"
             val beforeCreationTimestamp = OffsetDateTime.now()
+            Thread.sleep(500)
+
             sut.storeMessage(messageId, LlmMessageRole.USER, messageContents)
 
             val result = ctx.selectFrom(LLM_MESSAGE).fetch()

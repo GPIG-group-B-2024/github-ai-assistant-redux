@@ -5,6 +5,9 @@ import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.Change
+import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData.ChangeType
 import java.io.File
 
 /**
@@ -27,15 +30,6 @@ class GitFacade {
      * Most of the git API uses the `.git` folder to identify the repository, therefore this function provides a convienient
      * way to obtain the path for future use.
      * */
-    fun cloneRepo(
-        repoUrl: String,
-        clonePath: File,
-    ): File {
-        logger.info("Cloning repo at $repoUrl into $clonePath")
-        Git.cloneRepository().setURI(repoUrl).setDirectory(clonePath).call()
-        val gitPath = File(clonePath, ".git")
-        return gitPath
-    }
 
     fun cloneRepo(
         repoUrl: String,
@@ -65,27 +59,77 @@ class GitFacade {
         logger.info("All branches are: ${Git.open(gitPath).branchList().call().map { it.name }}")
     }
 
-    /**
-     * This is for the initial prototype only and will most likely be removed:
-     * Create a single `.txt` file with a given name and contents and commit it in a new branch with the provided name.
-     * */
-    fun commitTextFile(
-        gitPath: File,
+    fun applyAndCommitChanges(
+        gitFile: File,
         branchName: String,
-        name: String,
-        content: String,
+        changes: LLMPullRequestData,
+        fileTree: String,
+        token: String,
     ) {
-        val repo = Git.open(gitPath)
-        logger.info("Committing a text file called '$name' in branch $branchName in $gitPath")
-        repo.checkout().setName(branchName).call()
-        logger.info("Creating $name in ${gitPath.parentFile}")
-        val newFile = File(gitPath.parentFile, name) // the new file to be committed
-        newFile.writeText(content)
-        logger.info("Adding file")
-        repo.add().addFilepattern(".")
-            .call() // Add everything not in .gitignore TODO see if more fine-grained pattern is needed
-        logger.info("Committing file")
-        repo.commit().setCommitter(personIdent).setAuthor(personIdent).setMessage("Added $name").call()
+        val git = Git.open(gitFile)
+        git.checkout().setName(branchName).call()
+        for (change: Change in changes.updatedFiles) {
+            when (change.type) {
+                ChangeType.MODIFY -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        throw FileNotFoundException("Cannot modify '${change.filePath}' as it does not exist")
+                    }
+                    // update file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
+                }
+                ChangeType.CREATE -> {
+                    if (fileTree.contains(change.filePath)) {
+                        // if file exists throw error
+                        throw FileAlreadyExistsException("Cannot create '${change.filePath}' as it already exists")
+                    }
+                    // add file
+                    addFile(gitFile.parentFile, change.filePath, change.newContents)
+                }
+                ChangeType.DELETE -> {
+                    if (!fileTree.contains(change.filePath)) {
+                        // if file does not exist throw error
+                        throw FileNotFoundException("Cannot delete '${change.filePath}' as it does not exist")
+                    }
+                    // remove file
+                    git.rm().addFilepattern(change.filePath).call()
+                }
+            }
+        }
+
+        logger.info("Staging and commiting changes...")
+        stageAndCommitChanges(git, changes.pullRequestTitle, token) // TODO: have the model produce an actual commit message?
+    }
+
+    /**
+     * Adds a file to the temp directory.
+     * Either:
+     *  -   overwrites the data of an existing file or
+     *  -   creates a new file with the specified contents
+     */
+    fun addFile(
+        parentFile: File,
+        filePath: String,
+        contents: String,
+    ): File {
+        val newFile = File(parentFile, filePath)
+        newFile.writeText(contents)
+        return newFile
+    }
+
+    /**
+     * This function stages any files that have been modified or created before commiting them.
+     * Staging of deleted files is handled directly in `applyAndCommitChanges` but the change is
+     * not commited until this function is called.
+     */
+    fun stageAndCommitChanges(
+        git: Git,
+        commitMessage: String,
+        token: String,
+    ) {
+        git.add().setUpdate(true).addFilepattern(".").call()
+        git.add().addFilepattern(".").call()
+        git.commit().setCredentialsProvider(UsernamePasswordCredentialsProvider("x-access-token", token)).setMessage(commitMessage).call()
     }
 
     /**
