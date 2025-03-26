@@ -218,6 +218,7 @@ class GitFacadeTest {
 
     @Test
     fun `throws error when trying to modify a file that does not exist`() {
+        val initialCommitMessage = "initial commit"
         val filePaths = listOf("newFile.txt", "newerFile.txt", "oldFile.txt", "newestFile.txt")
         val pullRequestData =
             LLMPullRequestData(
@@ -240,16 +241,22 @@ class GitFacadeTest {
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
-            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
 
             expectThrows<FileNotFoundException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
+            }
+            // go through the log and grab the most recent commit
+            val lastCommit = git.log().setMaxCount(1).call().first()
+            expectThat(lastCommit) {
+                get { this.fullMessage }.isEqualTo(initialCommitMessage)
             }
         }
     }
 
     @Test
     fun `throws error when trying to delete a file that does not exist`() {
+        val initialCommitMessage = "initial commit"
         val filePaths = listOf("newFile.txt", "newerFile.txt", "oldFile.txt", "newestFile.txt")
         val pullRequestData =
             LLMPullRequestData(
@@ -272,16 +279,22 @@ class GitFacadeTest {
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[0])
             File(gitPath.parentFile, filePaths[1])
-            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
 
             expectThrows<FileNotFoundException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
+            }
+            // go through the log and grab the most recent commit
+            val lastCommit = git.log().setMaxCount(1).call().first()
+            expectThat(lastCommit) {
+                get { this.fullMessage }.isEqualTo(initialCommitMessage)
             }
         }
     }
 
     @Test
     fun `throws error when trying to create a file that already exists`() {
+        val initialCommitMessage = "initial commit"
         val filePaths = listOf("newFile.txt", "newerFile.txt", "oldFile.txt", "newestFile.txt")
         val pullRequestData =
             LLMPullRequestData(
@@ -306,10 +319,15 @@ class GitFacadeTest {
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
             File(gitPath.parentFile, filePaths[3])
-            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
 
             expectThrows<FileAlreadyExistsException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
+            }
+            // go through the log and grab the most recent commit
+            val lastCommit = git.log().setMaxCount(1).call().first()
+            expectThat(lastCommit) {
+                get { this.fullMessage }.isEqualTo(initialCommitMessage)
             }
         }
     }

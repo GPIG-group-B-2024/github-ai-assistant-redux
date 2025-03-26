@@ -8,7 +8,6 @@ import kotlin.io.path.deleteRecursively
 /**
  * Create a temporary directory, use it for some stuff, possibly returning a value, then destroy it.
  * */
-@OptIn(ExperimentalPathApi::class)
 fun <T> withTempDir(block: (Path) -> T): T {
     val tempDir = createTempDirectory()
     return block(tempDir).also { tempDir.toFile().deleteRecursively() }
