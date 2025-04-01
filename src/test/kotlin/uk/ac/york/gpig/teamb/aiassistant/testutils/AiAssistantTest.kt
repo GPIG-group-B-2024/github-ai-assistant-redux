@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import uk.ac.york.gpig.teamb.aiassistant.utils.web.OAuthSecurityConfig
+import uk.ac.york.gpig.teamb.aiassistant.utils.auth.OAuthSecurityConfig
 
 /**
  * Mark the annotated class as a spring boot test and:

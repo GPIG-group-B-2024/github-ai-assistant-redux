@@ -17,9 +17,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
+import uk.ac.york.gpig.teamb.aiassistant.utils.auth.WebhookValidationFilter.Companion.ALGORITHM
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Action
-import uk.ac.york.gpig.teamb.aiassistant.utils.web.WebhookValidationFilter.Companion.ALGORITHM
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec

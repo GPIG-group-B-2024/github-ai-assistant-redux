@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.utils.web
+package uk.ac.york.gpig.teamb.aiassistant.utils.auth
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -13,35 +13,49 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @Configuration
 @EnableWebSecurity
-class OAuthSecurityConfig() {
+class OAuthSecurityConfig(
+    private val authorityMapper: DashboardAuthorityMapper,
+    @Value("\${okta.oauth2.issuer}")
+    private val issuer: String,
+    @Value("\${okta.oauth2.client-id}")
+    private val clientId: String,
+) {
     /**
      * Set up security so that:
-     *  - Any authenticated user can see the admin dashboard (read-only)
-     *  - No authentication is required for the webhook endpoint (will handle separately)
+     *  - Users with the right permissions have read-only access to the dashboard
+     *  - No authentication is required for the webhook endpoint (handled in [WebhookValidationFilter])
      * */
-    @Value("\${okta.oauth2.issuer}")
-    private lateinit var issuer: String
-
-    @Value("\${okta.oauth2.client-id}")
-    private lateinit var clientId: String
 
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeHttpRequests {
-                authorize("/css/**", permitAll)
+                authorize("/css/**", permitAll) // make sure stylesheets are not blocked
                 authorize(HttpMethod.GET, "/actuator/**", permitAll)
                 authorize(HttpMethod.POST, "/webhooks", permitAll)
-                authorize(HttpMethod.GET, "/", authenticated)
-                authorize("/admin", authenticated)
-                authorize("/admin/**", authenticated)
+                // dashboard URL's
+                authorize(HttpMethod.GET, "/", hasAuthority("dashboard:view"))
+                authorize("/admin", hasAuthority("dashboard:view"))
+                authorize("/admin/**", hasAuthority("dashboard:view"))
+                authorize(HttpMethod.GET, "/error/**", permitAll) // let users see the pretty error page
                 // this is a standard practice, reject all requests to unknown URL's
                 authorize(anyRequest, denyAll)
             }
             csrf {
                 ignoringRequestMatchers("/webhooks") // we will authenticate this separately by using the github secret
             }
-            oauth2Login { }
+            exceptionHandling {
+                accessDeniedPage = "/error/403"
+            }
+            oauth2Login {
+                userInfoEndpoint {
+                    oidcUserService = authorityMapper
+                }
+            }
+            oauth2ResourceServer {
+                jwt {
+                }
+            }
             logout {
                 addLogoutHandler(logoutHandler)
             }

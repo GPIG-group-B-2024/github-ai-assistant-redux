@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.utils.web
+package uk.ac.york.gpig.teamb.aiassistant.utils.auth
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
+import uk.ac.york.gpig.teamb.aiassistant.utils.web.CachingServletRequestWrapper
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 

@@ -10,3 +10,4 @@ app_settings:
   openai_api_key: my-secret-token
   github_webhook_secret: my-fancy-secret
   github_app_key: my-fancy-key
+  auth0_groups-claim: my-cool-claim

@@ -22,6 +22,7 @@ app_settings:
   openai_api_key: ${OPENAI_API_KEY}
   github_webhook_secret: ${GITHUB_WEBHOOK_SECRET}
   github_app_key: ${GITHUB_APP_KEY}
+  auth0_groups-claim: ${AUTH0_GROUPS_CLAIM}
 
 logging:
   level:

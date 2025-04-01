@@ -1,0 +1,4 @@
+okta:
+  oauth2:
+    issuer: https://localhost:8080
+    client-id: test-client-id

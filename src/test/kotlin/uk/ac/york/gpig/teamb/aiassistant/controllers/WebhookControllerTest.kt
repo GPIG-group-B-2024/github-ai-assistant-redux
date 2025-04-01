@@ -8,7 +8,6 @@ import io.mockk.runs
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.test.context.support.WithMockUser
 import strikt.api.expectThrows
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
@@ -17,7 +16,6 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 @AiAssistantTest
-@WithMockUser
 class WebhookControllerTest {
     @MockkBean
     private lateinit var vcsManager: VCSManager

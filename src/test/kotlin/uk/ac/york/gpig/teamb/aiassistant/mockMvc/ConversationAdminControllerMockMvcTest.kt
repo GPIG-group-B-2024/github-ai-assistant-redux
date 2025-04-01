@@ -39,7 +39,7 @@ class ConversationAdminControllerMockMvcTest {
                     "email" to "my-user@york.ac.uk",
                 ),
             )
-        val user = DefaultOidcUser(emptyList<SimpleGrantedAuthority>(), token)
+        val user = DefaultOidcUser(listOf(SimpleGrantedAuthority("dashboard:view")), token)
         mockMvc.perform(
             get("/admin/conversations")
                 .with(oidcLogin().oidcUser(user)),
@@ -47,31 +47,6 @@ class ConversationAdminControllerMockMvcTest {
             status().isOk,
         )
         verify {
-            llmConversationManager.fetchConversations()
-        }
-    }
-
-    @Test
-    fun `blocks users from non-uni addresses`() {
-        every { llmConversationManager.fetchConversations() } returns emptyList<LLMConversationEntity>()
-        val token =
-            OidcIdToken(
-                "mock-token",
-                Instant.now(),
-                Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@funky-domain.com",
-                ),
-            )
-        val user = DefaultOidcUser(emptyList<SimpleGrantedAuthority>(), token)
-        mockMvc.perform(
-            get("/admin/conversations")
-                .with(oidcLogin().oidcUser(user)),
-        ).andExpect(
-            status().isForbidden,
-        )
-        verify(exactly = 0) {
             llmConversationManager.fetchConversations()
         }
     }
