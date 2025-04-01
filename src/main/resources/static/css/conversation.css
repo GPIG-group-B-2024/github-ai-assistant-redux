@@ -1,0 +1,81 @@
+.conversation-header {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  justify-items: start;
+}
+
+.profile-info .input {
+  font-size: 12pt;
+}
+
+.conversation-details-nav {
+  display: flex;
+  align-items: center;
+}
+
+.conversation-header .convo-id,
+.badge {
+  font-size: 12pt;
+}
+
+.messages-container {
+  display: grid;
+  gap: 3rlh;
+  padding-top: 10vh;
+  padding-bottom: 20px;
+}
+
+.message-container {
+  display: grid;
+  gap: 5px;
+}
+
+.message {
+  border-radius: 10px;
+  padding: 10px;
+  width: fit-content;
+  max-width: 60vw;
+  position: relative;
+  font-size: 16pt;
+  white-space: pre-line;
+}
+
+.message-container-assistant {
+  margin-left: 2vw;
+  justify-self: start;
+  justify-items: start;
+
+  & .message {
+    background: cornflowerblue;
+    color: whitesmoke;
+    border-radius: 20px 20px 20px 1px; /* stylelint-disable-line */
+  }
+}
+
+.message-container-system,
+.message-container-user {
+  margin-right: 2vw;
+  justify-self: end;
+  justify-items: end;
+
+  & .message {
+    /* credit to https://stackoverflow.com/questions/71154905/css-for-chat-room-speech-bubble-position */
+    border-radius: 20px 20px 1px 20px; /* stylelint-disable-line */
+  }
+}
+
+.message-timestamp {
+  font-size: 12pt;
+  color: gray;
+  width: fit-content;
+  align-self: end;
+}
+
+.message-container-system .message {
+  border: 2px dashed gray;
+}
+
+.message-container-user .message {
+  border: 2px solid gray;
+  background: whitesmoke;
+}

@@ -71,6 +71,8 @@ class LLMConversationManager(
             logger.info("Found ${it.size} messages in conversation $conversationId")
         }
 
+    fun fetchConversation(id: UUID) = llmConversationReadFacade.fetchConversation(id) ?: throw NotFoundByIdException(id, "conversation")
+
     fun addMessageToConversation(
         conversationId: UUID,
         message: OpenAIMessage,

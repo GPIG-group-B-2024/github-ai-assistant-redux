@@ -6,7 +6,7 @@ plugins {
   kotlin("jvm") version "2.0.21"
   id("nu.studer.jooq") version "8.2.1"
   kotlin("plugin.spring") version "2.0.21"
-  id("org.flywaydb.flyway") version "9.7.0"
+  id("org.flywaydb.flyway") version "11.4.0"
   id("com.diffplug.spotless") version "6.25.0"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"
@@ -16,8 +16,9 @@ plugins {
 buildscript {
   repositories { mavenCentral() }
   dependencies {
-    classpath("org.testcontainers:postgresql:1.17.6")
-    classpath("org.flywaydb:flyway-core:9.10.2")
+    classpath("org.testcontainers:postgresql:1.20.6")
+    classpath("org.flywaydb:flyway-core:11.4.1")
+    classpath("org.flywaydb:flyway-database-postgresql:11.4.1")
   }
 }
 
@@ -51,7 +52,8 @@ dependencies {
   implementation("com.auth0:java-jwt:4.4.0") // JWT generation
   // jooq (database) =========
   implementation("org.jooq:jooq:3.19.15")
-  implementation("org.flywaydb:flyway-core:9.10.2")
+  implementation("org.flywaydb:flyway-core:11.4.1")
+  implementation("org.flywaydb:flyway-database-postgresql:11.4.1")
   implementation("org.postgresql:postgresql:42.7.2")
   jooqGenerator("org.postgresql:postgresql:42.7.2")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -113,7 +115,7 @@ val jooqEnvAllSet =
 // Create a postgres testcontainer
 val container =
     if ("generateJooq" in project.gradle.startParameter.taskNames && !jooqEnvAllSet) {
-      PostgreSQLContainer("postgres:15.4").apply {
+      PostgreSQLContainer("postgres:17.4").apply {
         withDatabaseName("github_ai_assistant")
         start()
       }

@@ -55,6 +55,7 @@ tbody tr {
   display: flex;
   gap: 0.5em;
   width: fit-content;
+  height: fit-content;
   padding: 4px 8px;
   border-radius: 20px;
   color: white;
@@ -214,10 +215,11 @@ tbody tr:hover {
   display: block;
 }
 
-.email-logout button {
+.email-logout input {
   border-radius: 5px;
   height: fit-content;
   background-color: white;
+  color: black;
   font-size: 12pt;
   padding: 2px;
   border: 2px solid gray;

@@ -15,20 +15,27 @@
     />
     <link
       rel="stylesheet"
+      href="../../static/css/conversation.css"
+      th:href="@{/css/conversation.css}"
+    />
+    <link
+      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <div class="conversation-header">
-      <h2>
-        Conversation
-        <span class="convo-id" th:text="${conversationId}" /> (<span
-          th:text="${messageCount}"
-        />
-        messages)
-      </h2>
-
-      <a href="/admin/conversations" class="button button-home">
-        <i class="fa fa-home"></i>
-      </a>
+      <div class="conversation-details-nav">
+        <h2>
+          Conversation
+          <span class="convo-id" th:text="${conversationId}" />
+        </h2>
+        <span
+          th:class="'badge' + ' badge-conversation-' + ${conversation.status.toString().replace('_', '-').toLowerCase()}"
+          th:text="${conversation.status.toString().replace('_', ' ')}"
+        ></span>
+        <a href="/admin/conversations" class="button button-home">
+          <i class="fa fa-home"></i>
+        </a>
+      </div>
       <div class="profile-info" sec:authorize="isAuthenticated()">
         <img
           th:src="${profile.get('picture')}"
@@ -37,61 +44,22 @@
         <div class="email-logout">
           <p th:text="${profile.get('name')}"></p>
           <form name="logoutForm" th:action="@{/logout}" method="post">
-            <button type="submit">Log out</button>
+            <input type="submit" value="Log out" />
           </form>
         </div>
       </div>
     </div>
-    <div class="table-container">
-      <table class="conversation-table">
-        <thead>
-          <tr>
-            <th>Role</th>
-            <th>Content</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="item : ${data}">
-            <td>
-              <div th:switch="${item.role.toString()}">
-                <div
-                  th:case="'USER'"
-                  class="badge badge-user-role"
-                  th:text="${item.role}"
-                ></div>
-                <div
-                  th:case="'SYSTEM'"
-                  class="badge badge-system-role"
-                  th:text="${item.role}"
-                ></div>
-                <div
-                  th:case="'ASSISTANT'"
-                  class="badge badge-assistant-role"
-                  th:text="${item.role}"
-                ></div>
-              </div>
-            </td>
-            <td class="message-contents-cell">
-              <input
-                type="checkbox"
-                th:id="${item.id}"
-                class="expand-message-checkbox"
-              />
-              <label th:for="${item.id}" class="fas">
-                <i class="fa fa-angle-down"></i>
-              </label>
-              <p th:text="${item.contents}" class="message-contents"></p>
-            </td>
-            <td>
-              <div
-                class="badge badge-timestamp"
-                th:text="${#temporals.format(item.getCreatedAt(), 'dd MMMM yyyy HH:mm:ss')}"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="messages-container">
+      <div
+        th:each="item : ${data}"
+        th:class="'message-container' + ' message-container-' + ${item.role.toString().toLowerCase()}"
+      >
+        <div class="message" th:text="${item.contents}" />
+        <div
+          class="message-timestamp"
+          th:text="${#temporals.format(item.getCreatedAt(), 'dd-MM-yyyy HH:mm:ss')}"
+        />
+      </div>
     </div>
   </body>
 </html>
