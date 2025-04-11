@@ -32,14 +32,14 @@ class StructurizrNotationController(
                 addAttribute("profile", principal.claims)
                 addAttribute("workspaceData", workspaceData)
             }
-            return "/admin/structurizr/structurizr_input_form"
+            return "admin/structurizr/structurizr_input_form"
         }
         c4Manager.initializeWorkspace(
             workspaceData.repoName,
             workspaceData.repoUrl,
             workspaceData.rawStructurizr,
         )
-        return "/admin/structurizr/structurizr_success"
+        return "admin/structurizr/structurizr_success"
     }
 
     @GetMapping("/admin/structurizr")
@@ -51,6 +51,6 @@ class StructurizrNotationController(
             addAttribute("profile", principal.claims)
             addAttribute("workspaceData", StructurizrWorkspaceData())
         }
-        return "/admin/structurizr/structurizr_input_form"
+        return "admin/structurizr/structurizr_input_form"
     }
 }
