@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
+  <head>
+    <title>Admin dashboard</title>
+  </head>
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="../../../static/css/main.css"
+    th:href="@{/css/main.css}"
+  />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="../../../static/css/manual_structurizr_form.css"
+    th:href="@{/css/manual_structurizr_form.css}"
+  />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    th:href="@{/css/manual_structurizr_form.css}"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+  />
+  <body>
+    <div class="header-container">
+      <h2>Manual Structurizr input</h2>
+      <div class="profile-info" sec:authorize="isAuthenticated()">
+        <img
+          th:src="${profile.get('picture')}"
+          th:attr="alt=${profile.get('name')}"
+        />
+        <div class="email-logout">
+          <p th:text="${profile.get('name')}"></p>
+          <form name="logoutForm" th:action="@{/logout}" method="post">
+            <button type="submit">Log out</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="structurizr-form-container">
+      <form
+        class="structurizr-form"
+        th:action="@{/admin/structurizr}"
+        th:object="${workspaceData}"
+        method="post"
+      >
+        <label class="form-label" for="repoUrl">Repo URL</label>
+        <input
+          th:class="'structurizr-text-input ' + ${#fields.hasErrors('repoUrl') ? 'input-invalid' : ''}"
+          th:field="*{repoUrl}"
+          id="repoUrl"
+          type="text"
+          value="Repo URL"
+        />
+        <div
+          th:if="${#fields.hasErrors('repoUrl')}"
+          th:errors="*{repoUrl}"
+          class="error-message"
+        >
+          Invalid URL
+        </div>
+        <label class="form-label" for="repoName">Repo full name</label>
+        <input
+          th:class="'structurizr-text-input ' + ${#fields.hasErrors('repoName') ? 'input-invalid' : ''}"
+          th:field="*{repoName}"
+          id="repoName"
+          type="text"
+          value="Repo Name"
+        />
+        <div
+          th:if="${#fields.hasErrors('repoName')}"
+          th:errors="*{repoName}"
+          class="error-message"
+        ></div>
+        <label class="form-label" for="rawStructurizr">
+          New structurizr workspace</label
+        >
+        <textarea
+          th:class="'structurizr-textarea ' + ${#fields.hasErrors('rawStructurizr') ? 'input-invalid' : ''}"
+          th:field="*{rawStructurizr}"
+          id="rawStructurizr"
+        >
+          Structurizr goes here
+        </textarea>
+        <div
+          th:if="${#fields.hasErrors('rawStructurizr')}"
+          th:errors="*{rawStructurizr}"
+          class="error-message"
+        ></div>
+        <input class="structurizr-submit-button" type="submit" value="Submit" />
+      </form>
+    </div>
+  </body>
+</html>

@@ -100,6 +100,25 @@ class LLMManager(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    /**
+     * Attempt to perform a structured output query, running some code on failure before re-throwing
+     * the exception
+     *
+     * @param onFailure The code to run when the request fails. Takes in the exception as the
+     *   argument. Note: must never return i.e. must re-throw the exception in the end of execution
+     */
+    private fun <TResponse : Any> trySendMessageOrElse(
+        // the message to send
+        message: OpenAIStructuredRequestData<TResponse>,
+        // what to do on failure - re-throwing the exception in the end (e.g. log the error)
+        onFailure: (Exception) -> Nothing,
+    ): TResponse =
+        try {
+            client.performStructuredOutputQuery(message)
+        } catch (e: Exception) {
+            onFailure(e)
+        }
+
     /** Walk through the conversation flow outlined in the issue description */
     fun produceIssueSolution(
         repoName: String,
@@ -140,15 +159,11 @@ class LLMManager(
 
         // make first request: we should get a list of files back
         val filesToInspectInFull =
-            try {
-                client.performStructuredOutputQuery(
-                    firstRequestData,
-                )
-            } catch (e: Exception) {
+            trySendMessageOrElse(firstRequestData) { e ->
                 logger.error("Marking conversation $conversationId as failed after 1st user message")
                 conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
                 throw Exception(
-                    "LLM query in conversation $conversationId failed with error after 1st user message: $e ",
+                    "LLM query in conversation $conversationId failed with error after 1st user message: $e",
                 )
             }
 
@@ -170,21 +185,19 @@ class LLMManager(
         conversationManager.addMessageToConversation(conversationId, secondMessage)
 
         val pullRequestData =
-            try {
-                client.performStructuredOutputQuery(
-                    OpenAIStructuredRequestData(
-                        model = chatGptVersion,
-                        responseFormatClass = LLMPullRequestData::class,
-                        messages =
-                            listOf(
-                                systemPrompt,
-                                initialMessage,
-                                chatGptResponseMessage,
-                                secondMessage,
-                            ),
-                    ),
-                )
-            } catch (e: Exception) {
+            trySendMessageOrElse(
+                OpenAIStructuredRequestData(
+                    model = chatGptVersion,
+                    responseFormatClass = LLMPullRequestData::class,
+                    messages =
+                        listOf(
+                            systemPrompt,
+                            initialMessage,
+                            chatGptResponseMessage,
+                            secondMessage,
+                        ),
+                ),
+            ) { e ->
                 logger.error("Marking conversation $conversationId as failed after 2nd user message")
                 conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
                 throw Exception(

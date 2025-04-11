@@ -6,14 +6,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import strikt.api.expectThat
+import strikt.api.expectThrows
 import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
+import strikt.assertions.isNull
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4ElementEntity
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4RelationshipEntity
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.entities.C4WorkspaceEntity
+import uk.ac.york.gpig.teamb.aiassistant.database.exceptions.DatabaseOperationException
 import uk.ac.york.gpig.teamb.aiassistant.enums.MemberType
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.GITHUB_REPOSITORY
 import uk.ac.york.gpig.teamb.aiassistant.tables.references.MEMBER
@@ -22,16 +25,15 @@ import uk.ac.york.gpig.teamb.aiassistant.tables.references.WORKSPACE
 import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.GitRepoBuilder.Companion.gitRepo
 import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.MemberBuilder.Companion.member
+import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.RelationshipBuilder.Companion.relationship
 import uk.ac.york.gpig.teamb.aiassistant.testutils.databuilders.WorkspaceBuilder.Companion.workspace
 import java.util.UUID
 
 @AiAssistantTest
 class C4NotationWriteFacadeTest {
-    @Autowired
-    private lateinit var sut: C4NotationWriteFacade
+    @Autowired private lateinit var sut: C4NotationWriteFacade
 
-    @Autowired
-    private lateinit var ctx: DSLContext
+    @Autowired private lateinit var ctx: DSLContext
 
     @Nested
     @DisplayName("linkRepoToWorkspace()")
@@ -40,13 +42,9 @@ class C4NotationWriteFacadeTest {
         fun `can link github repository to C4 workspace`() {
             val repoName = "fancy-programmer/my-fancy-repo"
             val workspaceId = UUID.randomUUID()
-            gitRepo(createWorkspace = false) {
-                this.fullName = repoName
-            }.create(ctx)
+            gitRepo(createWorkspace = false) { this.fullName = repoName }.create(ctx)
 
-            workspace {
-                this.id = workspaceId
-            }.create(ctx)
+            workspace { this.id = workspaceId }.create(ctx)
 
             sut.linkRepoToWorkspace(repoName, workspaceId)
 
@@ -62,9 +60,7 @@ class C4NotationWriteFacadeTest {
         @Test
         fun `can write single C4 element`() {
             val workspaceId = UUID.randomUUID()
-            workspace {
-                this.id = workspaceId
-            }.create(ctx)
+            workspace { this.id = workspaceId }.create(ctx)
 
             val element =
                 C4ElementEntity(
@@ -91,9 +87,7 @@ class C4NotationWriteFacadeTest {
         @Test
         fun `can write multiple C4 elements`() {
             val workspaceId = UUID.randomUUID()
-            workspace {
-                this.id = workspaceId
-            }.create(ctx)
+            workspace { this.id = workspaceId }.create(ctx)
 
             val elements =
                 (0..<10).map {
@@ -170,8 +164,7 @@ class C4NotationWriteFacadeTest {
             } // for every ID, create a member entity
 
             val relationshipEntities =
-                fromMemberIds.zip(toMemberIds).map {
-                        (from, to) ->
+                fromMemberIds.zip(toMemberIds).map { (from, to) ->
                     C4RelationshipEntity(
                         from = from,
                         to = to,
@@ -183,11 +176,10 @@ class C4NotationWriteFacadeTest {
                 } // create 10 pairs of IDs and create relationship entities
 
             sut.writeRelationshipsList(relationshipEntities)
-            // check all relationships were created and the correct source and destination ID's are written to db
+            // check all relationships were created and the correct source and destination ID's are
+            // written to db
             expectThat(
-                ctx.selectFrom(RELATIONSHIP).fetch().map {
-                    it.startMember to it.endMember
-                },
+                ctx.selectFrom(RELATIONSHIP).fetch().map { it.startMember to it.endMember },
             ).hasSize(10)
                 .containsExactlyInAnyOrder(fromMemberIds.zip(toMemberIds))
         }
@@ -212,6 +204,120 @@ class C4NotationWriteFacadeTest {
                 get { this[0].description }.isEqualTo(workspaceEntity.description)
                 get { this[0].name }.isEqualTo(workspaceEntity.name)
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteWorkspace()")
+    inner class DeleteWorkspaceTest {
+        @Test
+        fun `smoke test`() {
+            // create a workspace
+            val workspaceId = UUID.randomUUID()
+            workspace { id = workspaceId }.create(ctx)
+
+            sut.deleteWorkspace(workspaceId)
+
+            expectThat(ctx.selectFrom(WORKSPACE).fetch()).hasSize(0)
+        }
+
+        @Test
+        fun `throws for unknown workspace`() {
+            val workspaceId = UUID.randomUUID()
+            workspace { id = workspaceId }.create(ctx)
+            val otherWorkspace = UUID.randomUUID()
+
+            expectThrows<DatabaseOperationException> { sut.deleteWorkspace(otherWorkspace) }
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteWorkspaceMembers()")
+    inner class DeleteWorkspaceMembersTest {
+        @Test
+        fun `smoke test`() {
+            // create a workspace with some members
+            val workspaceId = UUID.randomUUID()
+            workspace { id = workspaceId }.create(ctx)
+            (0..<10).forEach {
+                member {
+                    name = "Component-$it"
+                    workspace { id = workspaceId }
+                }.create(ctx)
+            }
+
+            expectThat(sut.deleteWorkspaceMembers(workspaceId)).isEqualTo(10)
+
+            expectThat(ctx.fetchCount(MEMBER)).isEqualTo(0)
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteWorkspaceRelationships()")
+    inner class DeleteWorkspaceRelationshipsTest {
+        @Test
+        fun `smoke test`() {
+            // create a workspace with some members
+            val workspaceId = UUID.randomUUID()
+            workspace { id = workspaceId }.create(ctx)
+
+            (0..<10).zip((10..<20)).forEach { (to, from) ->
+                relationship {
+                    workspace { id = workspaceId }
+                    startMember {
+                        name = "Component-$from"
+                        workspace { id = workspaceId }
+                    }
+                    endMember {
+                        name = "Component-$to"
+                        workspace { id = workspaceId }
+                    }
+                }.create(ctx)
+            }
+
+            expectThat(sut.deleteWorkspaceRelationships(workspaceId)).isEqualTo(10)
+
+            expectThat(ctx.fetchCount(RELATIONSHIP)).isEqualTo(0)
+        }
+    }
+
+    @Nested
+    @DisplayName("removeLinkToWorkspace()")
+    inner class RemoveWorkspaceLinkTest {
+        @Test
+        fun `smoke test`() {
+            val workspaceId = UUID.randomUUID()
+            val repoName = "some-coder/my-fancy-repo"
+
+            gitRepo {
+                workspace { id = workspaceId }
+                fullName = repoName
+            }.create(ctx)
+
+            sut.removeLinkToWorkspace(repoName, workspaceId)
+
+            expectThat(ctx.select(GITHUB_REPOSITORY.WORKSPACE_ID).from(GITHUB_REPOSITORY).fetch())
+                .hasSize(1)
+                .and { get { this.first().get(GITHUB_REPOSITORY.WORKSPACE_ID) }.isNull() }
+        }
+
+        @Test
+        fun `throws when workspace missing`() {
+            val workspaceId = UUID.randomUUID()
+            val repoName = "some-coder/my-fancy-repo"
+
+            gitRepo(createWorkspace = false) { fullName = repoName }.create(ctx)
+
+            expectThrows<DatabaseOperationException> { sut.removeLinkToWorkspace(repoName, workspaceId) }
+        }
+
+        @Test
+        fun `throws when repo missing`() {
+            val workspaceId = UUID.randomUUID()
+            val repoName = "some-coder/my-fancy-repo"
+
+            workspace { id = workspaceId }.create(ctx)
+            expectThrows<DatabaseOperationException> { sut.removeLinkToWorkspace(repoName, workspaceId) }
         }
     }
 }

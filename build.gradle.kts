@@ -38,6 +38,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("com.okta.spring:okta-spring-boot-starter:3.0.7")
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+  implementation(
+      "org.springframework.boot:spring-boot-starter-validation:3.4.4") // validating form inputs
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")

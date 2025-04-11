@@ -15,17 +15,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 @EnableWebSecurity
 class OAuthSecurityConfig(
     private val authorityMapper: DashboardAuthorityMapper,
-    @Value("\${okta.oauth2.issuer}")
-    private val issuer: String,
-    @Value("\${okta.oauth2.client-id}")
-    private val clientId: String,
+    @Value("\${okta.oauth2.issuer}") private val issuer: String,
+    @Value("\${okta.oauth2.client-id}") private val clientId: String,
 ) {
     /**
      * Set up security so that:
-     *  - Users with the right permissions have read-only access to the dashboard
-     *  - No authentication is required for the webhook endpoint (handled in [WebhookValidationFilter])
-     * */
-
+     * - Users with the right permissions have read-only access to the dashboard
+     * - No authentication is required for the webhook endpoint (handled in [WebhookValidationFilter])
+     */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http {
@@ -34,6 +31,7 @@ class OAuthSecurityConfig(
                 authorize(HttpMethod.GET, "/actuator/**", permitAll)
                 authorize(HttpMethod.POST, "/webhooks", permitAll)
                 // dashboard URL's
+                authorize("/admin/structurizr", hasAuthority("structurizr:write"))
                 authorize(HttpMethod.GET, "/", hasAuthority("dashboard:view"))
                 authorize("/admin", hasAuthority("dashboard:view"))
                 authorize("/admin/**", hasAuthority("dashboard:view"))
@@ -42,23 +40,14 @@ class OAuthSecurityConfig(
                 authorize(anyRequest, denyAll)
             }
             csrf {
-                ignoringRequestMatchers("/webhooks") // we will authenticate this separately by using the github secret
+                ignoringRequestMatchers(
+                    "/webhooks",
+                ) // we will authenticate this separately by using the github secret
             }
-            exceptionHandling {
-                accessDeniedPage = "/error/403"
-            }
-            oauth2Login {
-                userInfoEndpoint {
-                    oidcUserService = authorityMapper
-                }
-            }
-            oauth2ResourceServer {
-                jwt {
-                }
-            }
-            logout {
-                addLogoutHandler(logoutHandler)
-            }
+            exceptionHandling { accessDeniedPage = "/error/403" }
+            oauth2Login { userInfoEndpoint { oidcUserService = authorityMapper } }
+            oauth2ResourceServer { jwt {} }
+            logout { addLogoutHandler(logoutHandler) }
         }
         return http.build()
     }

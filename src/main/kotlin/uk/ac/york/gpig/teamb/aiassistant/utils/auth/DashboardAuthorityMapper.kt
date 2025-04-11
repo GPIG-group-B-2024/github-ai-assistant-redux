@@ -11,25 +11,33 @@ import org.springframework.stereotype.Component
 
 @Component
 class DashboardAuthorityMapper(
-    @Value("\${app_settings.auth0_groups-claim}")
-    private val groupsClaim: String,
+    @Value("\${app_settings.auth0_groups-claim}") private val groupsClaim: String,
 ) : OidcUserService() {
     /**
      * Assign app roles based on the auth0 user data.
      *
-     * The auth0 configuration automatically grants access to all users with a York email.
-     * To access the dashboard, the "guest" role is enough
-     *
-     * */
+     * The auth0 configuration automatically grants access to all users with a York email. To access
+     * the dashboard, the "guest" role is enough
+     */
     override fun loadUser(userRequest: OidcUserRequest?): OidcUser? {
         val oidcUser: OAuth2User = super.loadUser(userRequest)
         val oldAuthorities = oidcUser.authorities
 
         @Suppress("UNCHECKED_CAST") // not ideal, but we know the format of this is consistent
-        val assignedRoles = (oidcUser.attributes[groupsClaim] as List<String>).map(::SimpleGrantedAuthority)
-        val additionalPermissions = mutableListOf<SimpleGrantedAuthority>()
-        val hasReadOnlyRole = assignedRoles.any { it.authority == "ROLE_ADMIN" || it.authority == "ROLE_GUEST" }
+        val assignedRoles =
+            (oidcUser.attributes[groupsClaim] as List<String>).map(::SimpleGrantedAuthority)
+        val additionalPermissions = mutableSetOf<SimpleGrantedAuthority>()
+        val hasReadOnlyRole =
+            assignedRoles.any { it.authority == "ROLE_ADMIN" || it.authority == "ROLE_GUEST" }
+        val isAdmin = assignedRoles.any { it.authority == "ROLE_ADMIN" }
         when {
+            isAdmin ->
+                additionalPermissions.addAll(
+                    listOf(
+                        SimpleGrantedAuthority("dashboard:view"),
+                        SimpleGrantedAuthority("structurizr:write"),
+                    ),
+                )
             hasReadOnlyRole -> additionalPermissions.add(SimpleGrantedAuthority("dashboard:view"))
         }
 
