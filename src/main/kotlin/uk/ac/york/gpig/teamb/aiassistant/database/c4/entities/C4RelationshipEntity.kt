@@ -14,14 +14,10 @@ data class C4RelationshipEntity(
     val workspaceId: UUID,
 ) {
     companion object {
-        /**
-         * Database alias for joining with the MEMBER table to find the start member name
-         * */
+        /** Database alias for joining with the MEMBER table to find the start member name */
         val fromMember = MEMBER.`as`("m1")
 
-        /**
-         * Database alias for joining with the MEMBER table to find the end member name
-         * */
+        /** Database alias for joining with the MEMBER table to find the end member name */
         val toMember = MEMBER.`as`("m2")
 
         fun fromJooq(record: Record): C4RelationshipEntity =
@@ -35,12 +31,16 @@ data class C4RelationshipEntity(
             )
     }
 
-    /**
-     * Convert relationship entity to structurizr notation
-     * */
+    val fromVariableName
+        get() = fromName.replace("[\\s.]".toRegex(), "-") // replace dots and spaces with dashes
+
+    val toVariableName
+        get() = toName.replace("[\\s.]".toRegex(), "-") // replace dots and spaces with dashes
+
+    /** Convert relationship entity to structurizr notation */
     fun toStructurizrString(): String =
         when (this.description) {
-            null -> "$fromName -> $toName"
-            else -> "$fromName -> $toName \"$description\""
+            null -> "$fromVariableName -> $toVariableName"
+            else -> "$fromVariableName -> $toVariableName \"$description\""
         }
 }

@@ -1,4 +1,4 @@
-package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github
+package uk.ac.york.gpig.teamb.aiassistant.vcs.entities
 
 data class FileBlob(
     val path: String,

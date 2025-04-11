@@ -7,7 +7,7 @@ plugins {
   id("nu.studer.jooq") version "8.2.1"
   kotlin("plugin.spring") version "2.0.21"
   id("org.flywaydb.flyway") version "11.4.0"
-  id("com.diffplug.spotless") version "6.25.0"
+  id("com.diffplug.spotless") version "7.0.2"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"
   id("com.gorylenko.gradle-git-properties") version "2.5.0"
@@ -90,6 +90,7 @@ spotless {
     ktlint()
     target("src/**/*.kt")
     toggleOffOn()
+    ratchetFrom = "origin/main"
   }
   kotlinGradle {
     target("*.gradle.kts") // default target for kotlinGradle

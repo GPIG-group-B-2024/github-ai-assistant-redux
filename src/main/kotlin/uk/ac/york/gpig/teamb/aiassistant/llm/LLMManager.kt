@@ -16,13 +16,10 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
-/**
- * Handles interactions with the OpenAI API
- * */
+/** Handles interactions with the OpenAI API */
 @Service
 class LLMManager(
-    @Value("\${app_settings.chatgpt_version:gpt-4o-2024-08-06}")
-    private val chatGptVersion: String,
+    @Value("\${app_settings.chatgpt_version:gpt-4o-2024-08-06}") private val chatGptVersion: String,
     private val client: OpenAIClient,
     private val c4Manager: C4Manager,
     private val conversationManager: LLMConversationManager,
@@ -34,12 +31,12 @@ class LLMManager(
         OpenAIMessage(
             OpenAIMessage.Role.SYSTEM,
             """
-            You are a software engineer working on a repo called $repoName.
-            
-            You will be provided with an issue description, the repo's file tree and its model in the c4 modelling framework.
-            
-            Your task is to respond to user messages with your best attempts at solving their issue.
-            """.trimIndent(),
+            |You are a software engineer working on a repo called **$repoName**.
+            |
+            |You will be provided with an issue description, the repo's file tree and its model in the structurizr modelling framework.
+            |
+            |Your task is to respond to user messages with your best attempts at solving their issue.
+            """.trimMargin(),
         )
 
     internal fun getRepoInfoMessage(
@@ -48,40 +45,62 @@ class LLMManager(
     ) = OpenAIMessage(
         OpenAIMessage.Role.USER,
         """
-        Here is some information about the repository:
+        |Here is some information about the repository:
         
-        * C4 model: ${c4Manager.gitRepoToStructurizrDsl(repoName)}
-        * File tree: ${vscManager.retrieveFileTree(repoName)}
-        * Issue title: ${issue.title}
-        * Issue body: ${issue.body}
-        
-        Your first task is to give me the list of files you need to inspect in full before creating your solution.
-        You should pick the files that you will need to either know in full or modify when making your fix to the issue.
-        Respond with a single list of strings, where each string represents a path to the file from the **repository root**
-        """.trimIndent(),
+        |   * C4 model: 
+        |       ```
+        |       ${c4Manager.gitRepoToStructurizrDsl(repoName)}
+        |       ```
+        |
+        |   * File tree: 
+        |       ```
+        |        ${vscManager.retrieveFileTree(repoName)}
+        |       ```
+        |
+        |   * Issue title: ${issue.title}
+        |
+        |   * Issue body: ${issue.body}
+        |
+        |Your first task is to give me the list of files you need to inspect in full before creating your solution.
+        |You should pick the files that you will need to either know in full or modify when making your fix to the issue.
+        |Respond with a single list of strings, where each string represents a path to the file from the **repository root**
+        """.trimMargin(),
     )
 
-    internal fun getPullRequestMessage(attachedFiles: FilesResponseSchema) =
-        OpenAIMessage(
+    internal fun getPullRequestMessage(
+        repoName: String,
+        requiredFiles: FilesResponseSchema,
+    ): OpenAIMessage {
+        val fileBlobs = vscManager.fetchFileBlobs(repoName, requiredFiles.fileList)
+        return OpenAIMessage(
             OpenAIMessage.Role.USER,
             """
-            Great. I am now sending you the files you requested. Your task is to now produce a pull request. 
-            Your response should consist of:
-            * Pull request title
-            * Pull request body
-            * Your changes: **IMPORTANT** - you must send the updated files in __full__, they must be able to overwrite 
-            the original file without breaking any functionality not affected by the pull request.
-            
-            Here are the files you requested:
-            ${attachedFiles.fileList.joinToString("\n\n")}
-            """.trimIndent(),
+            |Great. I am now sending you the files you requested. Your task is to now produce a pull request. 
+            |Your response should consist of:
+            |   * Pull request title
+            |   * Pull request body
+            |   * Your changes: **IMPORTANT** - you must send the updated files in __full__, they must be able to overwrite 
+            |   the original file without breaking any functionality not affected by the pull request.
+            |
+            |Here are the files you requested:
+            |${
+                fileBlobs.joinToString("\n\n") {
+                    """
+                    ## ${it.path}
+                    ```
+                    ${it.contents}
+                    ```
+                    ---
+                    """
+                }
+            }
+            """.trimMargin(),
         )
+    }
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    /**
-     * Walk through the conversation flow outlined in the issue description
-     * */
+    /** Walk through the conversation flow outlined in the issue description */
     fun produceIssueSolution(
         repoName: String,
         issue: Issue,
@@ -114,7 +133,10 @@ class LLMManager(
                     )
                 conversationManager.addMessageToConversation(conversationId, initialMessage)
                 conversationId
-            } ?: throw Exception("Could not initiate conversation about issue ${issue.number} in repo $repoName")
+            }
+                ?: throw Exception(
+                    "Could not initiate conversation about issue ${issue.number} in repo $repoName",
+                )
 
         // make first request: we should get a list of files back
         val filesToInspectInFull =
@@ -125,7 +147,9 @@ class LLMManager(
             } catch (e: Exception) {
                 logger.error("Marking conversation $conversationId as failed after 1st user message")
                 conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
-                throw Exception("LLM query in conversation $conversationId failed with error after 1st user message: $e ")
+                throw Exception(
+                    "LLM query in conversation $conversationId failed with error after 1st user message: $e ",
+                )
             }
 
         // store chatGPT's response into the database
@@ -141,7 +165,7 @@ class LLMManager(
 
         // send the requested files and ask for the final output - the pull request data
 
-        val secondMessage = getPullRequestMessage(filesToInspectInFull)
+        val secondMessage = getPullRequestMessage(repoName, filesToInspectInFull)
 
         conversationManager.addMessageToConversation(conversationId, secondMessage)
 
@@ -163,9 +187,12 @@ class LLMManager(
             } catch (e: Exception) {
                 logger.error("Marking conversation $conversationId as failed after 2nd user message")
                 conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
-                throw Exception("LLM query in conversation $conversationId failed with error after 2nd user message: $e ")
+                throw Exception(
+                    "LLM query in conversation $conversationId failed with error after 2nd user message: $e ",
+                )
             }
-        // we have received the pull request data. Write the remaining message to the database, mark the conversation as complete and return the data.
+        // we have received the pull request data. Write the remaining message to the database, mark the
+        // conversation as complete and return the data.
         transactionTemplate.execute {
             conversationManager.addMessageToConversation(
                 conversationId,
