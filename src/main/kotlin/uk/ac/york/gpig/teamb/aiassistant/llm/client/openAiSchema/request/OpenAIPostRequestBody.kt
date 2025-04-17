@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class OpenAIPostRequestBody(
     val model: String,
-    @JsonProperty("response_format")
-    val responseFormat: OpenAIResponseFormatField,
+    @JsonProperty("response_format") val responseFormat: OpenAIResponseFormatField,
     val messages: List<OpenAIMessage>,
 )

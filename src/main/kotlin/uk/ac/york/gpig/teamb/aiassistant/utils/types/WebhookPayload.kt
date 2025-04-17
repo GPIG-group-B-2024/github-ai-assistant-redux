@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 /**
  * Describes (partially) a Github webhook payload.
  *
- * For details on payload schema, see [webhook API docs](https://docs.github.com/en/webhooks/webhook-events-and-payloads#issues)
- *
- * */
+ * For details on payload schema, see
+ * [webhook API docs](https://docs.github.com/en/webhooks/webhook-events-and-payloads#issues)
+ */
 data class WebhookPayload(
     val issue: Issue,
     val action: Action,
@@ -26,13 +26,12 @@ data class WebhookPayload(
         val user: User,
         val body: String,
     ) {
-        data class User(val login: String)
+        data class User(
+            val login: String,
+        )
     }
 
-    /**
-     * The action being done to an issue (has many more options, must be added here as needed)
-     *
-     * */
+    /** The action being done to an issue (has many more options, must be added here as needed) */
     enum class Action {
         @SerializedName("opened")
         OPENED,
@@ -44,19 +43,11 @@ data class WebhookPayload(
         CREATED,
     }
 
-    /**
-     * The repository associated with the webhook
-     * */
+    /** The repository associated with the webhook */
     data class Repository(
-        /**
-         * The name of the url in the `Owner/repo` format
-         * */
-        @SerializedName("full_name")
-        val fullName: String,
-        /**
-         * The url with which the repo can be accessed. Must be appended with `.git`
-         * */
-        @SerializedName("html_url")
-        val url: String,
+        /** The name of the url in the `Owner/repo` format */
+        @SerializedName("full_name") val fullName: String,
+        /** The url with which the repo can be accessed. Must be appended with `.git` */
+        @SerializedName("html_url") val url: String,
     )
 }

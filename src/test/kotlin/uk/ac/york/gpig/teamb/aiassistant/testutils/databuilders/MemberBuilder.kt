@@ -13,9 +13,7 @@ class MemberBuilder : TestDataWithIdBuilder<MemberBuilder, UUID?>() {
     var description: String? = "handles incoming HTTP requests"
     private val workspaceId = UUID.randomUUID()
 
-    var workspaceBuilder: WorkspaceBuilder.() -> Unit = {
-        this.id = this@MemberBuilder.workspaceId
-    }
+    var workspaceBuilder: WorkspaceBuilder.() -> Unit = { this.id = this@MemberBuilder.workspaceId }
 
     fun workspace(setup: WorkspaceBuilder.() -> Unit): MemberBuilder {
         workspaceBuilder = setup
@@ -30,13 +28,10 @@ class MemberBuilder : TestDataWithIdBuilder<MemberBuilder, UUID?>() {
     }
 
     override fun create(ctx: DSLContext): MemberBuilder =
-        this.create(
-            ctx,
-            MEMBER,
-            MEMBER.ID,
-        ) {
+        this.create(ctx, MEMBER, MEMBER.ID) {
             val workspace = WorkspaceBuilder.workspace(workspaceBuilder).create(ctx)
-            ctx.insertInto(MEMBER)
+            ctx
+                .insertInto(MEMBER)
                 .columns(
                     MEMBER.ID,
                     MEMBER.NAME,
@@ -44,14 +39,7 @@ class MemberBuilder : TestDataWithIdBuilder<MemberBuilder, UUID?>() {
                     MEMBER.DESCRIPTION,
                     MEMBER.PARENT,
                     MEMBER.WORKSPACE_ID,
-                )
-                .values(
-                    id,
-                    name,
-                    type,
-                    description,
-                    parentId,
-                    workspace.id,
-                ).execute()
+                ).values(id, name, type, description, parentId, workspace.id)
+                .execute()
         }
 }

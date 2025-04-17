@@ -45,17 +45,8 @@ class WebhookControllerMockMvcTest {
                     body = "Important issue body",
                     number = 5,
                 ),
-            repository =
-                WebhookPayload.Repository(
-                    "my-test-repository",
-                    "my-test-url",
-                ),
-            comment =
-                WebhookPayload.Comment(
-                    id = 1L,
-                    user = WebhookPayload.Comment.User(""),
-                    body = "",
-                ),
+            repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
+            comment = WebhookPayload.Comment(id = 1L, user = WebhookPayload.Comment.User(""), body = ""),
         )
 
     val mockPullRequestData =
@@ -85,9 +76,7 @@ class WebhookControllerMockMvcTest {
         // Just following the process outlined in github docs here: Use the (mock) secret as the key and
         // encode the payload
         val hmacSha256 =
-            Mac.getInstance(ALGORITHM).apply {
-                init(SecretKeySpec(mockSecret.toByteArray(), ALGORITHM))
-            }
+            Mac.getInstance(ALGORITHM).apply { init(SecretKeySpec(mockSecret.toByteArray(), ALGORITHM)) }
         val requestBody = Gson().toJson(mockPayload).toByteArray()
         // add the prefix and attach the hex string in the header
         return "sha256=${hmacSha256.doFinal(requestBody).toHexString()}"
@@ -99,17 +88,12 @@ class WebhookControllerMockMvcTest {
         val mockSignature = createMockSignature(mockWebhook)
         mockMvc
             .perform(
-                post(
-                    "/webhooks",
-                ).header(
-                    "x-github-event",
-                    "issues",
-                ).header("x-github-hook-installation-target-type", "integration")
+                post("/webhooks")
+                    .header("x-github-event", "issues")
+                    .header("x-github-hook-installation-target-type", "integration")
                     .header("x-hub-signature-256", mockSignature)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        Gson().toJson(mockWebhook),
-                    ),
+                    .content(Gson().toJson(mockWebhook)),
             ).andExpect { status().isOk }
 
         verify {
@@ -124,17 +108,12 @@ class WebhookControllerMockMvcTest {
         val mockSignature = createMockSignature(commentCreatedMockWebhook)
         mockMvc
             .perform(
-                post(
-                    "/webhooks",
-                ).header(
-                    "x-github-event",
-                    "issue_comment",
-                ).header("x-github-hook-installation-target-type", "integration")
+                post("/webhooks")
+                    .header("x-github-event", "issue_comment")
+                    .header("x-github-hook-installation-target-type", "integration")
                     .header("x-hub-signature-256", mockSignature)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        Gson().toJson(commentCreatedMockWebhook),
-                    ),
+                    .content(Gson().toJson(commentCreatedMockWebhook)),
             ).andExpect { status().isOk }
 
         verify { vcsManager.processNewIssueComment(commentCreatedMockWebhook) }
@@ -145,17 +124,12 @@ class WebhookControllerMockMvcTest {
         val unsupportedOpWebhook = mockWebhook.copy(action = Action.CLOSED)
         val mockSignature = createMockSignature(unsupportedOpWebhook)
         mockMvc.perform(
-            post(
-                "/webhooks",
-            ).header(
-                "x-github-event",
-                "issues",
-            ).header("x-github-hook-installation-target-type", "repository")
+            post("/webhooks")
+                .header("x-github-event", "issues")
+                .header("x-github-hook-installation-target-type", "repository")
                 .header("x-hub-signature-256", mockSignature)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    Gson().toJson(unsupportedOpWebhook),
-                ),
+                .content(Gson().toJson(unsupportedOpWebhook)),
         )
 
         verify(exactly = 0) {
@@ -171,20 +145,15 @@ class WebhookControllerMockMvcTest {
         val mockSignature = createMockSignature(mockWebhook)
         mockMvc
             .perform(
-                post(
-                    "/webhooks",
-                ).header(
-                    "x-github-event",
-                    "issues",
-                ).apply {
-                    header("x-hub-signature-256", mockSignature)
-                    if (targetTypeHeader != null) {
-                        header("x-github-installation-target-type", targetTypeHeader)
-                    }
-                }.contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        Gson().toJson(mockWebhook),
-                    ),
+                post("/webhooks")
+                    .header("x-github-event", "issues")
+                    .apply {
+                        header("x-hub-signature-256", mockSignature)
+                        if (targetTypeHeader != null) {
+                            header("x-github-installation-target-type", targetTypeHeader)
+                        }
+                    }.contentType(MediaType.APPLICATION_JSON)
+                    .content(Gson().toJson(mockWebhook)),
             ).andExpect { status().isForbidden }
 
         verify(exactly = 0) {
@@ -199,23 +168,16 @@ class WebhookControllerMockMvcTest {
     fun `should block request when x-hub-signature is missing or wrong`(signatureHeader: String?) {
         mockMvc
             .perform(
-                post(
-                    "/webhooks",
-                ).header(
-                    "x-github-event",
-                    "issues",
-                ).apply {
-                    header("x-github-installation-target-type", "repository")
-                    if (signatureHeader != null) {
-                        header("x-hub-signature-256", signatureHeader)
-                    }
-                }.contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        Gson().toJson(mockWebhook),
-                    ),
-            ).andExpect {
-                if (signatureHeader == null) status().isUnauthorized else status().isForbidden
-            }
+                post("/webhooks")
+                    .header("x-github-event", "issues")
+                    .apply {
+                        header("x-github-installation-target-type", "repository")
+                        if (signatureHeader != null) {
+                            header("x-hub-signature-256", signatureHeader)
+                        }
+                    }.contentType(MediaType.APPLICATION_JSON)
+                    .content(Gson().toJson(mockWebhook)),
+            ).andExpect { if (signatureHeader == null) status().isUnauthorized else status().isForbidden }
 
         verify(exactly = 0) {
             llmManager.produceIssueSolution(mockWebhook.repository.fullName, mockWebhook.issue)
@@ -228,14 +190,11 @@ class WebhookControllerMockMvcTest {
         val mockSignature = createMockSignature(mockWebhook)
         mockMvc
             .perform(
-                post(
-                    "/webhooks",
-                ).header("x-github-hook-installation-target-type", "integration")
+                post("/webhooks")
+                    .header("x-github-hook-installation-target-type", "integration")
                     .header("x-hub-signature-256", mockSignature)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        Gson().toJson(mockWebhook),
-                    ),
+                    .content(Gson().toJson(mockWebhook)),
             ).andExpect(status().isBadRequest) // Expect 400 bad request
     }
 }

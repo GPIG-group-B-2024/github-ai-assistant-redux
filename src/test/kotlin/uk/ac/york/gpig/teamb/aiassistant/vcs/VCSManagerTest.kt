@@ -15,8 +15,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 
 @AiAssistantTest
 class VCSManagerTest {
-    @Autowired
-    private lateinit var sut: VCSManager
+    @Autowired private lateinit var sut: VCSManager
 
     @MockkBean(relaxed = true)
     private lateinit var gitFacade: GitFacade
@@ -37,16 +36,8 @@ class VCSManagerTest {
                         number = 5,
                     ),
                 repository =
-                    WebhookPayload.Repository(
-                        fullName = "my-test-repository",
-                        url = "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User(""),
-                        body = "",
-                    ),
+                    WebhookPayload.Repository(fullName = "my-test-repository", url = "my-test-url"),
+                comment = WebhookPayload.Comment(id = 1L, user = WebhookPayload.Comment.User(""), body = ""),
             )
 
         val pullRequestData =
@@ -71,9 +62,7 @@ class VCSManagerTest {
         sut.processChanges(issueBody.repository, issueBody.issue, pullRequestData)
         val expectedBranchName = "5-important-issue-title"
 
-        verify {
-            gitFacade.createBranch(any(), expectedBranchName)
-        }
+        verify { gitFacade.createBranch(any(), expectedBranchName) }
 
         verify {
             gitHubFacade.createPullRequest(
@@ -90,11 +79,7 @@ class VCSManagerTest {
     fun `creates and uses a fresh installation token to access github when proccessing a new issue`() {
         every { gitHubFacade.generateInstallationToken() } returns "my-fancy-token"
 
-        val repository =
-            WebhookPayload.Repository(
-                fullName = "my-test-repository",
-                url = "my-test-url",
-            )
+        val repository = WebhookPayload.Repository(fullName = "my-test-repository", url = "my-test-url")
 
         val issue =
             WebhookPayload.Issue(
@@ -141,10 +126,7 @@ class VCSManagerTest {
                         number = 5,
                     ),
                 repository =
-                    WebhookPayload.Repository(
-                        fullName = "my-test-repository",
-                        url = "my-test-url",
-                    ),
+                    WebhookPayload.Repository(fullName = "my-test-repository", url = "my-test-url"),
                 comment =
                     WebhookPayload.Comment(
                         id = 1L,
@@ -178,10 +160,7 @@ class VCSManagerTest {
                         number = 5,
                     ),
                 repository =
-                    WebhookPayload.Repository(
-                        fullName = "my-test-repository",
-                        url = "my-test-url",
-                    ),
+                    WebhookPayload.Repository(fullName = "my-test-repository", url = "my-test-url"),
                 comment =
                     WebhookPayload.Comment(
                         id = 1L,
@@ -193,8 +172,6 @@ class VCSManagerTest {
         sut.processNewIssueComment(issueBody)
 
         // Verify
-        verify(exactly = 0) {
-            gitHubFacade.createComment(any(), any(), any())
-        }
+        verify(exactly = 0) { gitHubFacade.createComment(any(), any(), any()) }
     }
 }

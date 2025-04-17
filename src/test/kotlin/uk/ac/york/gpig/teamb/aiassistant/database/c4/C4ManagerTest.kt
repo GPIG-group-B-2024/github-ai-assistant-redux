@@ -141,10 +141,7 @@ class C4ManagerTest {
                 """.trimIndent()
 
             // act
-            sut.consumeStructurizrWorkspace(
-                "some-dev/my-weather-app",
-                rawStructurizr,
-            )
+            sut.consumeStructurizrWorkspace("some-dev/my-weather-app", rawStructurizr)
 
             // verify
             // check workspace has been created
@@ -161,9 +158,7 @@ class C4ManagerTest {
             val workspaceId = createdWorkspace.first().id
 
             expectThat(
-                ctx.fetchExists(
-                    GITHUB_REPOSITORY.where(GITHUB_REPOSITORY.WORKSPACE_ID.eq(workspaceId)),
-                ),
+                ctx.fetchExists(GITHUB_REPOSITORY.where(GITHUB_REPOSITORY.WORKSPACE_ID.eq(workspaceId))),
             ).isTrue()
 
             val createdComponents =
@@ -463,12 +458,7 @@ class C4ManagerTest {
                     .fetch()
                     .map { it.get(MEMBER.NAME) }
             expect {
-                that(componentIds)
-                    .doesNotContain(
-                        controllerComponentId,
-                        repoComponentId,
-                        loggerComponentId,
-                    )
+                that(componentIds).doesNotContain(controllerComponentId, repoComponentId, loggerComponentId)
                 that(componentNames).none { contains("OLD") }
             }
 

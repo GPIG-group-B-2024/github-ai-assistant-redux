@@ -1,14 +1,9 @@
 package uk.ac.york.gpig.teamb.aiassistant.utils.types
 
-/**
- * The event type of an incoming webhook
-
- * */
+/** The event type of an incoming webhook */
 enum class EventType {
     ISSUES,
-
     ISSUE_COMMENT,
-
     ;
 
     companion object {

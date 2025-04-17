@@ -69,10 +69,7 @@ class GitHubFacade(
                         .reader() // create reader...
                         .use { it.readText() } // get text and close the reader
                 logger.info("Success")
-                FileBlob(
-                    path = path,
-                    contents = fileContents,
-                )
+                FileBlob(path = path, contents = fileContents)
             }
         }
 
@@ -93,9 +90,7 @@ class GitHubFacade(
     fun generateInstallationToken(): String =
         GitHubBuilder()
             .withJwtToken(
-                JWTGenerator.generateJWT(
-                    githubKeyFileContents,
-                ),
+                JWTGenerator.generateJWT(githubKeyFileContents),
             ) // use the private key to generate a *JWT*
             .build()
             .app

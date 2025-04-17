@@ -88,11 +88,9 @@ fun resourcesOfType(type: String) = "src/main/resources/**/*.$type"
 
 spotless {
   kotlin {
-    ktfmt()
-    ktlint()
+    ktlint("1.5.0")
     target("src/**/*.kt")
     toggleOffOn()
-    ratchetFrom = "origin/main"
   }
   kotlinGradle {
     target("*.gradle.kts") // default target for kotlinGradle

@@ -8,8 +8,9 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 class FilesResponseSchemaTest {
     @Test
     fun `smoke test`() {
-        expectThat(FilesResponseSchema::class.toJsonSchema()).isEqualToJson(
-            """
+        expectThat(FilesResponseSchema::class.toJsonSchema())
+            .isEqualToJson(
+                """
             {
                 "type":"object",
                 "additionalProperties":false,
@@ -21,6 +22,6 @@ class FilesResponseSchemaTest {
                 "required":["fileList"]
             }
             """.replace("\\s".toRegex(), ""),
-        )
+            )
     }
 }

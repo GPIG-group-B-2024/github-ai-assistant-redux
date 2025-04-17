@@ -58,19 +58,11 @@ class LLMManagerTest {
     companion object {
         @RegisterExtension
         val mockGithubAPI: WireMockExtension =
-            WireMockExtension
-                .newInstance()
-                .options(
-                    wireMockConfig().port(3000),
-                ).build()
+            WireMockExtension.newInstance().options(wireMockConfig().port(3000)).build()
 
         @RegisterExtension
         val mockOpenAIAPI: WireMockExtension =
-            WireMockExtension
-                .newInstance()
-                .options(
-                    wireMockConfig().port(3001),
-                ).build()
+            WireMockExtension.newInstance().options(wireMockConfig().port(3001)).build()
     }
 
     @Autowired private lateinit var sut: LLMManager
@@ -138,16 +130,14 @@ class LLMManagerTest {
                 get(urlEqualTo("/repos/my-owner/my-test-repo")).willReturn(ok().withBody(getRepoOutput)),
             )
             mockGithubAPI.stubFor(
-                get(
-                    urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"),
-                ).willReturn(
-                    ok()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody(
-                            File("src/test/resources/wiremock/github-api/get-repo-tree-output.json")
-                                .readText(),
-                        ),
-                ),
+                get(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"))
+                    .willReturn(
+                        ok()
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                File("src/test/resources/wiremock/github-api/get-repo-tree-output.json").readText(),
+                            ),
+                    ),
             )
             // 3.1.2: mock the /contents endpoints (i.e. create mock base64 outputs)
             listOf("src/weather_app/main.py", "test/weather_app/test_main.py").forEach { path ->
@@ -176,10 +166,8 @@ class LLMManagerTest {
                     .whenScenarioStateIs(STARTED)
                     .willReturn(
                         ok()
-                            .withHeader(
-                                "Content-Type",
-                                "application/json",
-                            ).withBody(
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
                                 File("src/test/resources/wiremock/openai-api/list-of-files-response.json")
                                     .readText(),
                             ),
@@ -192,12 +180,9 @@ class LLMManagerTest {
                     .whenScenarioStateIs("List of files received")
                     .willReturn(
                         ok()
-                            .withHeader(
-                                "Content-Type",
-                                "application/json",
-                            ).withBody(
-                                File("src/test/resources/wiremock/openai-api/pr-data-response.json")
-                                    .readText(),
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                File("src/test/resources/wiremock/openai-api/pr-data-response.json").readText(),
                             ),
                     ),
             )
@@ -269,9 +254,8 @@ class LLMManagerTest {
             // check that the github API was used to retrieve the repo tree
 
             mockGithubAPI.verify(
-                getRequestedFor(
-                    urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"),
-                ).withQueryParam("recursive", equalTo("1")),
+                getRequestedFor(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"))
+                    .withQueryParam("recursive", equalTo("1")),
             )
 
             // check that the openAI API was used twice
@@ -359,19 +343,16 @@ class LLMManagerTest {
                     .orderBy(LLM_MESSAGE.CREATED_AT)
                     .fetch()
                     .map { it.role },
-            ).containsExactly(
-                LlmMessageRole.SYSTEM,
-                LlmMessageRole.USER,
-            )
+            ).containsExactly(LlmMessageRole.SYSTEM, LlmMessageRole.USER)
         }
 
         @Test
         fun <T> `marks conversation as failed if second user message unsuccessful`() {
-            every<T> {
-                client.performStructuredOutputQuery(
-                    any(),
-                )
-            } answers { callOriginal() } andThenThrows PromptTooLongException("naughty naughty")
+            every<T> { client.performStructuredOutputQuery(any()) } answers
+                {
+                    callOriginal()
+                } andThenThrows
+                PromptTooLongException("naughty naughty")
             val repoName = "my-owner/my-test-repo"
             prepareTestEnv(repoName)
             expectThrows<Exception> {

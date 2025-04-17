@@ -24,41 +24,38 @@ import java.util.UUID
 
 @AiAssistantTest
 class LLMConversationManagerTest {
-    @Autowired
-    private lateinit var sut: LLMConversationManager
+    @Autowired private lateinit var sut: LLMConversationManager
 
-    @Autowired
-    private lateinit var ctx: DSLContext
+    @Autowired private lateinit var ctx: DSLContext
 
     @Test
     fun `creates a new conversation with a single message`() {
         val repoId = UUID.randomUUID()
-        gitRepo {
-            this.id = repoId
-        }.create(ctx)
+        gitRepo { this.id = repoId }.create(ctx)
 
         val beforeCreationTimestamp = OffsetDateTime.now()
         val messageContent = "You are a software engineer. Engineer software!"
-        sut.initConversationWithFirstMessage(
-            repoId,
-            10,
-            Role.SYSTEM,
-            messageContent,
-        )
+        sut.initConversationWithFirstMessage(repoId, 10, Role.SYSTEM, messageContent)
 
         val conversationResults = ctx.selectFrom(LLM_CONVERSATION).fetch()
         val messageResults = ctx.selectFrom(LLM_MESSAGE).fetch()
 
-        expectThat(conversationResults).hasSize(1).get { this[0] }.and {
-            get { this.repoId }.isEqualTo(repoId)
-            get { this.issueId }.isEqualTo(10)
-            get { this.createdAt }.isAfter(beforeCreationTimestamp)
-        }
+        expectThat(conversationResults)
+            .hasSize(1)
+            .get { this[0] }
+            .and {
+                get { this.repoId }.isEqualTo(repoId)
+                get { this.issueId }.isEqualTo(10)
+                get { this.createdAt }.isAfter(beforeCreationTimestamp)
+            }
 
-        expectThat(messageResults).hasSize(1).get { this[0] }.and {
-            get { this.role }.isEqualTo(LlmMessageRole.SYSTEM)
-            get { this.content }.isEqualTo(messageContent)
-        }
+        expectThat(messageResults)
+            .hasSize(1)
+            .get { this[0] }
+            .and {
+                get { this.role }.isEqualTo(LlmMessageRole.SYSTEM)
+                get { this.content }.isEqualTo(messageContent)
+            }
 
         // at this point, we know that the message and conversation were created successfully.
         // check they were correctly linked with each other
@@ -67,23 +64,22 @@ class LLMConversationManagerTest {
         val conversationId = conversationResults.first().id
 
         val messageConvoResults = ctx.selectFrom(CONVERSATION_MESSAGE).fetch()
-        expectThat(messageConvoResults).hasSize(1).get { this[0] }.and {
-            get { this.messageId }.isEqualTo(messageId)
-            get { this.conversationId }.isEqualTo(conversationId)
-        }
+        expectThat(messageConvoResults)
+            .hasSize(1)
+            .get { this[0] }
+            .and {
+                get { this.messageId }.isEqualTo(messageId)
+                get { this.conversationId }.isEqualTo(conversationId)
+            }
     }
 
     @Test
     fun `throws for unknown repo`() {
-        gitRepo {
-            this.id = UUID.randomUUID()
-        }.create(ctx)
+        gitRepo { this.id = UUID.randomUUID() }.create(ctx)
 
         expectThrows<NotFoundException.NotFoundByIdException> {
             sut.initConversationWithFirstMessage(UUID.randomUUID(), 10, Role.SYSTEM, "Some message")
-        }.and {
-            get { this.message }.isNotNull().startsWith("Could not find Git repo")
-        }
+        }.and { get { this.message }.isNotNull().startsWith("Could not find Git repo") }
     }
 
     @Test
@@ -92,15 +88,14 @@ class LLMConversationManagerTest {
         val issueId = 10
         conversation {
             this.issueId = issueId
-            this.gitRepo {
-                this.id = repoId
-            }
+            this.gitRepo { this.id = repoId }
         }.create(ctx)
 
         expectThrows<IllegalStateException> {
             sut.initConversationWithFirstMessage(repoId, issueId, Role.SYSTEM, "Some message")
         }.and {
-            get { this.message }.isEqualTo("Conversation about issue $issueId in repo $repoId already exists")
+            get { this.message }
+                .isEqualTo("Conversation about issue $issueId in repo $repoId already exists")
         }
     }
 }

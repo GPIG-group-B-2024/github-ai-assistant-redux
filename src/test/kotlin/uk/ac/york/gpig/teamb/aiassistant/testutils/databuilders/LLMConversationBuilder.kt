@@ -12,9 +12,7 @@ class LLMConversationBuilder : TestDataWithIdBuilder<LLMConversationBuilder, UUI
     var issueId: Int = Random.nextInt(1000)
     var createdAt: OffsetDateTime = OffsetDateTime.now()
 
-    var repoBuilder: GitRepoBuilder.() -> Unit = {
-        this.id = this@LLMConversationBuilder.repoId
-    }
+    var repoBuilder: GitRepoBuilder.() -> Unit = { this.id = this@LLMConversationBuilder.repoId }
 
     fun gitRepo(setup: GitRepoBuilder.() -> Unit): LLMConversationBuilder {
         repoBuilder = setup
@@ -29,14 +27,14 @@ class LLMConversationBuilder : TestDataWithIdBuilder<LLMConversationBuilder, UUI
     override fun create(ctx: DSLContext): LLMConversationBuilder =
         this.create(ctx, LLM_CONVERSATION, LLM_CONVERSATION.ID) {
             val repoId = GitRepoBuilder.gitRepo(true, repoBuilder).create(ctx).id
-            ctx.insertInto(LLM_CONVERSATION)
+            ctx
+                .insertInto(LLM_CONVERSATION)
                 .columns(
                     LLM_CONVERSATION.ID,
                     LLM_CONVERSATION.REPO_ID,
                     LLM_CONVERSATION.ISSUE_ID,
                     LLM_CONVERSATION.CREATED_AT,
-                )
-                .values(id, repoId, issueId, createdAt)
+                ).values(id, repoId, issueId, createdAt)
                 .execute()
         }
 }

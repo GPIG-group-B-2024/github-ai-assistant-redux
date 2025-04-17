@@ -8,8 +8,9 @@ import uk.ac.york.gpig.teamb.aiassistant.utils.types.toJsonSchema
 class LLMPullRequestDataTest {
     @Test
     fun `smoke test`() {
-        expectThat(LLMPullRequestData::class.toJsonSchema()).isEqualToJson(
-            """
+        expectThat(LLMPullRequestData::class.toJsonSchema())
+            .isEqualToJson(
+                """
             {
                 "type": "object",
                 "additionalProperties": false,
@@ -56,6 +57,6 @@ class LLMPullRequestDataTest {
                 ]
             }
             """.replace("\\s".toRegex(), ""),
-        )
+            )
     }
 }

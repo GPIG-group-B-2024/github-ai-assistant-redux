@@ -15,7 +15,7 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
  * Receives incoming webhook events.
  *
  * The exact event types are configured on GitHub, and currently only include updates to issues.
- * */
+ */
 @RestController
 class WebhookController(
     private val vcsManager: VCSManager,

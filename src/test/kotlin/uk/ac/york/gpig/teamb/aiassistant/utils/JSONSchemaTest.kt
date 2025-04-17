@@ -14,8 +14,9 @@ class JSONSchemaTest {
             val b: Int,
             val c: Boolean,
         )
-        expectThat(SimpleClass::class.toJsonSchema()).isEqualToJson(
-            """
+        expectThat(SimpleClass::class.toJsonSchema())
+            .isEqualToJson(
+                """
             {
                 "type":"object",
                 "additionalProperties":false,
@@ -27,12 +28,14 @@ class JSONSchemaTest {
                 "required": ["a", "b", "c"]
             }
         """.replace("\\s".toRegex(), ""),
-        )
+            )
     }
 
     @Test
     fun `can handle nested objects`() {
-        data class Nested(val d: Boolean)
+        data class Nested(
+            val d: Boolean,
+        )
 
         data class NestedObject(
             val a: String,
@@ -40,8 +43,9 @@ class JSONSchemaTest {
             val c: Nested,
         )
 
-        expectThat(NestedObject::class.toJsonSchema()).isEqualToJson(
-            """
+        expectThat(NestedObject::class.toJsonSchema())
+            .isEqualToJson(
+                """
             {
               "type": "object",
               "additionalProperties": false,
@@ -66,13 +70,15 @@ class JSONSchemaTest {
               }
             }
         """.replace("\\s".toRegex(), ""),
-        )
+            )
     }
 
     @Test
     @DisplayName("can handle nested arrays") // test breaks if function name contains spaces
     fun handlesArrays() {
-        data class Nested(val d: Boolean)
+        data class Nested(
+            val d: Boolean,
+        )
 
         data class NestedArray(
             val a: String,
@@ -80,8 +86,9 @@ class JSONSchemaTest {
             val c: List<Nested>,
         )
 
-        expectThat(NestedArray::class.toJsonSchema()).isEqualToJson(
-            """
+        expectThat(NestedArray::class.toJsonSchema())
+            .isEqualToJson(
+                """
             {
                 "type": "object",
                 "additionalProperties": false,
@@ -109,6 +116,6 @@ class JSONSchemaTest {
                 }
             }
         """.replace("\\s".toRegex(), ""),
-        )
+            )
     }
 }

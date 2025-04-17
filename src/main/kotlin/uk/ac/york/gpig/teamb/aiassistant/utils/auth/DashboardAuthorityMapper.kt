@@ -41,9 +41,6 @@ class DashboardAuthorityMapper(
             hasReadOnlyRole -> additionalPermissions.add(SimpleGrantedAuthority("dashboard:view"))
         }
 
-        return DefaultOidcUser(
-            additionalPermissions + oldAuthorities,
-            userRequest!!.idToken,
-        )
+        return DefaultOidcUser(additionalPermissions + oldAuthorities, userRequest!!.idToken)
     }
 }

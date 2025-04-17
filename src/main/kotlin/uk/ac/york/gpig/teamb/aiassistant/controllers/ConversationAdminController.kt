@@ -14,8 +14,7 @@ import java.util.UUID
 @Controller
 @RequestMapping("")
 class ConversationAdminController(
-    @Autowired
-    private val llmConversationManager: LLMConversationManager,
+    @Autowired private val llmConversationManager: LLMConversationManager,
 ) {
     @GetMapping("/admin/conversations")
     fun index(
@@ -31,8 +30,7 @@ class ConversationAdminController(
         return "admin/index"
     }
 
-    @GetMapping
-    fun redirectFromRoot() = "redirect:/admin/conversations"
+    @GetMapping fun redirectFromRoot() = "redirect:/admin/conversations"
 
     @GetMapping("/admin")
     fun redirectFromAdminRoot() = "redirect:/admin/conversations"

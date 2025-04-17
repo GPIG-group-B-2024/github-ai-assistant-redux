@@ -11,4 +11,5 @@ fun Builder<OffsetDateTime?>.isAfter(other: OffsetDateTime): Builder<OffsetDateT
             it.isAfter(other) -> pass()
             else -> fail("Expected timestamp $it to be after $other")
         }
-    } as Builder<OffsetDateTime>
+    }
+        as Builder<OffsetDateTime>

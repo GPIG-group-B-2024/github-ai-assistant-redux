@@ -38,9 +38,8 @@ class C4Manager(
      */
     fun gitRepoToStructurizrDsl(repoName: String): String {
         val workspace =
-            c4NotationReadFacade.getRepositoryWorkspace(
-                repoName,
-            ) ?: throw NotFoundException.NotFoundByNameException(repoName, "github repository")
+            c4NotationReadFacade.getRepositoryWorkspace(repoName)
+                ?: throw NotFoundException.NotFoundByNameException(repoName, "github repository")
         logger.info("Found repository with name $repoName")
         val members = c4NotationReadFacade.getMembers(workspace.id)
         logger.info("Found ${members.size} members in repo $repoName")
@@ -48,9 +47,7 @@ class C4Manager(
         logger.info("Found ${relationships.size} relationships in repo $repoName")
         val memberToChildren = members.groupBy { it.parentId }
         val componentsBlock =
-            memberToChildren[null]!!.joinToString("\n|\t\t") {
-                it.printWithChildren(memberToChildren, 2)
-            }
+            memberToChildren[null]!!.joinToString("\n|\t\t") { it.printWithChildren(memberToChildren, 2) }
         val relationshipsBlock = relationships.joinToString("\n|\t\t") { it.toStructurizrString() }
         return """
             |${workspace.toStructurizrString()}{
@@ -84,9 +81,7 @@ class C4Manager(
                         is Container -> MemberType.CONTAINER
                         is Component -> MemberType.COMPONENT
                         else ->
-                            throw IllegalArgumentException(
-                                "Unknown member type: ${it::class.qualifiedName}",
-                            )
+                            throw IllegalArgumentException("Unknown member type: ${it::class.qualifiedName}")
                     },
                 name = it.name,
                 description = it.description,
@@ -177,9 +172,8 @@ class C4Manager(
     }
 
     fun getRepoId(repoName: String): UUID =
-        c4NotationReadFacade.getRepoId(
-            repoName,
-        ) ?: throw NotFoundException.NotFoundByNameException(repoName, "github repo")
+        c4NotationReadFacade.getRepoId(repoName)
+            ?: throw NotFoundException.NotFoundByNameException(repoName, "github repo")
 
     /**
      * For manual app operation/testing: create record of a github repo and associate a structurizr

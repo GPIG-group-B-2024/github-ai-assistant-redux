@@ -24,11 +24,9 @@ import kotlin.random.Random
 
 @AiAssistantTest
 class LLMConversationReadFacadeTest {
-    @Autowired
-    private lateinit var sut: LLMConversationReadFacade
+    @Autowired private lateinit var sut: LLMConversationReadFacade
 
-    @Autowired
-    private lateinit var ctx: DSLContext
+    @Autowired private lateinit var ctx: DSLContext
 
     @Nested
     @DisplayName("Retrieving a list of messages in a conversation")
@@ -37,9 +35,7 @@ class LLMConversationReadFacadeTest {
         fun `lists messages in chronological order (earliest first)`() {
             val conversationId = UUID.randomUUID()
             conversationWithMessages {
-                this.conversation {
-                    this.id = conversationId
-                }
+                this.conversation { this.id = conversationId }
                 this.message {
                     this.role = LlmMessageRole.USER
                     this.content = "This is my first message!"
@@ -56,19 +52,20 @@ class LLMConversationReadFacadeTest {
 
             val result = sut.listConversationMessages(conversationId)
 
-            expectThat(result).isNotEmpty().get { this.map { it.role to it.contents } }.containsExactly(
-                LlmMessageRole.USER to "This is my first message!",
-                LlmMessageRole.USER to "This is my second one!",
-                LlmMessageRole.USER to "This is the third!",
-            )
+            expectThat(result)
+                .isNotEmpty()
+                .get { this.map { it.role to it.contents } }
+                .containsExactly(
+                    LlmMessageRole.USER to "This is my first message!",
+                    LlmMessageRole.USER to "This is my second one!",
+                    LlmMessageRole.USER to "This is the third!",
+                )
         }
 
         @Test
         fun `handles empty conversation`() {
             val conversationId = UUID.randomUUID()
-            conversation {
-                this.id = conversationId
-            }.create(ctx)
+            conversation { this.id = conversationId }.create(ctx)
 
             expectDoesNotThrow { sut.listConversationMessages(conversationId) }.isEmpty()
         }
@@ -85,9 +82,7 @@ class LLMConversationReadFacadeTest {
             conversation {
                 this.id = conversationId
                 this.issueId = issueId
-                this.gitRepo {
-                    this.id = repoId
-                }
+                this.gitRepo { this.id = repoId }
             }.create(ctx)
             val result = sut.checkConversationExists(repoId, issueId)
             expectThat(result).isTrue()
@@ -100,9 +95,7 @@ class LLMConversationReadFacadeTest {
             conversation {
                 this.id = conversationId
                 this.issueId = 10
-                this.gitRepo {
-                    this.id = repoId
-                }
+                this.gitRepo { this.id = repoId }
             }.create(ctx)
             val result = sut.checkConversationExists(UUID.randomUUID(), Random.nextInt(100))
             expectThat(result).isFalse()
@@ -144,9 +137,7 @@ class LLMConversationReadFacadeTest {
             conversation {
                 this.id = conversationId
                 this.issueId = 10
-                this.gitRepo {
-                    this.id = repoId
-                }
+                this.gitRepo { this.id = repoId }
             }.create(ctx)
 
             val result = sut.fetchConversation(UUID.randomUUID(), 50)

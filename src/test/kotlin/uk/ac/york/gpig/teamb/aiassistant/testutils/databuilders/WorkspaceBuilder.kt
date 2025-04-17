@@ -15,22 +15,11 @@ class WorkspaceBuilder : TestDataWithIdBuilder<WorkspaceBuilder, UUID?>() {
     }
 
     override fun create(ctx: DSLContext): WorkspaceBuilder =
-        this.create(
-            ctx,
-            WORKSPACE,
-            WORKSPACE.ID,
-        ) {
-            ctx.insertInto(WORKSPACE)
-                .columns(
-                    WORKSPACE.ID,
-                    WORKSPACE.NAME,
-                    WORKSPACE.DESCRIPTION,
-                )
-                .values(
-                    id,
-                    name,
-                    description,
-                )
+        this.create(ctx, WORKSPACE, WORKSPACE.ID) {
+            ctx
+                .insertInto(WORKSPACE)
+                .columns(WORKSPACE.ID, WORKSPACE.NAME, WORKSPACE.DESCRIPTION)
+                .values(id, name, description)
                 .execute()
         }
 }

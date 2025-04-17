@@ -40,12 +40,8 @@ class LLMConversationWriteFacade(
         content: String,
     ) = ctx
         .insertInto(LLM_MESSAGE)
-        .columns(
-            LLM_MESSAGE.ID,
-            LLM_MESSAGE.ROLE,
-            LLM_MESSAGE.CONTENT,
-            LLM_MESSAGE.CREATED_AT,
-        ).values(id, role, content, OffsetDateTime.now())
+        .columns(LLM_MESSAGE.ID, LLM_MESSAGE.ROLE, LLM_MESSAGE.CONTENT, LLM_MESSAGE.CREATED_AT)
+        .values(id, role, content, OffsetDateTime.now())
         .execute()
         .let { insertCount ->
             if (insertCount != 1) throw DatabaseOperationException("Failed to store message $id")

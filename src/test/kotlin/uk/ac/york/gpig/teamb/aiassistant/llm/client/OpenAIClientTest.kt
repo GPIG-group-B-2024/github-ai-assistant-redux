@@ -24,18 +24,22 @@ import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 @AiAssistantTest
 @WireMockTest(httpPort = 3001)
 class OpenAIClientTest {
-    @Autowired
-    private lateinit var sut: OpenAIClient
+    @Autowired private lateinit var sut: OpenAIClient
 
     @Test
     fun `smoke test`() {
-        data class Car(val make: String, val model: String, val horsePower: Int)
+        data class Car(
+            val make: String,
+            val model: String,
+            val horsePower: Int,
+        )
         stubFor(
-            post("/v1/chat/completions/").willReturn(
-                ok()
-                    .withHeader("Content-Type", "application/json")
-                    .withBody(
-                        """
+            post("/v1/chat/completions/")
+                .willReturn(
+                    ok()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(
+                            """
                         {
                           "id": "chatcmpl-123456",
                           "object": "chat.completion",
@@ -68,8 +72,8 @@ class OpenAIClientTest {
                           },
                           "system_fingerprint": "fp_6b68a8204b"
                         }""",
-                    ),
-            ),
+                        ),
+                ),
         )
         sut.performStructuredOutputQuery(
             OpenAIStructuredRequestData(
@@ -146,12 +150,18 @@ class OpenAIClientTest {
 
     @Test
     fun `throws on server error`() {
-        data class Car(val make: String, val model: String, val horsePower: Int)
+        data class Car(
+            val make: String,
+            val model: String,
+            val horsePower: Int,
+        )
         stubFor(
-            post("/v1/chat/completions/").willReturn(
-                ResponseDefinitionBuilder().withStatus(500)
-                    .withBody("Something went wrong on the server side"),
-            ),
+            post("/v1/chat/completions/")
+                .willReturn(
+                    ResponseDefinitionBuilder()
+                        .withStatus(500)
+                        .withBody("Something went wrong on the server side"),
+                ),
         )
         expectThrows<HttpServerErrorException> {
             sut.performStructuredOutputQuery(
@@ -175,19 +185,23 @@ class OpenAIClientTest {
                     responseFormatClass = Car::class,
                 ),
             )
-        }.and {
-            get { this.message }.isNotNull().contains("Something went wrong on the server side")
-        }
+        }.and { get { this.message }.isNotNull().contains("Something went wrong on the server side") }
     }
 
     @Test
     fun `throws on client error`() {
-        data class Car(val make: String, val model: String, val horsePower: Int)
+        data class Car(
+            val make: String,
+            val model: String,
+            val horsePower: Int,
+        )
         stubFor(
-            post("/v1/chat/completions/").willReturn(
-                ResponseDefinitionBuilder().withStatus(403)
-                    .withBody("Something went wrong on the client side"),
-            ),
+            post("/v1/chat/completions/")
+                .willReturn(
+                    ResponseDefinitionBuilder()
+                        .withStatus(403)
+                        .withBody("Something went wrong on the client side"),
+                ),
         )
         expectThrows<HttpClientErrorException> {
             sut.performStructuredOutputQuery(
@@ -211,8 +225,6 @@ class OpenAIClientTest {
                     responseFormatClass = Car::class,
                 ),
             )
-        }.and {
-            get { this.message }.isNotNull().contains("Something went wrong on the client side")
-        }
+        }.and { get { this.message }.isNotNull().contains("Something went wrong on the client side") }
     }
 }

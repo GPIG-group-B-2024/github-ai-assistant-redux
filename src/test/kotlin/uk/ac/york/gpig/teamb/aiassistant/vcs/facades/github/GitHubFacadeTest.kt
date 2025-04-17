@@ -53,14 +53,10 @@ class GitHubFacadeTest {
             // ^ same as above, except we do not care *at all* what the output is, we only need it for the
             // underlying github library to run without exceptions
             stubFor(
-                post(
-                    "/repos/my-owner/my-test-repo/pulls",
-                ).willReturn(
-                    ResponseDefinitionBuilder
-                        .responseDefinition()
-                        .withStatus(201)
-                        .withBody(createPROutput),
-                ),
+                post("/repos/my-owner/my-test-repo/pulls")
+                    .willReturn(
+                        ResponseDefinitionBuilder.responseDefinition().withStatus(201).withBody(createPROutput),
+                    ),
             )
             sut.createPullRequest(
                 "my-owner/my-test-repo",
@@ -107,22 +103,17 @@ class GitHubFacadeTest {
                 get("/repos/my-owner/my-test-repo/issues/5").willReturn(ok().withBody(getIssueOutput)),
             )
             stubFor(
-                post(
-                    "/repos/my-owner/my-test-repo/issues/5/comments",
-                ).willReturn(
-                    ResponseDefinitionBuilder
-                        .responseDefinition()
-                        .withStatus(201)
-                        .withBody(createCommentOutput),
-                ),
+                post("/repos/my-owner/my-test-repo/issues/5/comments")
+                    .willReturn(
+                        ResponseDefinitionBuilder
+                            .responseDefinition()
+                            .withStatus(201)
+                            .withBody(createCommentOutput),
+                    ),
             )
 
             // Act
-            sut.createComment(
-                "my-owner/my-test-repo",
-                5,
-                "this is a comment",
-            )
+            sut.createComment("my-owner/my-test-repo", 5, "this is a comment")
 
             // Verify
             verify(
@@ -148,21 +139,13 @@ class GitHubFacadeTest {
             val pathToFetch = "README.md" // repo-root/README.md
             stubFor(
                 get("/repos/my-owner/my-test-repo/contents/$pathToFetch?ref=HEAD")
-                    .willReturn(
-                        ok().withBody(mockGithubAPIBlob(pathToFetch, "Some important text here...")),
-                    ),
+                    .willReturn(ok().withBody(mockGithubAPIBlob(pathToFetch, "Some important text here..."))),
             )
 
-            val result =
-                sut.retrieveBlobs(
-                    "my-owner/my-test-repo",
-                    listOf(pathToFetch),
-                )
+            val result = sut.retrieveBlobs("my-owner/my-test-repo", listOf(pathToFetch))
 
             verify(
-                getRequestedFor(
-                    urlEqualTo("/repos/my-owner/my-test-repo/contents/$pathToFetch?ref=HEAD"),
-                ),
+                getRequestedFor(urlEqualTo("/repos/my-owner/my-test-repo/contents/$pathToFetch?ref=HEAD")),
             )
 
             expectThat(result)
@@ -197,17 +180,11 @@ class GitHubFacadeTest {
             expectedFiles.forEach { (filename, content) ->
                 stubFor(
                     get("/repos/my-owner/my-test-repo/contents/$filename?ref=HEAD")
-                        .willReturn(
-                            ok().withBody(mockGithubAPIBlob(filename, content)),
-                        ),
+                        .willReturn(ok().withBody(mockGithubAPIBlob(filename, content))),
                 )
             }
 
-            val result =
-                sut.retrieveBlobs(
-                    "my-owner/my-test-repo",
-                    expectedFiles.keys.toList(),
-                )
+            val result = sut.retrieveBlobs("my-owner/my-test-repo", expectedFiles.keys.toList())
 
             expectedFiles.keys.forEach {
                 verify(getRequestedFor(urlEqualTo("/repos/my-owner/my-test-repo/contents/$it?ref=HEAD")))
@@ -229,21 +206,12 @@ class GitHubFacadeTest {
                 File("src/test/resources/wiremock/github-api/get-repo-tree-output.json").readText()
             stubFor(
                 get(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"))
-                    .willReturn(
-                        ok().withBody(getTreeOutput),
-                    ),
+                    .willReturn(ok().withBody(getTreeOutput)),
             )
-            val result =
-                sut.fetchFileTree(
-                    "my-owner/my-test-repo",
-                    "main",
-                )
+            val result = sut.fetchFileTree("my-owner/my-test-repo", "main")
             verify(
                 getRequestedFor(urlMatching("/repos/my-owner/my-test-repo/git/trees/main.*"))
-                    .withQueryParam(
-                        "recursive",
-                        equalToJson("1"),
-                    ),
+                    .withQueryParam("recursive", equalToJson("1")),
             )
             expectThat(result)
                 .containsExactlyInAnyOrder(

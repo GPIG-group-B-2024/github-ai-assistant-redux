@@ -5,7 +5,5 @@ import uk.ac.york.gpig.teamb.aiassistant.testutils.AiAssistantTest
 
 @AiAssistantTest
 class AiAssistantApplicationTests {
-    @Test
-    fun contextLoads() {
-    }
+    @Test fun contextLoads() {}
 }

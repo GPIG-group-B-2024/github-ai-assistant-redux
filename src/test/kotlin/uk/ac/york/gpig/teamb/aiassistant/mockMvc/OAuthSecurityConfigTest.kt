@@ -64,16 +64,12 @@ class OAuthSecurityConfigTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@funky-domain.co.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@funky-domain.co.uk"),
             )
         val user = DefaultOidcUser(emptyList<SimpleGrantedAuthority>(), token)
         mockMvc
-            .perform(
-                get("/funky-url").with(oidcLogin().oidcUser(user)),
-            ).andExpect(status().isForbidden)
+            .perform(get("/funky-url").with(oidcLogin().oidcUser(user)))
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -88,18 +84,12 @@ class OAuthSecurityConfigTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@york.ac.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@york.ac.uk"),
             )
         val user = DefaultOidcUser(listOf(SimpleGrantedAuthority("dashboard:view")), token)
         mockMvc
-            .perform(
-                get("/admin/conversations").with(oidcLogin().oidcUser(user)),
-            ).andExpect(
-                status().isOk,
-            )
+            .perform(get("/admin/conversations").with(oidcLogin().oidcUser(user)))
+            .andExpect(status().isOk)
     }
 
     @Test
@@ -109,16 +99,12 @@ class OAuthSecurityConfigTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@funky-domain.co.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@funky-domain.co.uk"),
             )
         val user = DefaultOidcUser(emptyList<SimpleGrantedAuthority>(), token)
         mockMvc
-            .perform(
-                get("/admin/conversations").with(oidcLogin().oidcUser(user)),
-            ).andExpect(status().isForbidden)
+            .perform(get("/admin/conversations").with(oidcLogin().oidcUser(user)))
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -128,16 +114,12 @@ class OAuthSecurityConfigTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@funky-domain.co.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@funky-domain.co.uk"),
             )
         val user = DefaultOidcUser(listOf(SimpleGrantedAuthority("dashboard:view")), token)
         mockMvc
-            .perform(
-                post("/admin/structurizr").with(csrf()).with(oidcLogin().oidcUser(user)),
-            ).andExpect(status().isForbidden)
+            .perform(post("/admin/structurizr").with(csrf()).with(oidcLogin().oidcUser(user)))
+            .andExpect(status().isForbidden)
     }
 
     @Test
@@ -147,10 +129,7 @@ class OAuthSecurityConfigTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@funky-domain.co.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@funky-domain.co.uk"),
             )
         val user =
             DefaultOidcUser(

@@ -46,16 +46,8 @@ class C4NotationWriteFacade(
                     RELATIONSHIP.END_MEMBER,
                     RELATIONSHIP.WORKSPACE_ID,
                     RELATIONSHIP.DESCRIPTION,
-                ).valuesOfRows(
-                    relationships.map {
-                        DSL.row(
-                            it.from,
-                            it.to,
-                            it.workspaceId,
-                            it.description,
-                        )
-                    },
-                ).execute() == relationships.size
+                ).valuesOfRows(relationships.map { DSL.row(it.from, it.to, it.workspaceId, it.description) })
+                .execute() == relationships.size
         if (!success) throw DatabaseOperationException("Failed to write relationships list")
     }
 
@@ -84,9 +76,7 @@ class C4NotationWriteFacade(
         .execute()
         .let { insertCount ->
             if (insertCount != 1) {
-                throw DatabaseOperationException(
-                    "Failed to write github repository with name $repoName",
-                )
+                throw DatabaseOperationException("Failed to write github repository with name $repoName")
             }
         }
 
@@ -114,9 +104,7 @@ class C4NotationWriteFacade(
         .update(GITHUB_REPOSITORY)
         .setNull(GITHUB_REPOSITORY.WORKSPACE_ID)
         .where(
-            GITHUB_REPOSITORY.FULL_NAME
-                .eq(repoName)
-                .and(GITHUB_REPOSITORY.WORKSPACE_ID.eq(workspaceId)),
+            GITHUB_REPOSITORY.FULL_NAME.eq(repoName).and(GITHUB_REPOSITORY.WORKSPACE_ID.eq(workspaceId)),
         ).execute()
         .let { updateCount ->
             if (updateCount != 1) {

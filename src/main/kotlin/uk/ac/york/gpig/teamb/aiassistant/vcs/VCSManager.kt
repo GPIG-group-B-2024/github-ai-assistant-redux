@@ -33,15 +33,11 @@ class VCSManager(
 
     fun processNewIssueComment(payload: WebhookPayload) {
         val (issue, _, repository, comment) = payload
-        if (comment.user.login !=
-            "gpig-ai-assistant[bot]"
+        if (
+            comment.user.login != "gpig-ai-assistant[bot]"
         ) { // TODO add login to config instead of hardcoding
             logger.info("Processing comment ${comment.id} on issue ${issue.number}")
-            gitHubFacade.createComment(
-                repository.fullName,
-                issue.number,
-                "This is a helpful comment",
-            )
+            gitHubFacade.createComment(repository.fullName, issue.number, "This is a helpful comment")
             logger.info("Success!")
         } else {
             logger.info("Latest comment is from myself, aborting...")
@@ -57,7 +53,8 @@ class VCSManager(
         val installationToken = gitHubFacade.generateInstallationToken()
 
         logger.info("Cloning git repo...")
-        val gitFile = gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
+        val gitFile =
+            gitFacade.cloneRepo("${repository.url}.git", tempDir.toFile(), installationToken)
 
         logger.info("Creating a new branch linked to the issue...")
         val branchName = "${issue.number}-${issue.title.lowercase().replace(" ", "-")}"

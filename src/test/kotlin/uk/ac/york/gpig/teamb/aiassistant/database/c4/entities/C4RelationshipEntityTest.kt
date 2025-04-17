@@ -21,7 +21,8 @@ class C4RelationshipEntityTest {
                 workspaceId = UUID.randomUUID(),
             )
 
-        expectThat(relationship.toStructurizrString()).isEqualTo("component-1 -> component-2 \"my fancy description\"")
+        expectThat(relationship.toStructurizrString())
+            .isEqualTo("component-1 -> component-2 \"my fancy description\"")
     }
 
     @Test

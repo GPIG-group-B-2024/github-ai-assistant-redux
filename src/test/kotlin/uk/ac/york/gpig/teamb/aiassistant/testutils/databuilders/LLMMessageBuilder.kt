@@ -13,19 +13,14 @@ class LLMMessageBuilder : TestDataWithIdBuilder<LLMMessageBuilder, UUID?>() {
     var createdAt: OffsetDateTime = OffsetDateTime.now()
 
     companion object {
-        @TestDSL
-        fun message(setup: LLMMessageBuilder.() -> Unit) = LLMMessageBuilder().apply(setup)
+        @TestDSL fun message(setup: LLMMessageBuilder.() -> Unit) = LLMMessageBuilder().apply(setup)
     }
 
     override fun create(ctx: DSLContext): LLMMessageBuilder =
         this.create(ctx, LLM_MESSAGE, LLM_MESSAGE.ID) {
-            ctx.insertInto(LLM_MESSAGE)
-                .columns(
-                    LLM_MESSAGE.ID,
-                    LLM_MESSAGE.ROLE,
-                    LLM_MESSAGE.CONTENT,
-                    LLM_MESSAGE.CREATED_AT,
-                )
+            ctx
+                .insertInto(LLM_MESSAGE)
+                .columns(LLM_MESSAGE.ID, LLM_MESSAGE.ROLE, LLM_MESSAGE.CONTENT, LLM_MESSAGE.CREATED_AT)
                 .values(id, role, content, createdAt)
                 .execute()
         }

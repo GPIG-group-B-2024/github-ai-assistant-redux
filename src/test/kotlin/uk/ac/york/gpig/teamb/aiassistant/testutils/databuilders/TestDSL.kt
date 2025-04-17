@@ -12,8 +12,7 @@ abstract class TestDataBuilder<TRecord : TestDataBuilder<TRecord>> {
     abstract fun create(ctx: DSLContext): TRecord
 }
 
-abstract class TestDataWithIdBuilder<TRecord : TestDataWithIdBuilder<TRecord, TId>, TId> :
-    TestDataBuilder<TRecord>() {
+abstract class TestDataWithIdBuilder<TRecord : TestDataWithIdBuilder<TRecord, TId>, TId> : TestDataBuilder<TRecord>() {
     abstract val id: TId
 }
 
@@ -41,4 +40,10 @@ fun <T : Record, TId, TBuilder : TestDataWithIdBuilder<TBuilder, TId>> TBuilder.
     table: Table<T>,
     idField: TableField<T, TId>,
     insertAction: () -> Int,
-): TBuilder = this.create(ctx = ctx, table = table, existenceCheck = { idField.eq(this.id) }, insertAction = insertAction)
+): TBuilder =
+    this.create(
+        ctx = ctx,
+        table = table,
+        existenceCheck = { idField.eq(this.id) },
+        insertAction = insertAction,
+    )

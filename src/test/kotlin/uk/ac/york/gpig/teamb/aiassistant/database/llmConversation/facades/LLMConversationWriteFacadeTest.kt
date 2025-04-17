@@ -22,11 +22,9 @@ import java.util.UUID
 
 @AiAssistantTest
 class LLMConversationWriteFacadeTest {
-    @Autowired
-    private lateinit var sut: LLMConversationWriteFacade
+    @Autowired private lateinit var sut: LLMConversationWriteFacade
 
-    @Autowired
-    private lateinit var ctx: DSLContext
+    @Autowired private lateinit var ctx: DSLContext
 
     @Nested
     inner class InitConversationTest {
@@ -34,9 +32,7 @@ class LLMConversationWriteFacadeTest {
         fun `stores conversation and links it to github issue`() {
             val conversationId = UUID.randomUUID()
             val repoId = UUID.randomUUID()
-            gitRepo {
-                this.id = repoId
-            }.create(ctx)
+            gitRepo { this.id = repoId }.create(ctx)
             val issueId = 10
             val beforeInsertTimestamp = OffsetDateTime.now()
             Thread.sleep(500)
@@ -45,12 +41,15 @@ class LLMConversationWriteFacadeTest {
 
             val result = ctx.selectFrom(LLM_CONVERSATION).fetch()
 
-            expectThat(result).hasSize(1).get { this[0] }.and {
-                get { this.id }.isEqualTo(conversationId)
-                get { this.repoId }.isEqualTo(repoId)
-                get { this.issueId }.isEqualTo(issueId)
-                get { this.createdAt }.isAfter(beforeInsertTimestamp)
-            }
+            expectThat(result)
+                .hasSize(1)
+                .get { this[0] }
+                .and {
+                    get { this.id }.isEqualTo(conversationId)
+                    get { this.repoId }.isEqualTo(repoId)
+                    get { this.issueId }.isEqualTo(issueId)
+                    get { this.createdAt }.isAfter(beforeInsertTimestamp)
+                }
         }
     }
 
@@ -66,12 +65,15 @@ class LLMConversationWriteFacadeTest {
             sut.storeMessage(messageId, LlmMessageRole.USER, messageContents)
 
             val result = ctx.selectFrom(LLM_MESSAGE).fetch()
-            expectThat(result).hasSize(1).get { this[0] }.and {
-                get { this.id }.isEqualTo(messageId)
-                get { this.role }.isEqualTo(LlmMessageRole.USER)
-                get { this.content }.isEqualTo(messageContents)
-                get { this.createdAt }.isAfter(beforeCreationTimestamp)
-            }
+            expectThat(result)
+                .hasSize(1)
+                .get { this[0] }
+                .and {
+                    get { this.id }.isEqualTo(messageId)
+                    get { this.role }.isEqualTo(LlmMessageRole.USER)
+                    get { this.content }.isEqualTo(messageContents)
+                    get { this.createdAt }.isAfter(beforeCreationTimestamp)
+                }
         }
     }
 
@@ -82,21 +84,20 @@ class LLMConversationWriteFacadeTest {
         fun `links a message to an existing conversation`() {
             val messageId = UUID.randomUUID()
             val conversationId = UUID.randomUUID()
-            conversation {
-                this.id = conversationId
-            }.create(ctx)
-            message {
-                this.id = messageId
-            }.create(ctx)
+            conversation { this.id = conversationId }.create(ctx)
+            message { this.id = messageId }.create(ctx)
 
             sut.linkMessageToConversation(conversationId, messageId)
 
             val result = ctx.selectFrom(CONVERSATION_MESSAGE).fetch()
 
-            expectThat(result).hasSize(1).get { this[0] }.and {
-                get { this.messageId }.isEqualTo(messageId)
-                get { this.conversationId }.isEqualTo(conversationId)
-            }
+            expectThat(result)
+                .hasSize(1)
+                .get { this[0] }
+                .and {
+                    get { this.messageId }.isEqualTo(messageId)
+                    get { this.conversationId }.isEqualTo(conversationId)
+                }
         }
     }
 }

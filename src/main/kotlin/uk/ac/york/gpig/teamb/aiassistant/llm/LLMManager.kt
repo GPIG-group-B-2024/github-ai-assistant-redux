@@ -133,11 +133,7 @@ class LLMManager(
             OpenAIStructuredRequestData(
                 model = chatGptVersion,
                 responseFormatClass = FilesResponseSchema::class,
-                messages =
-                    listOf(
-                        systemPrompt,
-                        initialMessage,
-                    ),
+                messages = listOf(systemPrompt, initialMessage),
             )
 
         // We have enough data to store the start of the conversation into the database:
@@ -169,14 +165,8 @@ class LLMManager(
 
         // store chatGPT's response into the database
         val chatGptResponseMessage =
-            OpenAIMessage(
-                OpenAIMessage.Role.ASSISTANT,
-                gson.toJson(filesToInspectInFull),
-            )
-        conversationManager.addMessageToConversation(
-            conversationId,
-            chatGptResponseMessage,
-        )
+            OpenAIMessage(OpenAIMessage.Role.ASSISTANT, gson.toJson(filesToInspectInFull))
+        conversationManager.addMessageToConversation(conversationId, chatGptResponseMessage)
 
         // send the requested files and ask for the final output - the pull request data
 
@@ -189,13 +179,7 @@ class LLMManager(
                 OpenAIStructuredRequestData(
                     model = chatGptVersion,
                     responseFormatClass = LLMPullRequestData::class,
-                    messages =
-                        listOf(
-                            systemPrompt,
-                            initialMessage,
-                            chatGptResponseMessage,
-                            secondMessage,
-                        ),
+                    messages = listOf(systemPrompt, initialMessage, chatGptResponseMessage, secondMessage),
                 ),
             ) { e ->
                 logger.error("Marking conversation $conversationId as failed after 2nd user message")
@@ -209,10 +193,7 @@ class LLMManager(
         transactionTemplate.execute {
             conversationManager.addMessageToConversation(
                 conversationId,
-                OpenAIMessage(
-                    OpenAIMessage.Role.ASSISTANT,
-                    gson.toJson(pullRequestData),
-                ),
+                OpenAIMessage(OpenAIMessage.Role.ASSISTANT, gson.toJson(pullRequestData)),
             )
             conversationManager.updateConversationStatus(conversationId, ConversationStatus.COMPLETED)
         }

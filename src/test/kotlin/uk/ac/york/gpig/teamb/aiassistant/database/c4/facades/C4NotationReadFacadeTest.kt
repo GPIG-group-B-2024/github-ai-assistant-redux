@@ -24,11 +24,9 @@ import java.util.UUID
 
 @AiAssistantTest
 class C4NotationReadFacadeTest {
-    @Autowired
-    private lateinit var sut: C4NotationReadFacade
+    @Autowired private lateinit var sut: C4NotationReadFacade
 
-    @Autowired
-    private lateinit var ctx: DSLContext
+    @Autowired private lateinit var ctx: DSLContext
 
     @Nested
     @DisplayName("checkRepositoryExists()")
@@ -42,9 +40,7 @@ class C4NotationReadFacadeTest {
         @Test
         fun `returns true when repository with given name exists`() {
             val repoName = "my-cool-repo"
-            gitRepo {
-                this.fullName = repoName
-            }.create(ctx)
+            gitRepo { this.fullName = repoName }.create(ctx)
 
             expectThat(sut.checkRepositoryExists(repoName)).isTrue()
         }
@@ -58,9 +54,7 @@ class C4NotationReadFacadeTest {
         @Test
         fun `returns true when repository with given ID exists`() {
             val repoId = UUID.randomUUID()
-            gitRepo {
-                this.id = repoId
-            }.create(ctx)
+            gitRepo { this.id = repoId }.create(ctx)
 
             expectThat(sut.checkRepositoryExists(repoId)).isTrue()
         }
@@ -98,9 +92,8 @@ class C4NotationReadFacadeTest {
         fun `returns null when repository does not exist`() {
             val repoName = "my-fancy-repo"
             val repository =
-                gitRepo {
-                    this.fullName = "some-other-repo"
-                }.create(ctx) // create a repo that should *NOT* be returned
+                gitRepo { this.fullName = "some-other-repo" }
+                    .create(ctx) // create a repo that should *NOT* be returned
 
             val result = sut.getRepositoryWorkspace(repoName)
 
@@ -115,54 +108,38 @@ class C4NotationReadFacadeTest {
         fun `returns the members for a given workspace`() {
             val workspaceId = UUID.randomUUID()
             member {
-                this.workspace {
-                    this.id = workspaceId
-                }
+                this.workspace { this.id = workspaceId }
                 this.name = "my-fancy-component"
                 this.type = MemberType.COMPONENT
             }.create(ctx)
 
             member {
-                this.workspace {
-                    this.id = workspaceId
-                }
+                this.workspace { this.id = workspaceId }
                 this.name = "my-fancy-user"
                 this.type = MemberType.PERSON
             }.create(ctx)
 
             member {
-                this.workspace {
-                    this.id = workspaceId
-                }
+                this.workspace { this.id = workspaceId }
                 this.name = "my-fancy-container"
                 this.type = MemberType.CONTAINER
             }.create(ctx)
 
             val memberNames = sut.getMembers(workspaceId).map { it.name }
 
-            expectThat(memberNames).containsExactlyInAnyOrder(
-                "my-fancy-component",
-                "my-fancy-user",
-                "my-fancy-container",
-            )
+            expectThat(memberNames)
+                .containsExactlyInAnyOrder("my-fancy-component", "my-fancy-user", "my-fancy-container")
         }
 
         @Test
         fun `returns empty list when no members exist`() {
             val workspaceId = UUID.randomUUID()
             val otherWorkspaceId = UUID.randomUUID()
-            workspace {
-                this.id = workspaceId
-            }.create(ctx)
-            workspace {
-                this.id = otherWorkspaceId
-            }.create(ctx)
+            workspace { this.id = workspaceId }.create(ctx)
+            workspace { this.id = otherWorkspaceId }.create(ctx)
 
-            member {
-                this.workspace {
-                    this.id = otherWorkspaceId
-                }
-            }.create(ctx) // check that this is NOT returned
+            member { this.workspace { this.id = otherWorkspaceId } }
+                .create(ctx) // check that this is NOT returned
 
             val result = sut.getMembers(workspaceId)
             expectThat(result).isEmpty()
@@ -178,9 +155,7 @@ class C4NotationReadFacadeTest {
             val expectedStartId = UUID.randomUUID()
             val expectedEndId = UUID.randomUUID()
             relationship {
-                this.workspace {
-                    this.id = workspaceId
-                }
+                this.workspace { this.id = workspaceId }
                 this.startMember {
                     this.id = expectedStartId
                     this.workspace { this.id = workspaceId }
@@ -229,9 +204,7 @@ class C4NotationReadFacadeTest {
                 this.fullName = repoName
                 this.url = repoUrl
             }.create(ctx)
-            gitRepo {
-                this.fullName = "my-other-repo"
-            }.create(ctx) // check this one isn't returned
+            gitRepo { this.fullName = "my-other-repo" }.create(ctx) // check this one isn't returned
 
             expectThat(sut.getRepoUrl(repoName)).isEqualTo(repoUrl)
         }

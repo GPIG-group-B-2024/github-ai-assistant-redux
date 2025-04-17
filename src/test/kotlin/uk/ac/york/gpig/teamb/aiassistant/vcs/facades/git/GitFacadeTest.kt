@@ -24,12 +24,10 @@ import kotlin.io.path.listDirectoryEntries
 
 @AiAssistantTest
 class GitFacadeTest {
-    @Autowired
-    private lateinit var sut: GitFacade
+    @Autowired private lateinit var sut: GitFacade
 
     companion object {
-        val gitServer =
-            GitHttpServerContainer(GitServerVersions.V2_43.dockerImageName)
+        val gitServer = GitHttpServerContainer(GitServerVersions.V2_43.dockerImageName)
 
         @BeforeAll
         @JvmStatic
@@ -37,9 +35,17 @@ class GitFacadeTest {
             withTempDir<Unit> { tempDir ->
                 gitServer.start()
                 // make an empty commit so that the repository has a remote master branch
-                Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+                Git
+                    .cloneRepository()
+                    .setURI(gitServer.gitRepoURIAsHttp.toString())
+                    .setDirectory(tempDir.toFile())
+                    .call()
                 val gitFile = File(tempDir.toFile(), ".git")
-                Git.open(gitFile).commit().setMessage("Initial commit").call()
+                Git
+                    .open(gitFile)
+                    .commit()
+                    .setMessage("Initial commit")
+                    .call()
                 Git.open(gitFile).push().call()
             }
 
@@ -53,8 +59,11 @@ class GitFacadeTest {
     @Test
     fun `can clone existing repository`() =
         withTempDir<Unit> { tempDir ->
-            expectDoesNotThrow { sut.cloneRepo(gitServer.gitRepoURIAsHttp.toString(), tempDir.toFile(), "super-secret-token") }
-            // the repository is currently empty: check that the .git file is present (meaning the git clone was successful)
+            expectDoesNotThrow {
+                sut.cloneRepo(gitServer.gitRepoURIAsHttp.toString(), tempDir.toFile(), "super-secret-token")
+            }
+            // the repository is currently empty: check that the .git file is present (meaning the git
+            // clone was successful)
             val gitFile = tempDir.listDirectoryEntries().find { it.fileName.toString().contains(".git") }
             expectThat(gitFile).isNotNull()
         }
@@ -64,13 +73,26 @@ class GitFacadeTest {
         withTempDir<Unit> { tempDir ->
             // setup
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
-            Git.open(gitPath).commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            Git
+                .open(gitPath)
+                .commit()
+                .setMessage("initial commit")
+                .call() // create an initial commit to establish a HEAD
             // act
             sut.createBranch(gitPath, "new-branch")
             // verify (again, using the 3rd party tool to list branches)
-            val branchNames = Git.open(gitPath).branchList().call().map { it.name }
+            val branchNames =
+                Git
+                    .open(gitPath)
+                    .branchList()
+                    .call()
+                    .map { it.name }
             expectThat(branchNames).one {
                 this.contains("new-branch") // a single branch contains the expected branch name
             }
@@ -82,10 +104,22 @@ class GitFacadeTest {
             // setup
             // clone repo using the 3rd party tool to not rely on our own implementation
             println(Git.lsRemoteRepository().setRemote(gitServer.gitRepoURIAsHttp.toString()).call())
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
-            Git.open(gitPath).commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
-            Git.open(gitPath).branchCreate().setName("new-branch").call() // create a new branch (which we will push)
+            Git
+                .open(gitPath)
+                .commit()
+                .setMessage("initial commit")
+                .call() // create an initial commit to establish a HEAD
+            Git
+                .open(gitPath)
+                .branchCreate()
+                .setName("new-branch")
+                .call() // create a new branch (which we will push)
             // act
             sut.pushBranch(
                 gitPath,
@@ -94,15 +128,14 @@ class GitFacadeTest {
             ) // NOTE: we don't need an actual token since the testcontainer doesnt require auth
 
             // verify
-            // use the 3rd party tool to look at the remote repo (in the testcontainer) and make sure the expected branch is there
+            // use the 3rd party tool to look at the remote repo (in the testcontainer) and make sure
+            // the expected branch is there
             val remoteBranches =
-                Git.lsRemoteRepository().setRemote(gitServer.gitRepoURIAsHttp.toString()).call().map { it.name }
+                Git.lsRemoteRepository().setRemote(gitServer.gitRepoURIAsHttp.toString()).call().map {
+                    it.name
+                }
 
-            expectThat(remoteBranches).one {
-                this.contains(
-                    "new-branch",
-                )
-            }
+            expectThat(remoteBranches).one { this.contains("new-branch") }
         }
 
     @Test
@@ -137,10 +170,17 @@ class GitFacadeTest {
         val commitMessage = "awesome commit"
         withTempDir { tempDir ->
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
             val git = Git.open(gitPath)
-            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            git
+                .commit()
+                .setMessage("initial commit")
+                .call() // create an initial commit to establish a HEAD
 
             File(gitPath.parentFile, filePaths[0])
             File(gitPath.parentFile, filePaths[1])
@@ -154,7 +194,12 @@ class GitFacadeTest {
 
             // Verify
             // go through the log and grab the most recent commit
-            val lastCommit = git.log().setMaxCount(1).call().first()
+            val lastCommit =
+                git
+                    .log()
+                    .setMaxCount(1)
+                    .call()
+                    .first()
             expectThat(lastCommit) {
                 get { this.commitTime }.isGreaterThan(epochSeconds) // rough way of checking the timestamp
                 get { this.fullMessage }.isEqualTo(commitMessage)
@@ -192,13 +237,20 @@ class GitFacadeTest {
 
         withTempDir { tempDir ->
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[0])
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
-            git.commit().setMessage("initial commit").call() // create an initial commit to establish a HEAD
+            git
+                .commit()
+                .setMessage("initial commit")
+                .call() // create an initial commit to establish a HEAD
 
             val epochSeconds = (Instant.now().toEpochMilli() / 1000).toInt()
             Thread.sleep(1000) // idk about this... git only seems to have time resolution in seconds.
@@ -208,7 +260,12 @@ class GitFacadeTest {
 
             // Verify
             // go through the log and grab the most recent commit
-            val lastCommit = git.log().setMaxCount(1).call().first()
+            val lastCommit =
+                git
+                    .log()
+                    .setMaxCount(1)
+                    .call()
+                    .first()
             expectThat(lastCommit) {
                 get { this.commitTime }.isGreaterThan(epochSeconds) // rough way of checking the timestamp
                 get { this.fullMessage }.isEqualTo(pullRequestData.pullRequestTitle)
@@ -236,21 +293,31 @@ class GitFacadeTest {
         val fileTree = "${filePaths[1]}, ${filePaths[2]}"
         withTempDir { tempDir ->
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
-            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
+            git
+                .commit()
+                .setMessage(initialCommitMessage)
+                .call() // create an initial commit to establish a HEAD
 
             expectThrows<FileNotFoundException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
             }
             // go through the log and grab the most recent commit
-            val lastCommit = git.log().setMaxCount(1).call().first()
-            expectThat(lastCommit) {
-                get { this.fullMessage }.isEqualTo(initialCommitMessage)
-            }
+            val lastCommit =
+                git
+                    .log()
+                    .setMaxCount(1)
+                    .call()
+                    .first()
+            expectThat(lastCommit) { get { this.fullMessage }.isEqualTo(initialCommitMessage) }
         }
     }
 
@@ -274,21 +341,31 @@ class GitFacadeTest {
         val fileTree = "${filePaths[0]}, ${filePaths[1]}"
         withTempDir { tempDir ->
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[0])
             File(gitPath.parentFile, filePaths[1])
-            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
+            git
+                .commit()
+                .setMessage(initialCommitMessage)
+                .call() // create an initial commit to establish a HEAD
 
             expectThrows<FileNotFoundException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
             }
             // go through the log and grab the most recent commit
-            val lastCommit = git.log().setMaxCount(1).call().first()
-            expectThat(lastCommit) {
-                get { this.fullMessage }.isEqualTo(initialCommitMessage)
-            }
+            val lastCommit =
+                git
+                    .log()
+                    .setMaxCount(1)
+                    .call()
+                    .first()
+            expectThat(lastCommit) { get { this.fullMessage }.isEqualTo(initialCommitMessage) }
         }
     }
 
@@ -312,23 +389,33 @@ class GitFacadeTest {
         val fileTree = "${filePaths[0]}, ${filePaths[1]}, ${filePaths[2]}, ${filePaths[3]}"
         withTempDir { tempDir ->
             // clone repo using the 3rd party tool to not rely on our own implementation
-            Git.cloneRepository().setURI(gitServer.gitRepoURIAsHttp.toString()).setDirectory(tempDir.toFile()).call()
+            Git
+                .cloneRepository()
+                .setURI(gitServer.gitRepoURIAsHttp.toString())
+                .setDirectory(tempDir.toFile())
+                .call()
             val gitPath = File(tempDir.toFile(), ".git")
             val git = Git.open(gitPath)
             File(gitPath.parentFile, filePaths[0])
             File(gitPath.parentFile, filePaths[1])
             File(gitPath.parentFile, filePaths[2])
             File(gitPath.parentFile, filePaths[3])
-            git.commit().setMessage(initialCommitMessage).call() // create an initial commit to establish a HEAD
+            git
+                .commit()
+                .setMessage(initialCommitMessage)
+                .call() // create an initial commit to establish a HEAD
 
             expectThrows<FileAlreadyExistsException> {
                 sut.applyAndCommitChanges(gitPath, "master", pullRequestData, fileTree, "super-token")
             }
             // go through the log and grab the most recent commit
-            val lastCommit = git.log().setMaxCount(1).call().first()
-            expectThat(lastCommit) {
-                get { this.fullMessage }.isEqualTo(initialCommitMessage)
-            }
+            val lastCommit =
+                git
+                    .log()
+                    .setMaxCount(1)
+                    .call()
+                    .first()
+            expectThat(lastCommit) { get { this.fullMessage }.isEqualTo(initialCommitMessage) }
         }
     }
 }

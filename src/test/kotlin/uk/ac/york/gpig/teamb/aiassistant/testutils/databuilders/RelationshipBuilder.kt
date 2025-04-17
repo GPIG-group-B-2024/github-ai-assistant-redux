@@ -56,18 +56,14 @@ class RelationshipBuilder : TestDataBuilder<RelationshipBuilder>() {
             val startMember = MemberBuilder.member(startMemberBuilder).create(ctx)
             val endMember = MemberBuilder.member(endMemberBuilder).create(ctx)
             val workspace = WorkspaceBuilder.workspace(workspaceBuilder).create(ctx)
-            ctx.insertInto(RELATIONSHIP)
+            ctx
+                .insertInto(RELATIONSHIP)
                 .columns(
                     RELATIONSHIP.START_MEMBER,
                     RELATIONSHIP.END_MEMBER,
                     RELATIONSHIP.WORKSPACE_ID,
                     RELATIONSHIP.DESCRIPTION,
-                )
-                .values(
-                    startMember.id,
-                    endMember.id,
-                    workspace.id,
-                    description,
-                ).execute()
+                ).values(startMember.id, endMember.id, workspace.id, description)
+                .execute()
         }
 }

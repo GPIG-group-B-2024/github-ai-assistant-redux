@@ -17,14 +17,12 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 
 @AiAssistantTest
 class WebhookControllerTest {
-    @MockkBean
-    private lateinit var vcsManager: VCSManager
+    @MockkBean private lateinit var vcsManager: VCSManager
 
     @MockkBean(relaxed = true)
     private lateinit var llmManager: LLMManager
 
-    @Autowired
-    private lateinit var sut: WebhookController
+    @Autowired private lateinit var sut: WebhookController
 
     @Test
     fun `passes issues event payload to issue manager`() {
@@ -59,17 +57,8 @@ class WebhookControllerTest {
                         body = "Important issue body",
                         number = 5,
                     ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User(""),
-                        body = "",
-                    ),
+                repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
+                comment = WebhookPayload.Comment(id = 1L, user = WebhookPayload.Comment.User(""), body = ""),
             )
         // act
         sut.receiveNewWebhook("issues", Gson().toJson(issueBody))
@@ -113,20 +102,14 @@ class WebhookControllerTest {
                         body = "Important issue body",
                         number = 5,
                     ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
-                comment =
-                    WebhookPayload.Comment(
-                        id = 1L,
-                        user = WebhookPayload.Comment.User(""),
-                        body = "",
-                    ),
+                repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
+                comment = WebhookPayload.Comment(id = 1L, user = WebhookPayload.Comment.User(""), body = ""),
             )
         // act
-        sut.receiveNewWebhook("issues", Gson().toJson(issueBody)) // to string function to be able to put enum here rather than string?
+        sut.receiveNewWebhook(
+            "issues",
+            Gson().toJson(issueBody),
+        ) // to string function to be able to put enum here rather than string?
         // verify
         verify(exactly = 0) {
             llmManager.produceIssueSolution(issueBody.repository.fullName, issueBody.issue)
@@ -148,11 +131,7 @@ class WebhookControllerTest {
                         body = "Important issue body",
                         number = 5,
                     ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
+                repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
                 comment =
                     WebhookPayload.Comment(
                         id = 274L,
@@ -163,9 +142,7 @@ class WebhookControllerTest {
         // act
         sut.receiveNewWebhook("issue_comment", Gson().toJson(issueBody))
         // verify
-        verify {
-            vcsManager.processNewIssueComment(issueBody)
-        }
+        verify { vcsManager.processNewIssueComment(issueBody) }
     }
 
     @Test
@@ -182,11 +159,7 @@ class WebhookControllerTest {
                         body = "Important issue body",
                         number = 5,
                     ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
+                repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
                 comment =
                     WebhookPayload.Comment(
                         id = 274L,
@@ -200,9 +173,7 @@ class WebhookControllerTest {
             Gson().toJson(issueBody),
         ) // to string function to be able to put enum here rather than string?
         // verify
-        verify(exactly = 0) {
-            vcsManager.processNewIssueComment(any())
-        }
+        verify(exactly = 0) { vcsManager.processNewIssueComment(any()) }
     }
 
     @Test
@@ -220,11 +191,7 @@ class WebhookControllerTest {
                         body = "Important issue body",
                         number = 5,
                     ),
-                repository =
-                    WebhookPayload.Repository(
-                        "my-test-repository",
-                        "my-test-url",
-                    ),
+                repository = WebhookPayload.Repository("my-test-repository", "my-test-url"),
                 comment =
                     WebhookPayload.Comment(
                         id = 274L,

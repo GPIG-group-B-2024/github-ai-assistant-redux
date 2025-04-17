@@ -27,10 +27,12 @@ class LLMConversationMessageBuilder : TestDataBuilder<LLMConversationMessageBuil
     }
 
     fun message(setup: LLMMessageBuilder.() -> Unit): LLMConversationMessageBuilder {
-        if (!hasMultipleMessages) { // the user has only specified 1 message builder, modify the default one
+        if (!hasMultipleMessages) { // the user has only specified 1 message builder, modify the default
+            // one
             messageBuilders[0] = setup
             hasMultipleMessages = true
-            // any additional message builders will be added to the conversation instead of modifying the first message
+            // any additional message builders will be added to the conversation instead of modifying the
+            // first message
         } else {
             messageBuilders.add(setup)
         }
@@ -51,13 +53,15 @@ class LLMConversationMessageBuilder : TestDataBuilder<LLMConversationMessageBuil
         ) {
             // create conversation
             val conversation = LLMConversationBuilder.conversation(conversationBuilder).create(ctx)
-            // create a message from each of the builders and prepare a SQL row linking each one to the conversation
+            // create a message from each of the builders and prepare a SQL row linking each one to the
+            // conversation
             val messageLinkRows =
                 messageBuilders.map {
                     DSL.row(conversation.id, LLMMessageBuilder.message(it).create(ctx).id)
                 }
             // write links to db
-            ctx.insertInto(CONVERSATION_MESSAGE)
+            ctx
+                .insertInto(CONVERSATION_MESSAGE)
                 .columns(CONVERSATION_MESSAGE.CONVERSATION_ID, CONVERSATION_MESSAGE.MESSAGE_ID)
                 .valuesOfRows(messageLinkRows)
                 .execute()

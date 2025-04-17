@@ -11,15 +11,10 @@ data class LLMPullRequestData(
         val newContents: String,
     )
 
-    /**
-     * The change type of a model suggested change
-
-     * */
+    /** The change type of a model suggested change */
     enum class ChangeType {
         MODIFY,
-
         CREATE,
-
         DELETE,
     }
 }

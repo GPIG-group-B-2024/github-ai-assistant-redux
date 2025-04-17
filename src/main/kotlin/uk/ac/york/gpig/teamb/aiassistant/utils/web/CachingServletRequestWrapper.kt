@@ -9,7 +9,9 @@ import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 
-class CachingServletRequestWrapper(request: HttpServletRequest) : HttpServletRequestWrapper(request) {
+class CachingServletRequestWrapper(
+    request: HttpServletRequest,
+) : HttpServletRequestWrapper(request) {
     var requestBodyBytes: ByteArray = request.inputStream.use { it.readAllBytes() }
 
     override fun getInputStream(): ServletInputStream {

@@ -178,9 +178,8 @@ class C4NotationWriteFacadeTest {
             sut.writeRelationshipsList(relationshipEntities)
             // check all relationships were created and the correct source and destination ID's are
             // written to db
-            expectThat(
-                ctx.selectFrom(RELATIONSHIP).fetch().map { it.startMember to it.endMember },
-            ).hasSize(10)
+            expectThat(ctx.selectFrom(RELATIONSHIP).fetch().map { it.startMember to it.endMember })
+                .hasSize(10)
                 .containsExactlyInAnyOrder(fromMemberIds.zip(toMemberIds))
         }
     }

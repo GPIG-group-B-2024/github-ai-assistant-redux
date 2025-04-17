@@ -23,8 +23,7 @@ class ConversationAdminControllerMockMvcTest {
     @MockkBean(relaxed = true)
     private lateinit var llmConversationManager: LLMConversationManager
 
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
     @Test
     fun `allows viewing the dashboard when user is registered at the uni of york`() {
@@ -34,20 +33,12 @@ class ConversationAdminControllerMockMvcTest {
                 "mock-token",
                 Instant.now(),
                 Instant.now().plusSeconds(3600),
-                mapOf(
-                    "sub" to "12345",
-                    "email" to "my-user@york.ac.uk",
-                ),
+                mapOf("sub" to "12345", "email" to "my-user@york.ac.uk"),
             )
         val user = DefaultOidcUser(listOf(SimpleGrantedAuthority("dashboard:view")), token)
-        mockMvc.perform(
-            get("/admin/conversations")
-                .with(oidcLogin().oidcUser(user)),
-        ).andExpect(
-            status().isOk,
-        )
-        verify {
-            llmConversationManager.fetchConversations()
-        }
+        mockMvc
+            .perform(get("/admin/conversations").with(oidcLogin().oidcUser(user)))
+            .andExpect(status().isOk)
+        verify { llmConversationManager.fetchConversations() }
     }
 }

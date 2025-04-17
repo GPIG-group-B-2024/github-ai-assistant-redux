@@ -18,12 +18,10 @@ data class OpenAIStructuredRequestData<TResponse : Any>(
                 OpenAIResponseFormatField(
                     jsonSchema =
                         OpenAIJsonSchema(
-                            // use the simple name if available (it will be if the class is not anonymous)
+                            // use the simple name if available (it will be if the class is not
+                            // anonymous)
                             // otherwise, use the full JVM name
-                            name =
-                                this.responseFormatClass.run {
-                                    simpleName ?: jvmName
-                                },
+                            name = this.responseFormatClass.run { simpleName ?: jvmName },
                             schema = this.responseFormatClass.toJsonSchema(),
                         ),
                 ),
