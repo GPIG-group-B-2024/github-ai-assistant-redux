@@ -14,8 +14,12 @@
   </head>
   <body>
     <h2>Something went wrong!</h2>
-    <a href="/admin/conversations" class="button button-home">
-      <i class="fa fa-home"></i>
-    </a>
+    <div class="exception-container">
+      <p th:text="${error}" class="exception-class">My error class</p>
+      <p th:text="${message}" class="exception-message">Some error message</p>
+      <a href="/admin/conversations" class="button button-home">
+        <i class="fa fa-home"></i>
+      </a>
+    </div>
   </body>
 </html>

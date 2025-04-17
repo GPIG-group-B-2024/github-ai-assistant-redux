@@ -29,7 +29,8 @@
   border-radius: 5px;
   border: none;
 
-  &:hover {
+  &:hover,
+  &:focus {
     background-color: steelblue;
   }
 }

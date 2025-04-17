@@ -30,6 +30,7 @@ class OAuthSecurityConfig(
                 authorize("/css/**", permitAll) // make sure stylesheets are not blocked
                 authorize(HttpMethod.GET, "/actuator/**", permitAll)
                 authorize(HttpMethod.POST, "/webhooks", permitAll)
+                authorize("/error/**", permitAll)
                 // dashboard URL's
                 authorize("/admin/structurizr", hasAuthority("structurizr:write"))
                 authorize(HttpMethod.GET, "/", hasAuthority("dashboard:view"))
