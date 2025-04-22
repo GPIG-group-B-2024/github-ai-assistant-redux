@@ -8,4 +8,4 @@ spring:
     connect-retries: 4
 
 app_settings:
-  chatgpt_version: gpt-4o-2024-08-06
+  chatgpt_version: gpt-4.1-2025-04-14
