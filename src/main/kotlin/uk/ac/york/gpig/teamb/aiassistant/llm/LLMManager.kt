@@ -64,6 +64,8 @@ class LLMManager(
         |Your first task is to give me the list of files you need to inspect in full before creating your solution.
         |You should pick the files that you will need to either know in full or modify when making your fix to the issue.
         |Respond with a single list of strings, where each string represents a path to the file from the **repository root**
+        |
+        |**IMPORTANT** Make sure you only request the files present in the file tree I sent over.
         """.trimMargin(),
     )
 
