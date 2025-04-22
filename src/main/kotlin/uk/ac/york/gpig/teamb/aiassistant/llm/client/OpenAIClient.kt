@@ -18,7 +18,7 @@ class OpenAIClient(
      * We use a different endpoint address for mocking OpenAI requests in testing. In production, use
      * the normal OpenAI endpoint
      */
-    @Value("\${app_settings.openai_api_endpoint:https://api.openai.com/v1/chat/completions/}")
+    @Value("\${app_settings.openai_api_endpoint:https://api.openai.com/v1/chat/completions}")
     private lateinit var openAIEndpoint: String
 
     @Value("\${app_settings.openai_api_key}")
