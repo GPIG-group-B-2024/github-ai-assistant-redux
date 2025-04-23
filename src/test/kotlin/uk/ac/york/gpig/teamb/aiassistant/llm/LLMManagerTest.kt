@@ -347,6 +347,39 @@ class LLMManagerTest {
         }
 
         @Test
+        fun `marks conversation as failed if fetching file blobs is unsuccessful`() {
+            every { gitHubFacade.retrieveBlobs(any(), any(), any()) } throws
+                org.kohsuke.github.GHFileNotFoundException("cannot find this file")
+            val repoName = "my-owner/my-test-repo"
+            prepareTestEnv(repoName)
+            expectThrows<Exception> {
+                sut.produceIssueSolution(
+                    repoName,
+                    Issue(
+                        title = "Add function to greet the user",
+                        body = "Create a function that, given the user's name, greets them.",
+                        id = 1L,
+                        number = 1,
+                    ),
+                )
+            }.and { get { this.message }.isNotNull().contains("Failed to obtain file blobs") }
+            // check that conversation has been created but status is `failed`
+            val foundConversations = ctx.selectFrom(LLM_CONVERSATION).fetch()
+            expectThat(foundConversations).hasSize(1).and {
+                get { this.first().status }.isEqualTo(ConversationStatus.FAILED)
+            }
+
+            // check that there are 3 recorded messages (system prompt, 1st user, assistant)
+            expectThat(
+                ctx
+                    .selectFrom(LLM_MESSAGE)
+                    .orderBy(LLM_MESSAGE.CREATED_AT)
+                    .fetch()
+                    .map { it.role },
+            ).containsExactly(LlmMessageRole.SYSTEM, LlmMessageRole.USER, LlmMessageRole.ASSISTANT)
+        }
+
+        @Test
         fun <T> `marks conversation as failed if second user message unsuccessful`() {
             every<T> { client.performStructuredOutputQuery(any()) } answers
                 {

@@ -15,6 +15,7 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
+import java.util.UUID
 
 /** Handles interactions with the OpenAI API */
 @Service
@@ -70,10 +71,18 @@ class LLMManager(
     )
 
     internal fun getPullRequestMessage(
+        conversationId: UUID,
         repoName: String,
         requiredFiles: FilesResponseSchema,
     ): OpenAIMessage {
-        val fileBlobs = vscManager.fetchFileBlobs(repoName, requiredFiles.fileList)
+        val fileBlobs =
+            try {
+                vscManager.fetchFileBlobs(repoName, requiredFiles.fileList)
+            } catch (e: Exception) {
+                logger.error("Failed to retrieve file blobs for conversation $conversationId")
+                conversationManager.updateConversationStatus(conversationId, ConversationStatus.FAILED)
+                throw Exception("Failed to obtain file blobs for conversation $conversationId: $e")
+            }
         return OpenAIMessage(
             OpenAIMessage.Role.USER,
             """
@@ -172,7 +181,7 @@ class LLMManager(
 
         // send the requested files and ask for the final output - the pull request data
 
-        val secondMessage = getPullRequestMessage(repoName, filesToInspectInFull)
+        val secondMessage = getPullRequestMessage(conversationId, repoName, filesToInspectInFull)
 
         conversationManager.addMessageToConversation(conversationId, secondMessage)
 
