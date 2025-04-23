@@ -25,6 +25,7 @@ class VCSManagerTest {
 
     @Test
     fun `creates pull request from newly created feature branch when a new issue is opened`() {
+        val issueNumber = 5
         val issueBody =
             WebhookPayload(
                 action = WebhookPayload.Action.OPENED,
@@ -33,7 +34,7 @@ class VCSManagerTest {
                         id = 12345L,
                         title = "Important issue title",
                         body = "Important issue body",
-                        number = 5,
+                        number = issueNumber,
                     ),
                 repository =
                     WebhookPayload.Repository(fullName = "my-test-repository", url = "my-test-url"),
@@ -60,7 +61,7 @@ class VCSManagerTest {
             )
 
         sut.processChanges(issueBody.repository, issueBody.issue, pullRequestData)
-        val expectedBranchName = "5-important-issue-title"
+        val expectedBranchName = "$issueNumber-important-issue-title"
 
         verify { gitFacade.createBranch(any(), expectedBranchName) }
 
@@ -70,7 +71,12 @@ class VCSManagerTest {
                 baseBranch = "main",
                 featureBranch = expectedBranchName,
                 title = "This is a pull request title",
-                body = "This is a pull request description",
+                body =
+                    """
+                    This is a pull request description
+                    
+                    closes #$issueNumber
+                    """.trimIndent(),
             )
         }
     }

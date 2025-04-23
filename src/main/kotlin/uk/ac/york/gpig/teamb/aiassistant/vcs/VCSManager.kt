@@ -75,7 +75,7 @@ class VCSManager(
             "main",
             branchName,
             changes.pullRequestTitle,
-            changes.pullRequestBody,
+            changes.pullRequestBody + "\n\ncloses #${issue.number}",
         )
 
         logger.info("Success!")
