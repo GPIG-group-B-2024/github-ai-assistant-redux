@@ -19,6 +19,7 @@ okta:
     client-secret: ${AUTH0_CLIENT_SECRET}
 
 app_settings:
+  chatgpt_version: ${OPENAI_MODEL}
   openai_api_key: ${OPENAI_API_KEY}
   github_webhook_secret: ${GITHUB_WEBHOOK_SECRET}
   github_app_key: ${GITHUB_APP_KEY}
