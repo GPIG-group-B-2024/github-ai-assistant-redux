@@ -6,12 +6,12 @@
 >
   <head>
     <title>Admin dashboard</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
   </head>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-  />
   <body>
     <div class="header-container">
       <h2 th:text="|Conversations (${conversationCount} entries)|" />
