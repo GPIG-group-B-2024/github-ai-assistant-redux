@@ -2,7 +2,6 @@ package uk.ac.york.gpig.teamb.aiassistant.vcs
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.ac.york.gpig.teamb.aiassistant.database.c4.facades.C4NotationReadFacade
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.utils.filesystem.withTempDir
 import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload
@@ -17,7 +16,6 @@ import uk.ac.york.gpig.teamb.aiassistant.vcs.facades.github.GitHubFacade
 class VCSManager(
     val gitFacade: GitFacade,
     val gitHubFacade: GitHubFacade,
-    val c4NotationReadFacade: C4NotationReadFacade,
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -77,7 +75,5 @@ class VCSManager(
             changes.pullRequestTitle,
             changes.pullRequestBody + "\n\ncloses #${issue.number}",
         )
-
-        logger.info("Success!")
     }
 }

@@ -1,7 +1,6 @@
 package uk.ac.york.gpig.teamb.aiassistant.vcs.facades.git
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -17,13 +16,6 @@ import java.io.File
 @Service
 class GitFacade {
     private val logger = LoggerFactory.getLogger(this::class.java)
-
-    private val personIdent =
-        PersonIdent(
-            "gpig-ai-assistant[bot]",
-            "187530873+gpig-ai-assistant@users.noreply.github.com",
-            // ^ this is public and OK to hardcode *for now*
-        )
 
     /**
      * Clone a repository into a given folder and return the path to the `.git` folder.
@@ -80,6 +72,7 @@ class GitFacade {
                     }
                     // update file
                     addFile(gitFile.parentFile, change.filePath, change.newContents)
+                    logger.info("Modified file at ${change.filePath}")
                 }
                 ChangeType.CREATE -> {
                     if (fileTree.contains(change.filePath)) {
@@ -90,6 +83,7 @@ class GitFacade {
                     }
                     // add file
                     addFile(gitFile.parentFile, change.filePath, change.newContents)
+                    logger.info("Created file at ${change.filePath}")
                 }
                 ChangeType.DELETE -> {
                     if (!fileTree.contains(change.filePath)) {
@@ -98,6 +92,7 @@ class GitFacade {
                     }
                     // remove file
                     git.rm().addFilepattern(change.filePath).call()
+                    logger.info("Removed file at ${change.filePath}")
                 }
             }
         }

@@ -74,7 +74,7 @@ internal fun JsonNode.markPropertiesAsRequired(mapper: ObjectMapper): JsonNode =
                     mapper.valueToTree<JsonNode>(it.get("properties").properties().map { it.key })
                 (it as ObjectNode).putIfAbsent("required", propertyNames)
                 // ^ find all property names, convert them to a JSON array and add to the node
-                it.get("properties").properties().forEach { it.value.markPropertiesAsRequired(mapper) }
+                it.get("properties").properties().forEach { prop -> prop.value.markPropertiesAsRequired(mapper) }
                 // ^ check if any nested properties need the same treatment (i.e. check if there are any
                 // nested object schemas)
             }
