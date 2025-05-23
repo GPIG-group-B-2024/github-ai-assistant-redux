@@ -44,6 +44,7 @@
   margin-left: 2vw;
   justify-self: start;
   justify-items: start;
+  overflow-wrap: anywhere;
 
   & .message {
     background: cornflowerblue;
