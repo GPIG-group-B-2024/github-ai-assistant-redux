@@ -182,3 +182,5 @@ tasks.register<BootRun>("bootRunLocal") {
   mainClass.set("uk.ac.york.gpig.teamb.aiassistant.AiAssistantApplicationKt")
   systemProperty("spring.profiles.active", "dev")
 }
+
+gitProperties { dotGitDirectory = File("$rootDir/.git") }

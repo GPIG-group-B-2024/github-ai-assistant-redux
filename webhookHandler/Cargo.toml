@@ -1,0 +1,13 @@
+[package]
+name = "webhook-handler"
+description = "An application that receives, validates and trims github webhook payloads, forwarding them into a message queue"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hmac = "0.12.1"
+sha2 = "0.10.9"
+actix-web = "4.11.0"
+log = { version = "0.4.27", features = ["release_max_level_debug"] }
+env_logger = "0.11.8"
+rdkafka = "0.37.0"
