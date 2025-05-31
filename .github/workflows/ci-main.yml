@@ -21,10 +21,13 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
       - name: Check formatting
+        working-directory: ./conversationProcessor
         run: ./gradlew --no-daemon spotlessCheck
       - name: Generate JOOQ classes
+        working-directory: ./conversationProcessor
         run: ./gradlew --no-daemon generateJooq
       - name: Run tests
+        working-directory: ./conversationProcessor
         id: tests
         continue-on-error: true
         run: ./gradlew --no-daemon test
@@ -33,5 +36,5 @@ jobs:
         if: steps.tests.outcome == 'failure' || steps.tests.outcome == 'success'
         with:
           name: Gradle tests
-          path: ./build/test-results/*/*.xml
+          path: ./conversationProcessor/build/test-results/*/*.xml
           reporter: java-junit
