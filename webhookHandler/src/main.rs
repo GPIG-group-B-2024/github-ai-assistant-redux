@@ -1,8 +1,12 @@
 mod auth;
+mod data;
 
-use crate::auth::validate;
-use crate::auth::ValidationError::{EnvironmentError, SignatureMismatchError};
+use crate::auth::{
+    validate,
+    ValidationError::{EnvironmentError, SignatureMismatchError},
+};
 use actix_web::{post, web, App, HttpRequest, HttpResponse, HttpServer};
+use data::WebhookPayload;
 use log::info;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer, FutureRecord};
@@ -42,6 +46,11 @@ async fn handle_webhook(
     };
     // Check that the request is valid (i.e. encrypted body matches the signature)
     let body_bytes = body.to_vec();
+    let body_parsed = match serde_json::from_slice(&body) as Result<WebhookPayload, _> {
+        Ok(data) => data,
+        Err(_) => return HttpResponse::BadRequest().body("Invalid payload"),
+    };
+    println!("{:?}", body_parsed);
     match validate(&body_bytes, signature.as_bytes()) {
         Ok(_) => {
             let message = FutureRecord::to("my-topic").key("0").payload(&body_bytes);

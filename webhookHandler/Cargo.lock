@@ -1549,6 +1549,8 @@ dependencies = [
  "hmac",
  "log",
  "rdkafka",
+ "serde",
+ "serde_json",
  "sha2",
 ]
 
