@@ -5,11 +5,12 @@ use crate::auth::{
     validate,
     ValidationError::{EnvironmentError, SignatureMismatchError},
 };
+use crate::data::WebhookPayload;
 use actix_web::{post, web, App, HttpRequest, HttpResponse, HttpServer};
-use data::WebhookPayload;
-use log::info;
+use apache_avro::{Codec, Schema, Writer};
+use log::{error, info};
 use rdkafka::config::ClientConfig;
-use rdkafka::producer::{FutureProducer, FutureRecord};
+use rdkafka::producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord};
 use std::env;
 use std::time::Duration;
 
@@ -25,6 +26,26 @@ fn create_producer() -> FutureProducer {
         .expect("Failed to create Kafka producer")
 }
 
+async fn send_message(producer: &FutureProducer, payload_bytes: &[u8]) -> OwnedDeliveryResult {
+    let webhook_payload_schema = std::fs::read_to_string("../shared/avro/webhook_payload.avsc");
+    let schema = Schema::parse_str(&webhook_payload_schema.unwrap()).unwrap();
+    let mut writer = Writer::with_codec(&schema, Vec::new(), Codec::Deflate);
+
+    let body_parsed: Result<WebhookPayload, _> = serde_json::from_slice(&payload_bytes);
+    let payload = body_parsed.unwrap();
+    let issue_id = payload.issue.id.to_string();
+
+    writer.append_ser(payload).unwrap();
+    writer.flush().unwrap();
+
+    let message_bytes = writer.into_inner().unwrap();
+
+    let message = FutureRecord::to("new-issue")
+        .key(&issue_id)
+        .payload(&message_bytes);
+    producer.send(message, Duration::from_secs(0)).await
+}
+
 #[post("/webhooks")]
 async fn handle_webhook(
     req: HttpRequest,
@@ -36,6 +57,7 @@ async fn handle_webhook(
         Some(h) => h,
         None => return HttpResponse::Unauthorized().finish(), // no header -> unauthorized
     };
+    info!("Found header");
     // Check that the contents of the signature header are valid
     let signature = match header.to_str() {
         Ok(signature) => match signature.strip_prefix("sha256=") {
@@ -44,25 +66,24 @@ async fn handle_webhook(
         },
         Err(e) => return HttpResponse::BadRequest().body(e.to_string()),
     };
+    info!("Obtained signature");
     // Check that the request is valid (i.e. encrypted body matches the signature)
     let body_bytes = body.to_vec();
-    let body_parsed = match serde_json::from_slice(&body) as Result<WebhookPayload, _> {
-        Ok(data) => data,
-        Err(_) => return HttpResponse::BadRequest().body("Invalid payload"),
-    };
-    println!("{:?}", body_parsed);
     match validate(&body_bytes, signature.as_bytes()) {
         Ok(_) => {
-            let message = FutureRecord::to("my-topic").key("0").payload(&body_bytes);
-            match producer.send(message, Duration::from_secs(0)).await {
+            info!("Validated payload");
+            match send_message(producer.get_ref(), &body).await {
                 Ok(_) => HttpResponse::Ok().finish(),
                 Err(_) => HttpResponse::InternalServerError().finish(),
             }
         }
-        Err(e) => match e {
-            EnvironmentError => HttpResponse::InternalServerError().finish(),
-            SignatureMismatchError => HttpResponse::Forbidden().finish(),
-        },
+        Err(e) => {
+            error!("Validation error");
+            match e {
+                EnvironmentError => HttpResponse::InternalServerError().finish(),
+                SignatureMismatchError => HttpResponse::Forbidden().finish(),
+            }
+        }
     }
 }
 
