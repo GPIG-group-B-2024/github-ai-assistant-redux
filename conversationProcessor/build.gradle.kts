@@ -45,8 +45,7 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-  implementation(
-      "org.springframework.boot:spring-boot-starter-actuator")
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.kafka:spring-kafka")
   testImplementation("org.springframework.kafka:spring-kafka-test") // health checks, status, etc.
   developmentOnly("org.springframework.boot:spring-boot-devtools")

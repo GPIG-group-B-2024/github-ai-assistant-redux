@@ -7,7 +7,7 @@ plugins {
 repositories { mavenCentral() }
 
 // formatting
-fun resourcesOfType(type: String) = "src/main/resources/**/*.$type"
+fun resourcesOfType(type: String) = "**/**/main/resources/**/*.$type"
 
 spotless {
   kotlin {
@@ -16,7 +16,7 @@ spotless {
     toggleOffOn()
   }
   kotlinGradle {
-    target("*.gradle.kts") // default target for kotlinGradle
+    target("**/*.gradle.kts") // default target for kotlinGradle
     ktfmt()
   }
   format("html") {
