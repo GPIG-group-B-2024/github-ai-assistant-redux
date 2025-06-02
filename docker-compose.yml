@@ -11,7 +11,7 @@ services:
       - RUST_LOG=info
       - KAFKA_CLUSTER_URL=kafka-0:9092
     volumes:
-      - ./shared:/shared
+      - ./shared/resources/avro:/shared
 #  receiver-2:
 #    image: test-webhook-recevier:latest
 #    depends_on:

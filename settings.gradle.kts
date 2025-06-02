@@ -1,2 +1,3 @@
 rootProject.name = "ai-assistant"
-include("conversationProcessor", "webhookHandler", "codeChangeProcessor")
+
+include("conversationProcessor", "webhookHandler", "codeChangeProcessor", "shared")
