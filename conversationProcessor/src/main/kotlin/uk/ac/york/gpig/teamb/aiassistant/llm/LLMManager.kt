@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
+import uk.ac.york.gpig.teamb.Issue
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.C4Manager
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.LLMConversationManager
 import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
@@ -13,7 +14,6 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIM
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 import java.util.UUID
 

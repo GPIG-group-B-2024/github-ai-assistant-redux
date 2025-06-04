@@ -4,8 +4,8 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 plugins {
   kotlin("jvm")
-  id("nu.studer.jooq") version "8.2.1"
   kotlin("plugin.spring")
+  id("nu.studer.jooq") version "8.2.1"
   id("org.flywaydb.flyway") version "11.4.0"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"

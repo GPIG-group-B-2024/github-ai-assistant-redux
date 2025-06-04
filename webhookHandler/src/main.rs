@@ -2,15 +2,15 @@ mod auth;
 mod data;
 
 use crate::auth::{
-    validate,
     ValidationError::{EnvironmentError, SignatureMismatchError},
+    validate,
 };
 use crate::data::WebhookPayload;
-use actix_web::{post, web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, post, web};
 use apache_avro::{Codec, Schema, Writer};
 use log::{error, info};
 use rdkafka::config::ClientConfig;
-use rdkafka::producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord};
+use rdkafka::producer::{FutureProducer, FutureRecord, future_producer::OwnedDeliveryResult};
 use std::env;
 use std::time::Duration;
 
@@ -31,7 +31,7 @@ async fn send_message(producer: &FutureProducer, payload_bytes: &[u8]) -> OwnedD
     let schema = Schema::parse_str(&webhook_payload_schema.unwrap()).unwrap();
     let mut writer = Writer::with_codec(&schema, Vec::new(), Codec::Deflate);
 
-    let body_parsed: Result<WebhookPayload, _> = serde_json::from_slice(&payload_bytes);
+    let body_parsed: Result<WebhookPayload, _> = serde_json::from_slice(payload_bytes);
     let payload = body_parsed.unwrap();
     let issue_id = payload.issue.id.to_string();
 
@@ -52,14 +52,23 @@ async fn handle_webhook(
     body: web::Bytes,
     producer: web::Data<FutureProducer>,
 ) -> HttpResponse {
+    // Check webhook is of the "issues" type
+    match req.headers().get("x-github-event") {
+        Some(h) => match h.to_str() {
+            Ok("issues") => {}
+            _ => return HttpResponse::NotImplemented().finish(),
+        },
+        None => return HttpResponse::Unauthorized().finish(), // no header -> unauthorized
+    };
+    info!("Found event type header");
     // Check if the signature header is present
-    let header = match req.headers().get("x-hub-signature-256") {
+    let signature_header = match req.headers().get("x-hub-signature-256") {
         Some(h) => h,
         None => return HttpResponse::Unauthorized().finish(), // no header -> unauthorized
     };
-    info!("Found header");
+    info!("Found signature header");
     // Check that the contents of the signature header are valid
-    let signature = match header.to_str() {
+    let signature = match signature_header.to_str() {
         Ok(signature) => match signature.strip_prefix("sha256=") {
             Some(s) => s,
             None => return HttpResponse::Unauthorized().finish(),
