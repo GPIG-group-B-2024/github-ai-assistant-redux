@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionTemplate
+import uk.ac.york.gpig.teamb.Issue
+import uk.ac.york.gpig.teamb.LLMPullRequestData
 import uk.ac.york.gpig.teamb.aiassistant.database.c4.C4Manager
 import uk.ac.york.gpig.teamb.aiassistant.database.llmConversation.LLMConversationManager
 import uk.ac.york.gpig.teamb.aiassistant.enums.ConversationStatus
@@ -12,8 +14,6 @@ import uk.ac.york.gpig.teamb.aiassistant.llm.client.OpenAIClient
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIMessage
 import uk.ac.york.gpig.teamb.aiassistant.llm.client.openAiSchema.request.OpenAIStructuredRequestData
 import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.FilesResponseSchema
-import uk.ac.york.gpig.teamb.aiassistant.llm.responseSchemas.LLMPullRequestData
-import uk.ac.york.gpig.teamb.aiassistant.utils.types.WebhookPayload.Issue
 import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 import java.util.UUID
 
@@ -134,7 +134,7 @@ class LLMManager(
     fun produceIssueSolution(
         repoName: String,
         issue: Issue,
-    ): LLMPullRequestData {
+    ): Pair<UUID, LLMPullRequestData> {
         // step 1: send in the system prompt, gather data about repo + send in the issue description
         val systemPrompt = getSystemPrompt(repoName)
 
@@ -209,6 +209,6 @@ class LLMManager(
             conversationManager.updateConversationStatus(conversationId, ConversationStatus.COMPLETED)
         }
 
-        return pullRequestData
+        return conversationId to pullRequestData
     }
 }

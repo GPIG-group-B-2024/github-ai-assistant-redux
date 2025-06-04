@@ -1,0 +1,60 @@
+{
+  "type": "record",
+  "name": "WebhookPayload",
+  "namespace": "uk.ac.york.gpig.teamb",
+  "fields": [
+    {
+      "name": "issue",
+      "type": {
+        "type": "record",
+        "name": "Issue",
+        "fields": [
+          {
+            "name": "id",
+            "type": "long"
+          },
+          {
+            "name": "number",
+            "type": "int"
+          },
+          {
+            "name": "body",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "action",
+      "type": {
+        "type": "enum",
+        "name": "Action",
+        "symbols": [
+          "opened",
+          "closed"
+        ]
+      }
+    },
+    {
+      "name": "repository",
+      "type": {
+        "type": "record",
+        "name": "Repository",
+        "fields": [
+          {
+            "name": "full_name",
+            "type": "string"
+          },
+          {
+            "name": "url",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

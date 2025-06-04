@@ -1,5 +1,5 @@
 services:
-  receiver-1:
+  receiver-0:
     image: test-webhook-recevier:latest
     depends_on:
       - kafka-0
@@ -10,28 +10,8 @@ services:
     environment:
       - RUST_LOG=info
       - KAFKA_CLUSTER_URL=kafka-0:9092
-  receiver-2:
-    image: test-webhook-recevier:latest
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    ports:
-      - "8082:8080"
-    environment:
-      - RUST_LOG=info
-      - KAFKA_CLUSTER_URL=kafka-0:9092
-  receiver-3:
-    image: test-webhook-recevier:latest
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    ports:
-      - "8083:8080"
-    environment:
-      - RUST_LOG=info
-      - KAFKA_CLUSTER_URL=kafka-0:9092
+    volumes:
+      - ./shared/resources/avro:/shared
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     ports:

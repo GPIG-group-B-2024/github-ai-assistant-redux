@@ -3,11 +3,10 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 import org.testcontainers.containers.PostgreSQLContainer
 
 plugins {
-  kotlin("jvm") version "2.0.21"
+  kotlin("jvm")
+  kotlin("plugin.spring")
   id("nu.studer.jooq") version "8.2.1"
-  kotlin("plugin.spring") version "2.0.21"
   id("org.flywaydb.flyway") version "11.4.0"
-  id("com.diffplug.spotless") version "7.0.2"
   id("org.springframework.boot") version "3.3.5"
   id("io.spring.dependency-management") version "1.1.6"
   id("com.gorylenko.gradle-git-properties") version "2.5.0"
@@ -35,6 +34,8 @@ dependencyManagement {
 }
 
 dependencies {
+  implementation(project(":shared"))
+  implementation("org.apache.avro:avro-compiler:1.12.0")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("com.okta.spring:okta-spring-boot-starter:3.0.7")
   implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -44,8 +45,9 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
   implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-  implementation(
-      "org.springframework.boot:spring-boot-starter-actuator") // health checks, status, etc.
+  implementation("org.springframework.boot:spring-boot-starter-actuator")
+  implementation("org.springframework.kafka:spring-kafka")
+  testImplementation("org.springframework.kafka:spring-kafka-test") // health checks, status, etc.
   developmentOnly("org.springframework.boot:spring-boot-devtools")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.eclipse.jgit:org.eclipse.jgit:7.0.0.202409031743-r") // git API
@@ -82,29 +84,6 @@ dependencies {
 kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
 tasks.withType<Test> { useJUnitPlatform() }
-
-// formatting
-fun resourcesOfType(type: String) = "src/main/resources/**/*.$type"
-
-spotless {
-  kotlin {
-    ktlint("1.5.0")
-    target("src/**/*.kt")
-    toggleOffOn()
-  }
-  kotlinGradle {
-    target("*.gradle.kts") // default target for kotlinGradle
-    ktfmt()
-  }
-  format("html") {
-    target(resourcesOfType("html"))
-    prettier().config(mapOf("parser" to "html"))
-  }
-  format("css") {
-    target(resourcesOfType("css"))
-    prettier().config(mapOf("parser" to "css"))
-  }
-}
 
 // Generate Jooq classes and types
 // check if we need to start a testcontainer (i.e. we don't have another database to connect to)

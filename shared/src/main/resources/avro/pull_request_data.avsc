@@ -1,0 +1,47 @@
+{
+  "type": "record",
+  "name": "LLMPullRequestData",
+  "namespace": "uk.ac.york.gpig.teamb",
+  "fields": [
+    {
+      "name": "pullRequestBody",
+      "type": "string"
+    },
+    {
+      "name": "pullRequestTitle",
+      "type": "string"
+    },
+    {
+      "name": "updatedFiles",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "Change",
+          "type": "record",
+          "fields": [
+            {
+              "name": "type",
+              "type": {
+                "type": "enum",
+                "name": "ChangeType",
+                "symbols": [
+                  "MODIFY",
+                  "CREATE",
+                  "DELETE"
+                ]
+              }
+            },
+            {
+              "name": "filePath",
+              "type": "string"
+            },
+            {
+              "name": "newContents",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
