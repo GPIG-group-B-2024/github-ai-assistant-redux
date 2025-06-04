@@ -7,14 +7,14 @@ import org.springframework.kafka.listener.MessageListener
 import uk.ac.york.gpig.teamb.Action
 import uk.ac.york.gpig.teamb.WebhookPayload
 import uk.ac.york.gpig.teamb.aiassistant.llm.LLMManager
-import uk.ac.york.gpig.teamb.aiassistant.vcs.VCSManager
 import uk.ac.york.gpig.teamb.events.Topics
+
 typealias IssueId = Long
 
 @KafkaListener(topics = [Topics.TOPIC_NEW_ISSUE])
 class NewIssueEventConsumer(
-    val vcsManager: VCSManager,
     val llmManager: LLMManager,
+    val producer: PullRequestPlanProducer,
 ) : MessageListener<IssueId, WebhookPayload> {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -23,12 +23,12 @@ class NewIssueEventConsumer(
         when (payload.action) {
             (Action.opened) -> {
                 logger.info("Received new open issue with id ${payload.issue.id}")
-                val pullRequestData =
+                val (conversationId, pullRequestData) =
                     llmManager.produceIssueSolution(
                         payload.repository.fullName.toString(),
                         payload.issue,
                     )
-                vcsManager.processChanges(payload.repository, payload.issue, pullRequestData)
+                producer.sendMessage(conversationId, pullRequestData)
             }
             else -> logger.info("No handler for event type ${payload.action}")
         }

@@ -9,10 +9,22 @@
         "type": "record",
         "name": "Issue",
         "fields": [
-          { "name": "id", "type": "long" },
-          { "name": "number", "type": "int" },
-          { "name": "body", "type": "string" },
-          { "name": "title", "type": "string" }
+          {
+            "name": "id",
+            "type": "long"
+          },
+          {
+            "name": "number",
+            "type": "int"
+          },
+          {
+            "name": "body",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          }
         ]
       }
     },
@@ -21,7 +33,10 @@
       "type": {
         "type": "enum",
         "name": "Action",
-        "symbols": ["opened", "closed"]
+        "symbols": [
+          "opened",
+          "closed"
+        ]
       }
     },
     {
@@ -30,8 +45,14 @@
         "type": "record",
         "name": "Repository",
         "fields": [
-          { "name": "full_name", "type": "string" },
-          { "name": "url", "type": "string" }
+          {
+            "name": "full_name",
+            "type": "string"
+          },
+          {
+            "name": "url",
+            "type": "string"
+          }
         ]
       }
     }

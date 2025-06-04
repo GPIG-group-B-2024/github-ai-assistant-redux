@@ -24,22 +24,23 @@ tasks.test { useJUnitPlatform() }
 
 kotlin { jvmToolchain(21) }
 
-fun generateAvroPojos() {
-  val schemaFiles =
-      File("shared/src/main/resources/avro").listFiles().filter { file -> file.extension == "avsc" }
-  schemaFiles.forEach {
-    val schema = Schema.Parser().parse(it)
-    val compiler = SpecificCompiler(schema)
-    compiler.compileToDestination(null, File("shared/build/generated/avro"))
-  }
-}
+fun generateAvroPojos() =
+    File("$rootDir/shared/src/main/resources/avro")
+        .listFiles()
+        .also { println(it?.map { it.name }) }
+        ?.filter { file -> file.extension == "avsc" }
+        ?.forEach {
+          val schema = Schema.Parser().parse(it)
+          val compiler = SpecificCompiler(schema)
+          compiler.compileToDestination(null, File("$rootDir/shared/build/generated/avro"))
+        }
 
 tasks.register("avroGen") {
   doFirst {
     // clean up old generated code
-    project.file("build/generated/avro").deleteRecursively()
+    project.file("$rootDir/shared/build/generated/avro").deleteRecursively()
     // The avro library will fail if the file does not already exist
-    project.file("build/generated/avro/uk/ac/york/gpig/teamb").mkdirs()
+    project.file("$rootDir/shared/build/generated/avro/uk/ac/york/gpig/teamb").mkdirs()
   }
   doLast { generateAvroPojos() }
 }
